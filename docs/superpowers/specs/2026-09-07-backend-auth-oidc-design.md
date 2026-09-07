@@ -29,6 +29,7 @@ tiene su propio spec.
 - Roles y guards de autorización.
 - Endpoints de usuarios e invitaciones (`/users`), que hoy viven en el store en memoria.
 - Proxy en Next hacia el backend para `/api/auth/*` y `/api/settings/users*`.
+- Sentry en backend y frontend, con depuración de datos sensibles.
 - Eliminación de `/registro` y `/recuperar-password` en el frontend.
 
 **Queda afuera:**
@@ -39,6 +40,10 @@ tiene su propio spec.
 - Tokens bearer para clientes no-navegador (app móvil).
 - Recuperación de contraseña: deja de existir, Google es el único camino de entrada.
 - Storage de imágenes, integración de WhatsApp, envío de mails.
+- **PostHog.** Mide conversión del sitio público — consultas, turnos, clics a
+  WhatsApp — y en esta etapa no existe nada de eso: el login del panel no es un
+  embudo. Entra cuando midamos el sitio público, con su propia decisión sobre
+  consentimiento y Ley 25.326.
 
 ### Dos ajustes de alcance respecto del diseño conversado
 
@@ -85,7 +90,8 @@ backend/
 │  ├─ users/
 │  │  ├─ repo.ts              acceso a datos de usuarios
 │  │  └─ routes.ts            /users/*
-│  └─ http/errors.ts          forma { error: string }
+│  ├─ http/errors.ts          forma { error: string }
+│  └─ observability/sentry.ts  init + depuración de datos sensibles
 ├─ docker-compose.yml         Postgres local
 ├─ docker/init-test-db.sql    crea la base de tests en el primer arranque
 ├─ package.json
@@ -297,6 +303,37 @@ Forma `{ error: string }` en español, igual que las rutas actuales de Next, par
 El resto del frontend no se toca. `lib/api.ts` sigue igual porque las rutas siguen
 siendo relativas y del mismo origen.
 
+## Observabilidad (Sentry)
+
+`@sentry/node` en el backend, `@sentry/nextjs` en el frontend. Errores y trazas.
+
+**Sin DSN, Sentry no se inicializa.** En desarrollo la variable está vacía y no sale
+nada hacia afuera; no hay un modo "silencioso" que igual conecte. Esto vale como
+regla: nadie debería tener que acordarse de apagarlo.
+
+### Depuración de datos sensibles
+
+Un servicio de autenticación es el peor lugar posible para mandar payloads crudos a
+un tercero. La configuración por defecto de Sentry **no** alcanza, así que va un
+`beforeSend` propio que borra, antes de cualquier envío:
+
+- La cookie de sesión y los headers `cookie` y `authorization`.
+- Los parámetros `code`, `state`, `id_token` y `access_token` de cualquier URL. **El
+  `code` del callback de OAuth es una credencial**: en un stack trace del callback
+  viaja dentro de la URL del request, y quien lo lea antes de que expire puede
+  canjearlo.
+- El cuerpo de los requests a `/auth/*`.
+
+Además: `sendDefaultPii: false`, y del usuario logueado se adjunta **solo `id` y
+`role`**, nunca email ni nombre. Para depurar un error de tres personas del equipo,
+el `id` alcanza.
+
+`tracesSampleRate` arranca en `0.1`. El 100% de las trazas quema la cuota gratuita en
+días y no aporta nada con este volumen.
+
+Esto se testea, no se confía: hay un test que arma un evento con cookie, `code` y
+`Authorization`, lo pasa por el `beforeSend` y verifica que los tres salieron.
+
 ## Configuración
 
 **`backend/.env`**
@@ -313,9 +350,14 @@ siendo relativas y del mismo origen.
 | `APP_ORIGIN` | A dónde vuelve el usuario después del login |
 | `PORT` | Por defecto `4000` |
 | `BOOTSTRAP_ADMIN_EMAIL` | Solo lo usa el seed |
+| `SENTRY_DSN` | Vacío en desarrollo: sin DSN no se inicializa |
+| `SENTRY_ENVIRONMENT` | `development` · `production` |
+| `SENTRY_TRACES_SAMPLE_RATE` | Por defecto `0.1` |
 
 **`frontend/.env.local`**: `BACKEND_URL` — server-side, **sin** `NEXT_PUBLIC_`. Si
-lleva ese prefijo, la URL interna del backend termina publicada en el bundle.
+lleva ese prefijo, la URL interna del backend termina publicada en el bundle. Y
+`NEXT_PUBLIC_SENTRY_DSN`, que en cambio **sí** lleva el prefijo: un DSN está diseñado
+para ser público, solo permite escribir eventos.
 
 `env.ts` las valida con zod al arrancar. Un secreto faltante mata el proceso al
 inicio, no en el primer login de un usuario real.
@@ -353,6 +395,9 @@ la renovación deslizante no escribe dos veces dentro de la misma hora.
 alguien invalida su sesión abierta · un `ADMIN` no puede degradarse ni borrarse.
 
 **Logout** — revoca de verdad: el siguiente request con la misma cookie da `401`.
+
+**Sentry** — sin DSN no se inicializa · el `beforeSend` borra la cookie de sesión, el
+`code` de la URL y el header `Authorization`.
 
 ## Riesgos y cosas a verificar durante la implementación
 
