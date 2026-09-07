@@ -2684,7 +2684,7 @@ Y crear `frontend/.env.local` con la misma línea.
 - [ ] **Step 8: Verificar que compila**
 
 Run: `cd frontend && npm run typecheck`
-Expected: PASS. Si aparece un error en `AdminConfiguracionView.tsx` por `listUsers`/`inviteUser`, corresponde a la Task 10.
+Expected: PASS. Las funciones de usuarios del store quedan sin usar pero siguen exportadas, y un export sin uso no rompe el typecheck: se borran en la Task 10.
 
 - [ ] **Step 9: Commit**
 
@@ -2913,7 +2913,7 @@ cd .. && git add frontend && git commit -m "feat(frontend): login con Google, ba
 
 **Files:**
 - Create: `frontend/sentry.server.config.ts`, `frontend/sentry.client.config.ts`, `frontend/instrumentation.ts`
-- Modify: `frontend/next.config.ts`, `frontend/.env.example`
+- Modify: `frontend/.env.example`
 
 **Interfaces:**
 - Consumes: nada del backend.
