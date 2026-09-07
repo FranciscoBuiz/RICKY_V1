@@ -3,6 +3,7 @@ import { buildApp } from '../src/app.js';
 import { loadEnv } from '../src/env.js';
 
 const env = loadEnv({
+  NODE_ENV: 'test',
   DATABASE_URL: 'postgresql://u:p@localhost:5432/motors',
   APP_ORIGIN: 'http://localhost:3000',
   GOOGLE_CLIENT_ID: 'client-id',

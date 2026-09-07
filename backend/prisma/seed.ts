@@ -1,4 +1,5 @@
 import '../src/load-env.js';
+import { pathToFileURL } from 'node:url';
 import { prisma } from '../src/db/prisma.js';
 
 /**
@@ -24,7 +25,7 @@ export async function seedBootstrapAdmin(email: string): Promise<void> {
 }
 
 // Ejecutable directo: `tsx prisma/seed.ts`
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   const email = process.env.BOOTSTRAP_ADMIN_EMAIL;
   if (!email) {
     console.error('Falta BOOTSTRAP_ADMIN_EMAIL en .env');
