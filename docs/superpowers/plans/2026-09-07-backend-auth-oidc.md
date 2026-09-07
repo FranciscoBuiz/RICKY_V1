@@ -16,13 +16,18 @@
 - **Módulos ESM.** `"type": "module"` en `backend/package.json`, `module`/`moduleResolution` en `NodeNext`. **Todo import relativo lleva extensión `.js`**, incluso apuntando a un archivo `.ts`. Un import sin extensión falla en runtime.
 - **Versiones exactas** (sin `^`) en `dependencies` y `devDependencies`, salvo `@types/node`:
   - `fastify@5.12.3` · `@fastify/cookie@11.1.2` · `openid-client@6.8.8` · `zod@4.5.4`
-  - `@prisma/client@7.10.0` · `prisma@7.10.0` · `@sentry/node@10.73.0`
+  - `@prisma/client@7.10.0` · `prisma@7.10.0` · `@prisma/adapter-pg@7.10.0` · `pg@8.23.0` · `@sentry/node@10.73.0`
   - `typescript@5.9.3` · `vitest@4.1.11` · `tsx@4.23.13` · `@types/node@^22.15.0`
   - Frontend: `@sentry/nextjs@10.73.0`
 - **TypeScript 5.9.3 es deliberado**, no un descuido: la última es 7.0.2, pero es el compilador nativo nuevo y acá se combina con tipos generados por Prisma 7. El frontend ya está en 5.7.3. Subir a 7 es un cambio aparte y fácil, después de que esto funcione.
 - **`@types/node` va en `^22.15.0`**, no en la última (26.x): tiene que coincidir con el Node que corre, no con el último publicado.
 - **openid-client v6 tiene API funcional**, no la de clases de la v5. Verificado: `client.discovery(server, clientId, clientSecret)`, `client.randomPKCECodeVerifier()`, `client.calculatePKCECodeChallenge(v)`, `client.randomState()`, `client.randomNonce()`, `client.buildAuthorizationUrl(config, params)`, `client.authorizationCodeGrant(config, currentUrl, { pkceCodeVerifier, expectedState, expectedNonce })`, y `tokens.claims(): IDToken | undefined`.
 - **Prisma 7 usa el generator `prisma-client`** (el viejo `prisma-client-js` está deprecado) y **`output` es obligatorio**. El cliente se importa desde la carpeta generada, no desde `@prisma/client`.
+- **Prisma 7 exige un driver adapter.** `new PrismaClient()` a secas lanza
+  `PrismaClientInitializationError: a driver adapter is required`: ya no hay motor
+  Rust que abra la conexión. Va `@prisma/adapter-pg` sobre `pg`.
+- **Prisma 7 rechaza `url` dentro del bloque `datasource`** (error P1012 en cualquier
+  comando del CLI). La cadena de conexión vive en `backend/prisma.config.ts`.
 - **Nada de `dotenv`.** Node 22 trae `process.loadEnvFile(path)`.
 - **Todos los mensajes de error de la API van en español**, con la forma `{ "error": "..." }`, porque `frontend/src/lib/api.ts` los muestra tal cual.
 - **Un commit por tarea**, al final, después de que los tests pasen.
@@ -469,9 +474,9 @@ git commit -m "feat(backend): andamiaje Fastify, Postgres en Docker y /health"
 ## Task 2: Prisma — esquema, migración y seed
 
 **Files:**
-- Create: `backend/prisma/schema.prisma`, `backend/prisma/seed.ts`, `backend/src/db/prisma.ts`, `backend/tests/db.ts`
+- Create: `backend/prisma/schema.prisma`, `backend/prisma.config.ts`, `backend/prisma/seed.ts`, `backend/src/load-env.ts`, `backend/src/db/prisma.ts`, `backend/tests/db.ts`
 - Test: `backend/tests/seed.test.ts`
-- Modify: `backend/package.json` (scripts)
+- Modify: `backend/package.json` (scripts + deps del adapter), `backend/src/main.ts` (import de `load-env.js`)
 
 **Interfaces:**
 - Consumes: `loadEnv`, `Env` (Task 1).
@@ -481,7 +486,7 @@ git commit -m "feat(backend): andamiaje Fastify, Postgres en Docker y /health"
   - `seedBootstrapAdmin(email: string): Promise<void>` desde `prisma/seed.ts`.
   - `limpiarBase(): Promise<void>` desde `tests/db.ts`, para usar en `beforeEach`.
 
-- [ ] **Step 1: Escribir `backend/prisma/schema.prisma`**
+- [ ] **Step 1: Escribir `backend/prisma/schema.prisma` y `backend/prisma.config.ts`**
 
 ```prisma
 generator client {
@@ -491,7 +496,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -534,35 +538,113 @@ model Session {
 }
 ```
 
-`ttlMs` y `lastSeenAt` no estaban en el spec y son necesarios para la renovación deslizante que sí especifica: `ttlMs` recuerda cuánto dura esta sesión (12 h o 30 días según "recordarme") y `lastSeenAt` es lo que permite renovar como mucho una vez por hora. Sin guardar el TTL original, al renovar no habría con qué extenderla.
+**El bloque `datasource` no lleva `url`.** Prisma 7 lo rechaza con P1012 en cualquier
+comando del CLI. La cadena de conexión va en `backend/prisma.config.ts`:
 
-- [ ] **Step 2: Generar el cliente y la primera migración**
+```ts
+import { defineConfig } from 'prisma/config';
+
+try {
+  process.loadEnvFile('.env');
+} catch {
+  // Sin archivo: las variables vienen del entorno.
+}
+
+export default defineConfig({
+  schema: 'prisma/schema.prisma',
+  datasource: {
+    url: process.env.DATABASE_URL ?? '',
+  },
+});
+```
+
+`ttlMs` y `lastSeenAt` no estaban en el spec y son necesarios para la renovación
+deslizante que sí especifica: `ttlMs` recuerda cuánto dura esta sesión (12 h o 30 días
+según "recordarme") y `lastSeenAt` es lo que permite renovar como mucho una vez por
+hora. Sin guardar el TTL original, al renovar no habría con qué extenderla.
+
+- [ ] **Step 2: Instalar el driver adapter, generar el cliente y migrar**
 
 ```bash
+npm install @prisma/adapter-pg@7.10.0 pg@8.23.0
 npm run db:up
 npx prisma migrate dev --name init
 ```
 
-Expected: crea `prisma/migrations/<timestamp>_init/` y genera el cliente en `src/generated/prisma`.
+Verificar que `package.json` haya quedado con las dos versiones **exactas**, sin `^`:
+npm las escribe con caret por defecto y las constraints piden pin exacto.
 
-Si `prisma generate` avisa que el formato de módulo no coincide con el proyecto ESM, agregar `moduleFormat = "esm"` dentro del bloque `generator client` y volver a correr `npx prisma generate`.
+Expected: crea `prisma/migrations/<timestamp>_init/` y genera el cliente en
+`src/generated/prisma`.
 
-- [ ] **Step 3: Escribir `backend/src/db/prisma.ts`**
+Si `prisma generate` avisa que el formato de módulo no coincide con este proyecto ESM,
+agregar `moduleFormat = "esm"` dentro del bloque `generator client` y volver a correr
+`npx prisma generate`.
+
+- [ ] **Step 3: Escribir `backend/src/load-env.ts` y `backend/src/db/prisma.ts`**
 
 ```ts
+// src/load-env.ts
+/**
+ * Módulo de efecto: carga `.env` en `process.env` al importarse.
+ *
+ * Existe por un problema de orden. `db/prisma.ts` necesita `DATABASE_URL` en el
+ * momento en que se evalúa, y los `import` de ESM se evalúan antes que cualquier
+ * línea del módulo que los declara. Importar esto **primero** garantiza que el
+ * `.env` ya esté cargado cuando se construya el cliente.
+ */
+try {
+  process.loadEnvFile('.env');
+} catch {
+  // Sin archivo: las variables vienen del entorno (CI, contenedor).
+}
+```
+
+```ts
+// src/db/prisma.ts
+import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../generated/prisma/client.js';
 
 export type Role = 'ADMIN' | 'EDITOR' | 'VIEWER';
 export type UserStatus = 'PENDING' | 'ACTIVE';
 
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error(
+    'Falta DATABASE_URL. ¿Importaste `load-env.js` antes que este módulo?',
+  );
+}
+
 /**
  * Un solo cliente por proceso: cada `new PrismaClient()` abre su propio pool de
  * conexiones, y varios pools contra el mismo Postgres agotan los slots.
+ *
+ * Prisma 7 no trae motor propio: la conexión la abre el adapter sobre `pg`.
  */
-export const prisma = new PrismaClient();
+export const prisma = new PrismaClient({
+  adapter: new PrismaPg({ connectionString }),
+});
 ```
 
-Los tipos `Role` y `UserStatus` se declaran a mano en vez de reexportar los enums generados: Prisma acepta estos literales de string en las consultas, y así ningún módulo de dominio depende de la ruta interna de la carpeta generada.
+Los tipos `Role` y `UserStatus` se declaran a mano en vez de reexportar los enums
+generados: Prisma acepta estos literales de string en las consultas, y así ningún
+módulo de dominio depende de la ruta interna de la carpeta generada.
+
+Y en `backend/src/main.ts`, reemplazar el bloque
+
+```ts
+try {
+  process.loadEnvFile('.env');
+} catch {
+  // Sin archivo: las variables vienen del entorno.
+}
+```
+
+por un import, que tiene que ser **el primero del archivo**:
+
+```ts
+import './load-env.js';
+```
 
 - [ ] **Step 4: Escribir `backend/tests/db.ts`**
 
@@ -635,6 +717,7 @@ Expected: FAIL — no existe `../prisma/seed.js`.
 - [ ] **Step 7: Escribir `backend/prisma/seed.ts`**
 
 ```ts
+import '../src/load-env.js';
 import { prisma } from '../src/db/prisma.js';
 
 /**
@@ -661,12 +744,6 @@ export async function seedBootstrapAdmin(email: string): Promise<void> {
 
 // Ejecutable directo: `tsx prisma/seed.ts`
 if (import.meta.url === `file://${process.argv[1]}`) {
-  try {
-    process.loadEnvFile('.env');
-  } catch {
-    // Variables desde el entorno.
-  }
-
   const email = process.env.BOOTSTRAP_ADMIN_EMAIL;
   if (!email) {
     console.error('Falta BOOTSTRAP_ADMIN_EMAIL en .env');
