@@ -55,6 +55,40 @@ describe('scrubEvent', () => {
     expect(evento.user).toEqual({ id: 'user-1' });
   });
 
+  it('borra query_string, que es donde Sentry deja la query cruda', () => {
+    const evento = scrubEvent({
+      request: {
+        url: 'http://localhost:4000/auth/google/callback?code=4/0Ax7SECRETO',
+        query_string: 'code=4/0Ax7SECRETO&state=abc123&scope=openid',
+      },
+    });
+
+    expect(evento.request?.query_string).toBeUndefined();
+  });
+
+  it('con una URL que no parsea falla cerrado y no explota', () => {
+    const evento = scrubEvent({
+      request: { url: '/auth/callback?code=SECRETO123&state=xyz', data: { algo: 'sensible' } },
+    });
+
+    expect(evento.request?.url).toBe('[depurado]');
+    expect(evento.request?.url).not.toContain('SECRETO123');
+    // Sin poder leer el path, no se puede descartar que sea /auth: se borra igual.
+    expect(evento.request?.data).toBeUndefined();
+  });
+
+  it('borra headers sensibles sin importar como esten capitalizados', () => {
+    const evento = scrubEvent({
+      request: {
+        url: 'http://localhost:4000/users',
+        headers: { Cookie: 'motors_session=real', Authorization: 'Bearer secreto' },
+      },
+    });
+
+    expect(evento.request?.headers?.Cookie).toBeUndefined();
+    expect(evento.request?.headers?.Authorization).toBeUndefined();
+  });
+
   it('no explota con un evento vacío', () => {
     expect(() => scrubEvent({})).not.toThrow();
   });
