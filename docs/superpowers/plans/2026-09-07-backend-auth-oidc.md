@@ -339,6 +339,9 @@ import { buildApp } from '../src/app.js';
 import { loadEnv } from '../src/env.js';
 
 const env = loadEnv({
+  // Sin esto, NODE_ENV cae en 'development' y Fastify escupe logs JSON de cada
+  // request en la salida de los tests. La salida tiene que quedar limpia.
+  NODE_ENV: 'test',
   DATABASE_URL: 'postgresql://u:p@localhost:5432/motors',
   APP_ORIGIN: 'http://localhost:3000',
   GOOGLE_CLIENT_ID: 'client-id',
@@ -574,6 +577,11 @@ npx prisma migrate dev --name init
 Verificar que `package.json` haya quedado con las dos versiones **exactas**, sin `^`:
 npm las escribe con caret por defecto y las constraints piden pin exacto.
 
+**Despues de corregir los pins a mano, volver a correr `npm install` sin argumentos.**
+El bloque raiz del `package-lock.json` espeja los specifiers de `package.json`, y
+editar solo el `package.json` los deja desincronizados: `npm ci` compara los dos y
+falla. Corregir uno de los dos archivos nunca alcanza.
+
 Expected: crea `prisma/migrations/<timestamp>_init/` y genera el cliente en
 `src/generated/prisma`.
 
@@ -718,6 +726,7 @@ Expected: FAIL — no existe `../prisma/seed.js`.
 
 ```ts
 import '../src/load-env.js';
+import { pathToFileURL } from 'node:url';
 import { prisma } from '../src/db/prisma.js';
 
 /**
@@ -743,7 +752,12 @@ export async function seedBootstrapAdmin(email: string): Promise<void> {
 }
 
 // Ejecutable directo: `tsx prisma/seed.ts`
-if (import.meta.url === `file://${process.argv[1]}`) {
+//
+// Compara con `pathToFileURL`, no con `file://${process.argv[1]}`: en Windows
+// argv[1] trae barras invertidas y sin escapar (`C:\...\seed.ts`), mientras que
+// `import.meta.url` es una URL bien formada (`file:///C:/.../seed.ts`). Concatenar
+// a mano nunca coincide, y el seed se convierte en un no-op silencioso.
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   const email = process.env.BOOTSTRAP_ADMIN_EMAIL;
   if (!email) {
     console.error('Falta BOOTSTRAP_ADMIN_EMAIL en .env');
@@ -1315,6 +1329,9 @@ import { loadEnv } from '../src/env.js';
 import { limpiarBase } from './db.js';
 
 const env = loadEnv({
+  // Sin esto, NODE_ENV cae en 'development' y Fastify escupe logs JSON de cada
+  // request en la salida de los tests. La salida tiene que quedar limpia.
+  NODE_ENV: 'test',
   DATABASE_URL: process.env.DATABASE_URL,
   APP_ORIGIN: 'http://localhost:3000',
   GOOGLE_CLIENT_ID: 'client-id',
@@ -1665,6 +1682,9 @@ import { loadEnv } from '../src/env.js';
 import { limpiarBase } from './db.js';
 
 const env = loadEnv({
+  // Sin esto, NODE_ENV cae en 'development' y Fastify escupe logs JSON de cada
+  // request en la salida de los tests. La salida tiene que quedar limpia.
+  NODE_ENV: 'test',
   DATABASE_URL: process.env.DATABASE_URL,
   APP_ORIGIN: 'http://localhost:3000',
   GOOGLE_CLIENT_ID: 'client-id',
@@ -2229,6 +2249,9 @@ import { loadEnv } from '../src/env.js';
 import { limpiarBase } from './db.js';
 
 const env = loadEnv({
+  // Sin esto, NODE_ENV cae en 'development' y Fastify escupe logs JSON de cada
+  // request en la salida de los tests. La salida tiene que quedar limpia.
+  NODE_ENV: 'test',
   DATABASE_URL: process.env.DATABASE_URL,
   APP_ORIGIN: 'http://localhost:3000',
   GOOGLE_CLIENT_ID: 'client-id',
