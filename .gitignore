@@ -1,0 +1,12 @@
+node_modules
+.env*.local
+*.tsbuildinfo
+
+# Frontend (Next.js)
+frontend/.next
+frontend/out
+frontend/next-env.d.ts
+
+# Backend
+backend/dist
+backend/build

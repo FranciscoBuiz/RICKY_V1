@@ -1,0 +1,381 @@
+/*
+ * Tokens del sistema de diseño de 5848 Motors.
+ *
+ * El prototipo inyectaba estas variables inline en cada página; acá viven en un
+ * único lugar y el tema se conmuta con `data-theme` en <html>.
+ *
+ * `.admin-surface` reemplaza la paleta del sitio público por la del panel
+ * (fondo más frío, superficie `--card` y un borde secundario más suave).
+ */
+
+:root {
+  --bg: #faf8f5;
+  --ink: #171512;
+  --muted: #6b6560;
+  --border: #e4e0da;
+  --border2: #f0eeea;
+  --card: #ffffff;
+  --header-bg: rgba(250, 248, 245, 0.96);
+  --invert-bg: #171512;
+  --invert-ink: #f5f2ee;
+
+  --accent: #e2610a;
+  --accent-hover: #b34a05;
+  --accent-soft: #fdf1e7;
+  --ink-strong: #4a453f;
+
+  --ok: #2f7a4d;
+  --info: #3a5a9b;
+  --warn: #8a6d3b;
+  --danger: #c0392b;
+  --danger-soft: #fdecea;
+
+  --placeholder-a: #edeae4;
+  --placeholder-b: #e9e5dd;
+  --placeholder-c: #e1dcd3;
+  --placeholder-d: #d9d3c8;
+  --placeholder-e: #cfc8bb;
+  --placeholder-ink: #8f8a83;
+
+  /* Capa que se pinta encima de cualquier fondo al hacer hover. Se aplica con
+     un `box-shadow: inset` para que funcione aunque el color venga inline. */
+  --hover-tint: rgba(23, 21, 18, 0.07);
+  --skeleton-sheen: rgba(255, 255, 255, 0.6);
+  --lift-shadow: 0 14px 34px rgba(23, 21, 18, 0.13);
+
+  --shell: 1360px;
+  --gutter: 28px;
+
+  --font-display: Manrope, 'Segoe UI', system-ui, sans-serif;
+  --font-body: Inter, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --bg: #15130f;
+  --ink: #f2eee7;
+  --muted: #9c968c;
+  --border: #332f28;
+  --border2: #262320;
+  --card: #1c1a16;
+  --header-bg: rgba(21, 19, 15, 0.92);
+  --invert-bg: #f2eee7;
+  --invert-ink: #171512;
+
+  --accent-soft: rgba(226, 97, 10, 0.22);
+  --ink-strong: #cdc6bb;
+  --danger: #e57368;
+  --danger-soft: rgba(192, 57, 43, 0.22);
+
+  --placeholder-a: #2a2620;
+  --placeholder-b: #26231d;
+  --placeholder-c: #201d19;
+  --placeholder-d: #1d1a16;
+  --placeholder-e: #191713;
+
+  --hover-tint: rgba(245, 242, 238, 0.09);
+  --skeleton-sheen: rgba(245, 242, 238, 0.08);
+  --lift-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+
+  color-scheme: dark;
+}
+
+.admin-surface {
+  --bg: #f6f5f2;
+}
+
+[data-theme='dark'] .admin-surface {
+  --bg: #15130f;
+}
+
+/* Gutters y densidad tipográfica por ancho de pantalla. Como el layout usa
+   `var(--gutter)` en todas las secciones, ajustar el token acá reencuadra el
+   sitio entero sin tocar cada componente. */
+@media (max-width: 900px) {
+  :root {
+    --gutter: 20px;
+  }
+}
+
+@media (max-width: 560px) {
+  :root {
+    --gutter: 16px;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+button {
+  color: inherit;
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  font-family: var(--font-body);
+  max-width: 100%;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------------ motion */
+
+/* Todo lo interactivo transiciona igual. Los colores viajan inline en los
+   componentes, así que acá sólo se define el "cómo", nunca el "qué". */
+button,
+select,
+input,
+textarea,
+a,
+[role='button'] {
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+button:not(:disabled):hover,
+[role='button']:hover,
+.ui-btn:not(:disabled):hover,
+select:not(:disabled):hover:not(:focus) {
+  box-shadow: inset 0 0 0 999px var(--hover-tint);
+}
+
+button:not(:disabled):active,
+.ui-btn:not(:disabled):active,
+[role='button']:active {
+  transform: translateY(1px);
+}
+
+button:disabled,
+.ui-btn:disabled {
+  cursor: not-allowed;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Enlaces de texto: el color suele venir inline, de ahí el `!important`. */
+.ui-link:hover {
+  color: var(--accent) !important;
+}
+
+/* Fila de tabla / listado clicable. */
+.ui-row {
+  transition: background-color 0.16s ease;
+}
+
+.ui-row:hover {
+  background: var(--bg) !important;
+}
+
+/* Tarjeta que se levanta al pasar el mouse. */
+.ui-lift {
+  transition:
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s ease;
+}
+
+.ui-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--lift-shadow);
+}
+
+/* Campos de formulario: foco visible y estado inválido. */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+input[aria-invalid='true'],
+select[aria-invalid='true'],
+textarea[aria-invalid='true'] {
+  border-color: var(--danger) !important;
+}
+
+input[aria-invalid='true']:focus,
+select[aria-invalid='true']:focus,
+textarea[aria-invalid='true']:focus {
+  box-shadow: 0 0 0 3px var(--danger-soft);
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.reveal {
+  animation: reveal 0.9s ease-out both;
+}
+
+.fadein {
+  animation: fadein 0.25s ease-out both;
+}
+
+.slide-in-right {
+  animation: slide-in-right 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.slide-in-left {
+  animation: slide-in-left 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.slide-up {
+  animation: slide-up 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* --------------------------------------------------------------- skeletons */
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--placeholder-a);
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, var(--skeleton-sheen), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+/* Tarjeta de vehículo: la segunda foto aparece al pasar el mouse. */
+.vehicle-card:hover .vehicle-photo-alt {
+  opacity: 1;
+}
+
+.vehicle-card .vehicle-cta {
+  transition: transform 0.25s ease;
+  display: inline-block;
+}
+
+.vehicle-card:hover .vehicle-cta {
+  transform: translateX(5px);
+}
+
+.link-underline {
+  color: var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 4px;
+  font-size: 15px;
+  font-weight: 600;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.link-underline:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .ui-lift:hover {
+    transform: none;
+  }
+}

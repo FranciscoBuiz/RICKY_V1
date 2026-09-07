@@ -1,0 +1,538 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-05T00:00:00.000Z",
+  "title": "Design System: 5848 Motors",
+  "extensions": {
+    "colorMeta": {
+      "rust": {
+        "role": "primary",
+        "displayName": "Naranja Óxido",
+        "canonical": "#e2610a",
+        "tonalRamp": [
+          "#2b1101",
+          "#4d1f02",
+          "#7a3103",
+          "#b34a05",
+          "#e2610a",
+          "#f08c47",
+          "#f7b689",
+          "#fdf1e7"
+        ]
+      },
+      "rust-deep": {
+        "role": "primary",
+        "displayName": "Óxido Profundo",
+        "canonical": "#b34a05",
+        "tonalRamp": [
+          "#210d01",
+          "#3d1802",
+          "#5f2603",
+          "#8b3904",
+          "#b34a05",
+          "#d96c1c",
+          "#eda071",
+          "#fbe4d2"
+        ]
+      },
+      "rust-soft": {
+        "role": "primary",
+        "displayName": "Óxido Papel",
+        "canonical": "#fdf1e7",
+        "tonalRamp": [
+          "#3a2416",
+          "#5a3722",
+          "#7d4e33",
+          "#a67049",
+          "#c99a75",
+          "#e4c2a8",
+          "#f5ddcb",
+          "#fdf1e7"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Papel",
+        "canonical": "#faf8f5",
+        "tonalRamp": [
+          "#171512",
+          "#2a2620",
+          "#403a32",
+          "#5c554b",
+          "#8a8378",
+          "#b8b1a6",
+          "#e4e0da",
+          "#faf8f5"
+        ]
+      },
+      "paper-admin": {
+        "role": "neutral",
+        "displayName": "Papel Panel",
+        "canonical": "#f6f5f2",
+        "tonalRamp": [
+          "#15130f",
+          "#262320",
+          "#3b3830",
+          "#57534a",
+          "#847f75",
+          "#b2ada3",
+          "#dedbd5",
+          "#f6f5f2"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Blanco Tarjeta",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#1a1a1a",
+          "#2e2e2e",
+          "#474747",
+          "#666666",
+          "#949494",
+          "#c2c2c2",
+          "#ebebeb",
+          "#ffffff"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "canonical": "#171512",
+        "tonalRamp": [
+          "#0b0a08",
+          "#171512",
+          "#2b2721",
+          "#433d34",
+          "#615a4e",
+          "#8a8276",
+          "#bdb6aa",
+          "#e8e4dc"
+        ]
+      },
+      "ink-strong": {
+        "role": "neutral",
+        "displayName": "Tinta Firme",
+        "canonical": "#4a453f",
+        "tonalRamp": [
+          "#0f0e0c",
+          "#1f1d1a",
+          "#332f2a",
+          "#4a453f",
+          "#6b6560",
+          "#948d85",
+          "#c0b9b0",
+          "#e9e5df"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Gris Apagado",
+        "canonical": "#6b6560",
+        "tonalRamp": [
+          "#141210",
+          "#26231f",
+          "#3b3733",
+          "#524d47",
+          "#6b6560",
+          "#98928b",
+          "#c5bfb8",
+          "#eae7e2"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Borde",
+        "canonical": "#e4e0da",
+        "tonalRamp": [
+          "#1c1a16",
+          "#302c26",
+          "#48433b",
+          "#655f55",
+          "#8d8779",
+          "#b5afa3",
+          "#e4e0da",
+          "#f6f4f0"
+        ]
+      },
+      "border-soft": {
+        "role": "neutral",
+        "displayName": "Borde Suave",
+        "canonical": "#f0eeea",
+        "tonalRamp": [
+          "#1e1c19",
+          "#332f2a",
+          "#4b463f",
+          "#69635a",
+          "#928c81",
+          "#bab4aa",
+          "#e2ded8",
+          "#f0eeea"
+        ]
+      },
+      "invert-bg": {
+        "role": "neutral",
+        "displayName": "Fondo Invertido",
+        "canonical": "#171512",
+        "tonalRamp": [
+          "#0b0a08",
+          "#171512",
+          "#2b2721",
+          "#433d34",
+          "#615a4e",
+          "#8a8276",
+          "#bdb6aa",
+          "#e8e4dc"
+        ]
+      },
+      "invert-ink": {
+        "role": "neutral",
+        "displayName": "Tinta Invertida",
+        "canonical": "#f5f2ee",
+        "tonalRamp": [
+          "#1a1815",
+          "#2d2a26",
+          "#443f39",
+          "#615b52",
+          "#8c857b",
+          "#b6afa5",
+          "#dcd7d0",
+          "#f5f2ee"
+        ]
+      },
+      "ok": {
+        "role": "tertiary",
+        "displayName": "Verde Cerrado",
+        "canonical": "#2f7a4d",
+        "tonalRamp": [
+          "#08170e",
+          "#0f2c1c",
+          "#17452a",
+          "#215f3a",
+          "#2f7a4d",
+          "#4aa26c",
+          "#84c79c",
+          "#eff6f0"
+        ]
+      },
+      "info": {
+        "role": "tertiary",
+        "displayName": "Azul Proceso",
+        "canonical": "#3a5a9b",
+        "tonalRamp": [
+          "#0a1020",
+          "#141e39",
+          "#1f2f56",
+          "#2b4275",
+          "#3a5a9b",
+          "#5b7cbd",
+          "#93a9d6",
+          "#edf1fa"
+        ]
+      },
+      "warn": {
+        "role": "tertiary",
+        "displayName": "Ámbar Espera",
+        "canonical": "#8a6d3b",
+        "tonalRamp": [
+          "#1a1409",
+          "#2f2513",
+          "#48381d",
+          "#67512a",
+          "#8a6d3b",
+          "#b08f57",
+          "#d1ba8f",
+          "#fdf6e3"
+        ]
+      },
+      "danger": {
+        "role": "tertiary",
+        "displayName": "Rojo Alerta",
+        "canonical": "#c0392b",
+        "tonalRamp": [
+          "#260a07",
+          "#41120d",
+          "#5f1b14",
+          "#8c281d",
+          "#c0392b",
+          "#d96153",
+          "#e89b92",
+          "#fdecea"
+        ]
+      },
+      "danger-soft": {
+        "role": "tertiary",
+        "displayName": "Rojo Suave",
+        "canonical": "#fdecea",
+        "tonalRamp": [
+          "#3a1614",
+          "#552220",
+          "#75322e",
+          "#9a4d47",
+          "#bd7a74",
+          "#d9a8a3",
+          "#f0cfcb",
+          "#fdecea"
+        ]
+      },
+      "placeholder-ink": {
+        "role": "neutral",
+        "displayName": "Tinta de Marcador",
+        "canonical": "#8f8a83",
+        "tonalRamp": [
+          "#1b1a17",
+          "#2f2d29",
+          "#46433d",
+          "#625e56",
+          "#8f8a83",
+          "#b3aea6",
+          "#d3cfc9",
+          "#efedea"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Sólo el H1 de un hero. Uno por pantalla, sin excepción."
+      },
+      "page-title": {
+        "displayName": "Page Title",
+        "purpose": "H1 de toda página interior. Token PAGE_TITLE de src/lib/design.ts: un solo valor, no un rango. Una página ajusta su margen y su color, nunca su tamaño. El numeral del 404 es la única excepción."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Apertura de sección y encabezado de bloque. Token H2 de src/lib/design.ts: un solo valor, no un rango. Una página ajusta margen y ancho, nunca el tamaño."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "La bajada que sigue a un Display o Page Title. Único cuerpo que crece con la pantalla."
+      },
+      "numeral": {
+        "displayName": "Numeral",
+        "purpose": "Exclusivo del 404: la ilustración de la página, no un título. Único tamaño por encima de Display."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Nombre de una tarjeta, de un paso, de una fila."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Párrafo y descripción. La bajada del hero sube a clamp(16px, 1.6vw, 19px)."
+      },
+      "label": {
+        "displayName": "Label / Mono",
+        "purpose": "Eyebrows, metadatos, badges, encabezados de tabla. Todo dato medible o código va acá, en mayúsculas y con tracking."
+      }
+    },
+    "shadows": [
+      {
+        "name": "lift",
+        "value": "0 14px 34px rgba(23, 21, 18, 0.13)",
+        "purpose": "La clase .ui-lift. Sólo en hover de una tarjeta clicable, junto a translateY(-4px). En tema oscuro: 0 14px 34px rgba(0,0,0,0.45)."
+      },
+      {
+        "name": "hover-tint",
+        "value": "inset 0 0 0 999px rgba(23, 21, 18, 0.07)",
+        "purpose": "Capa universal de hover, pintada dentro del elemento para funcionar sobre colores inline. En oscuro: rgba(245,242,238,0.09)."
+      },
+      {
+        "name": "focus-halo",
+        "value": "0 0 0 3px #fdf1e7",
+        "purpose": "Halo de foco de los campos. En estado inválido cambia a var(--danger-soft)."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-state",
+        "value": "0.18s ease",
+        "purpose": "Transición estándar de todo elemento interactivo (background, border, color, box-shadow, opacity, transform)."
+      },
+      {
+        "name": "ease-expressive",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Curva de entrada de paneles y del lift de tarjetas. Salida rápida, asentamiento largo."
+      },
+      {
+        "name": "reveal",
+        "value": "reveal 0.9s ease-out both",
+        "purpose": "Entrada de bloques al aparecer: opacidad 0→1 con translateY(14px)→0."
+      },
+      {
+        "name": "shimmer",
+        "value": "shimmer 1.5s infinite",
+        "purpose": "Barrido del skeleton de carga sobre --skeleton-sheen."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "narrow",
+        "value": "560px"
+      },
+      {
+        "name": "mobile-nav",
+        "value": "860px"
+      },
+      {
+        "name": "tablet",
+        "value": "900px"
+      },
+      {
+        "name": "shell",
+        "value": "1360px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "La acción principal de una pantalla. Naranja Óxido, y sólo una por bloque.",
+      "html": "<button class=\"ds-btn-primary\">Reservar turno</button>",
+      "css": ".ds-btn-primary { background: var(--accent, #e2610a); color: #f5f2ee; border: none; border-radius: 2px; padding: 15px 24px; font-family: Inter, 'Segoe UI', system-ui, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease; } .ds-btn-primary:hover { background: var(--accent-hover, #b34a05); } .ds-btn-primary:active { transform: translateY(1px); } .ds-btn-primary:focus-visible { outline: 2px solid var(--accent, #e2610a); outline-offset: 2px; } .ds-btn-primary:disabled { cursor: not-allowed; opacity: 0.5; }"
+    },
+    {
+      "name": "Invert Button",
+      "kind": "button",
+      "refersTo": "button-invert",
+      "description": "CTA del header y de bloques donde el naranja ya está ocupado.",
+      "html": "<button class=\"ds-btn-invert\">Vendé tu auto</button>",
+      "css": ".ds-btn-invert { background: var(--invert-bg, #171512); color: var(--invert-ink, #f5f2ee); border: none; border-radius: 2px; padding: 14px 22px; font-family: Inter, 'Segoe UI', system-ui, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: box-shadow 0.18s ease, transform 0.18s ease; } .ds-btn-invert:hover { box-shadow: inset 0 0 0 999px rgba(245, 242, 238, 0.12); } .ds-btn-invert:active { transform: translateY(1px); } .ds-btn-invert:focus-visible { outline: 2px solid var(--accent, #e2610a); outline-offset: 2px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Acción secundaria. Sólo borde de 1px; nunca compite con la primaria.",
+      "html": "<button class=\"ds-btn-ghost\">Ver catálogo</button>",
+      "css": ".ds-btn-ghost { background: none; color: var(--ink, #171512); border: 1px solid var(--border, #e4e0da); border-radius: 2px; padding: 13px 24px; font-family: Inter, 'Segoe UI', system-ui, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease; } .ds-btn-ghost:hover { box-shadow: inset 0 0 0 999px var(--hover-tint, rgba(23, 21, 18, 0.07)); } .ds-btn-ghost:active { transform: translateY(1px); } .ds-btn-ghost:focus-visible { outline: 2px solid var(--accent, #e2610a); outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Campo de formulario con etiqueta en mono. Esquinas vivas y halo de foco en Óxido Papel.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">TELÉFONO</span><input class=\"ds-input\" type=\"tel\" placeholder=\"2235550000\" /></label>",
+      "css": ".ds-field { display: block; } .ds-field-label { display: block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted, #6b6560); margin-bottom: 8px; } .ds-input { border: 1px solid var(--border, #e4e0da); background: var(--bg, #faf8f5); border-radius: 0; padding: 13px 14px; font-family: Inter, 'Segoe UI', system-ui, sans-serif; font-size: 14px; color: var(--ink, #171512); width: 100%; transition: border-color 0.18s ease, box-shadow 0.18s ease; } .ds-input::placeholder { color: var(--muted, #6b6560); opacity: 1; } .ds-input:focus { outline: none; border-color: var(--accent, #e2610a); box-shadow: 0 0 0 3px var(--accent-soft, #fdf1e7); } .ds-input[aria-invalid=\"true\"] { border-color: var(--danger, #c0392b); } .ds-input[aria-invalid=\"true\"]:focus { box-shadow: 0 0 0 3px var(--danger-soft, #fdecea); }"
+    },
+    {
+      "name": "Status Pill",
+      "kind": "chip",
+      "refersTo": "pill-status",
+      "description": "Clasifica un estado de vehículo, lead o turno. Fondo tenue + texto saturado del mismo matiz.",
+      "html": "<span class=\"ds-pill ds-pill-ok\">Disponible</span> <span class=\"ds-pill ds-pill-warn\">Pendiente</span> <span class=\"ds-pill ds-pill-rust\">Nuevo</span>",
+      "css": ".ds-pill { display: inline-block; font-family: Inter, 'Segoe UI', system-ui, sans-serif; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 0; white-space: nowrap; } .ds-pill-ok { background: #eff6f0; color: #2f7a4d; } .ds-pill-warn { background: #fdf6e3; color: #8a6d3b; } .ds-pill-rust { background: #fdf1e7; color: #e2610a; }"
+    },
+    {
+      "name": "Vehicle Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Componente firma. Marcador de bandas diagonales, badge en mono, ficha de datos y CTA que se desplaza al hover.",
+      "html": "<article class=\"ds-vehicle-card\"><div class=\"ds-vehicle-photo\"><span class=\"ds-vehicle-badge\">Disponible</span><span class=\"ds-vehicle-placeholder-label\">SIN FOTO</span></div><div class=\"ds-vehicle-body\"><div class=\"ds-vehicle-meta\">2021 · 48.000 KM · NAFTA</div><h3 class=\"ds-vehicle-title\">Toyota Corolla XEI</h3><div class=\"ds-vehicle-price\">$24.900.000</div><span class=\"ds-vehicle-cta\">Ver ficha →</span></div></article>",
+      "css": ".ds-vehicle-card { background: var(--card, #ffffff); border: 1px solid var(--border, #e4e0da); border-radius: 0; overflow: hidden; max-width: 340px; transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease; } .ds-vehicle-card:hover { transform: translateY(-4px); box-shadow: var(--lift-shadow, 0 14px 34px rgba(23, 21, 18, 0.13)); } .ds-vehicle-photo { position: relative; height: 200px; background: repeating-linear-gradient(135deg, var(--placeholder-a, #edeae4) 0 18px, var(--placeholder-c, #e1dcd3) 18px 36px); display: flex; align-items: center; justify-content: center; } .ds-vehicle-badge { position: absolute; top: 14px; left: 14px; background: rgba(23, 21, 18, 0.85); color: #f5f2ee; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 10px; } .ds-vehicle-placeholder-label { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; letter-spacing: 0.08em; color: var(--placeholder-ink, #8f8a83); } .ds-vehicle-body { padding: 18px; } .ds-vehicle-meta { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; letter-spacing: 0.1em; color: var(--muted, #6b6560); text-transform: uppercase; } .ds-vehicle-title { font-family: Manrope, 'Segoe UI', system-ui, sans-serif; font-size: 17px; font-weight: 700; color: var(--ink, #171512); margin: 10px 0 6px; } .ds-vehicle-price { font-family: Manrope, 'Segoe UI', system-ui, sans-serif; font-size: 20px; font-weight: 700; color: var(--ink, #171512); margin-bottom: 14px; } .ds-vehicle-cta { display: inline-block; font-size: 14px; font-weight: 600; color: var(--accent, #e2610a); transition: transform 0.25s ease; } .ds-vehicle-card:hover .ds-vehicle-cta { transform: translateX(5px); }"
+    },
+    {
+      "name": "Site Header Nav",
+      "kind": "nav",
+      "refersTo": null,
+      "description": "Header sticky de 76px con blur. El ítem activo toma el acento; el CTA usa la variante invertida.",
+      "html": "<header class=\"ds-header\"><a class=\"ds-logo\" href=\"#\">5848 <span>MOTORS</span></a><nav class=\"ds-nav\"><a class=\"ds-nav-link ds-nav-active\" href=\"#\">Vehículos</a><a class=\"ds-nav-link\" href=\"#\">Nosotros</a><a class=\"ds-nav-link\" href=\"#\">Detailing</a><a class=\"ds-nav-link\" href=\"#\">Contacto</a></nav><button class=\"ds-nav-cta\">Vendé tu auto</button></header>",
+      "css": ".ds-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 76px; padding: 0 28px; background: var(--header-bg, rgba(250, 248, 245, 0.96)); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border, #e4e0da); } .ds-logo { font-family: Manrope, 'Segoe UI', system-ui, sans-serif; font-size: 18px; font-weight: 700; color: var(--ink, #171512); text-decoration: none; letter-spacing: -0.01em; } .ds-logo span { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; font-weight: 400; letter-spacing: 0.14em; color: var(--muted, #6b6560); } .ds-nav { display: flex; gap: 26px; } .ds-nav-link { font-family: Inter, 'Segoe UI', system-ui, sans-serif; font-size: 14px; font-weight: 500; color: var(--ink, #171512); text-decoration: none; transition: color 0.18s ease; } .ds-nav-link:hover, .ds-nav-active { color: var(--accent, #e2610a); } .ds-nav-cta { background: var(--invert-bg, #171512); color: var(--invert-ink, #f5f2ee); border: none; border-radius: 2px; padding: 10px 20px; font-family: Inter, 'Segoe UI', system-ui, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: box-shadow 0.18s ease, transform 0.18s ease; } .ds-nav-cta:hover { box-shadow: inset 0 0 0 999px rgba(245, 242, 238, 0.12); } .ds-nav-cta:active { transform: translateY(1px); }"
+    },
+    {
+      "name": "Section Eyebrow + Headline",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "La apertura de sección del sistema: eyebrow mono en Naranja Óxido sobre un headline Manrope.",
+      "html": "<div class=\"ds-section-head\"><div class=\"ds-eyebrow\">STOCK DESTACADO</div><h2 class=\"ds-headline\">Vehículos listos para entregar</h2></div>",
+      "css": ".ds-section-head { max-width: 640px; } .ds-eyebrow { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; letter-spacing: 0.12em; color: var(--accent, #e2610a); text-transform: uppercase; margin-bottom: 12px; } .ds-headline { font-family: Manrope, 'Segoe UI', system-ui, sans-serif; font-weight: 700; font-size: clamp(28px, 3.4vw, 42px); line-height: 1.1; letter-spacing: -0.01em; color: var(--ink, #171512); margin: 0; }"
+    },
+    {
+      "name": "Skeleton",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Esqueleto de carga con barrido. Reemplaza al contenido mientras la API responde.",
+      "html": "<div class=\"ds-skeleton\" style=\"height: 18px; width: 220px; margin-bottom: 10px;\"></div><div class=\"ds-skeleton\" style=\"height: 18px; width: 160px;\"></div>",
+      "css": ".ds-skeleton { position: relative; overflow: hidden; border-radius: 0; background: var(--placeholder-a, #edeae4); } .ds-skeleton::after { content: ''; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, var(--skeleton-sheen, rgba(255, 255, 255, 0.6)), transparent); animation: ds-shimmer 1.5s infinite; } @keyframes ds-shimmer { 100% { transform: translateX(100%); } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "La Ficha Técnica",
+    "overview": "Todo en 5848 Motors se lee como una ficha impresa. Un usado se compra desconfiando, y la ficha técnica es el género visual que ya resuelve esa desconfianza: datos ordenados, etiquetas en mono, nada que adorne un número. El sistema toma ese género y lo lleva a toda la interfaz — no sólo a la ficha del vehículo, sino al panel, a los formularios y a la home.\n\nEl tono es preciso, cálido y directo. Preciso porque la calidad se demuestra en la alineación y el espaciado, nunca en el efecto. Cálido porque el fondo no es blanco clínico sino papel (#faf8f5): la agencia atiende personas, no procesa expedientes. Directo porque cada pantalla existe para que alguien haga algo, y el camino a esa acción no se decora.\n\nLa superficie es plana por convicción. No hay sombras en reposo, no hay gradientes decorativos, no hay esquinas redondeadas que suavicen la lectura. Lo que separa un elemento de otro es un borde de 1px y el aire alrededor. La profundidad sólo aparece como respuesta a una acción del usuario.",
+    "keyCharacteristics": [
+      "Papel cálido en lugar de blanco; el blanco puro se reserva para tarjetas.",
+      "Mono en mayúsculas con tracking amplio para todo metadato y etiqueta.",
+      "Esquinas rectas (0px) por defecto; 2px es el máximo, y sólo en botones.",
+      "Un solo acento, usado poco y siempre con significado.",
+      "Plano en reposo; el movimiento y la sombra son respuesta, no decoración.",
+      "Tema claro y oscuro son ciudadanos iguales, conmutados por data-theme."
+    ],
+    "rules": [
+      {
+        "name": "La Regla del Acento Escaso",
+        "body": "El Naranja Óxido no supera el 10% de ninguna pantalla. Si aparece dos veces en el mismo bloque, una de las dos está mal. Su rareza es lo que lo hace legible como \"acá se actúa\".",
+        "section": "colors"
+      },
+      {
+        "name": "La Regla del Papel",
+        "body": "El fondo nunca es #ffffff. El blanco puro es exclusivamente superficie de tarjeta; usarlo como fondo rompe la separación entre plano y objeto, que es lo único que da profundidad al sistema.",
+        "section": "colors"
+      },
+      {
+        "name": "La Regla del Estado Honesto",
+        "body": "El color de un estado sigue al hecho, no al optimismo. Un margen negativo se pinta en Rojo Alerta aunque el campo se llame \"margen potencial\".",
+        "section": "colors"
+      },
+      {
+        "name": "La Regla del Dato en Mono",
+        "body": "Todo lo que es un dato medible o un código va en mono, en mayúsculas y con tracking. Todo lo que es una frase va en Inter. La tipografía dice de qué tipo de información se trata antes de leerla.",
+        "section": "typography"
+      },
+      {
+        "name": "La Regla del Eyebrow Naranja",
+        "body": "El eyebrow (mono 12px, tracking 0.12em) es uno de los pocos lugares donde el acento aparece como texto. Anuncia la sección y no se repite dentro de ella.",
+        "section": "typography"
+      },
+      {
+        "name": "La Regla del Gutter Único",
+        "body": "Ningún componente define su propio margen horizontal. Si algo necesita alinearse al shell, usa SHELL de src/lib/design.ts. Un padding horizontal hardcodeado es un bug.",
+        "section": "layout"
+      },
+      {
+        "name": "La Regla de la Sombra como Respuesta",
+        "body": "Una sombra sin interacción del usuario detrás es decoración, y no se usa. Si un elemento necesita destacarse en reposo, se resuelve con contraste de superficie o con borde, nunca con sombra.",
+        "section": "elevation"
+      },
+      {
+        "name": "La Regla de la Esquina Viva",
+        "body": "0px es el default y 2px es el techo. Cualquier radio mayor pertenece a otro sistema de diseño. La única excepción es el 50% en elementos circulares reales.",
+        "section": "shapes"
+      },
+      {
+        "name": "La Regla del Color Inline",
+        "body": "Los componentes llevan sus colores inline, por herencia del prototipo. Por eso los estados globales (hover, foco, inválido) se pintan con box-shadow: inset y con !important puntual en globals.css: funcionan sobre cualquier fondo sin conocerlo. Un estado nuevo se resuelve con ese mecanismo, no agregando una clase de color.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "Do usar var(--gutter) y SHELL para todo encuadre horizontal.",
+      "Do poner en mono mayúsculas con tracking todo dato medible o código (km, año, patente, fecha, ID).",
+      "Do mantener 0px de radio; 2px sólo en botones y badges.",
+      "Do resolver el hover con el tinte inset (--hover-tint), que funciona sobre colores inline.",
+      "Do acompañar todo estado de error con texto, no sólo con color.",
+      "Do definir cada token nuevo en globals.css para los dos temas a la vez.",
+      "Do dejar el botón de envío deshabilitado hasta que los campos obligatorios validen.",
+      "Do respetar prefers-reduced-motion: el bloque ya neutraliza animaciones y el lift; cualquier movimiento nuevo entra por ahí."
+    ],
+    "donts": [
+      "Don't usar #ffffff como fondo de página. El papel es #faf8f5 (público) o #f6f5f2 (panel).",
+      "Don't agregar sombras en reposo. La sombra es respuesta a una acción.",
+      "Don't superar el 10% de Naranja Óxido en una pantalla, ni usarlo dos veces en el mismo bloque.",
+      "Don't introducir radios de 4px, 8px o mayores: pertenecen a otro sistema.",
+      "Don't agregar un tercer color de acento. Los estados semánticos clasifican; no son acentos de marca.",
+      "Don't usar gradientes decorativos. El único gradiente legítimo del sistema es el patrón de bandas del marcador de fotos y el barrido del skeleton.",
+      "Don't hardcodear un hex donde existe un token; el tema oscuro se rompe en silencio.",
+      "Don't simular fotos reales. Mientras no existan, el marcador de bandas se ve como lo que es."
+    ]
+  }
+}
