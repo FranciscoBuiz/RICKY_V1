@@ -1,11 +1,6 @@
+import './load-env.js';
 import { buildApp } from './app.js';
 import { loadEnv } from './env.js';
-
-try {
-  process.loadEnvFile('.env');
-} catch {
-  // Sin archivo: las variables vienen del entorno.
-}
 
 const env = loadEnv();
 const app = await buildApp({ env });
