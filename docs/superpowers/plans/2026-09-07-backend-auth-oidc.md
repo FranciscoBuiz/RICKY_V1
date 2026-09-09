@@ -3089,21 +3089,28 @@ cd .. && git add frontend && git commit -m "feat(frontend): login con Google, ba
 ## Task 11: Sentry en el frontend
 
 **Files:**
-- Create: `frontend/sentry.server.config.ts`, `frontend/sentry.client.config.ts`, `frontend/instrumentation.ts`
+- Create: `frontend/sentry.server.config.ts`, `frontend/instrumentation-client.ts`, `frontend/instrumentation.ts`
 - Modify: `frontend/.env.example`
 
 **Interfaces:**
 - Consumes: nada del backend.
 - Produces: nada.
 
-- [ ] **Step 1: Instalar**
+- [x] **Step 1: Instalar**
 
 ```bash
 cd frontend
 npm install @sentry/nextjs@10.73.0
 ```
 
-- [ ] **Step 2: Escribir `frontend/sentry.client.config.ts`**
+- [x] **Step 2: Escribir `frontend/instrumentation-client.ts`**
+
+**El nombre importa.** `sentry.client.config.ts` **no funciona en este proyecto**: ese
+nombre lo levanta el plugin de build de Sentry (`webpack.js` lo busca en su lista de
+`possibilities`), y ese plugin solo corre si `next.config.ts` esta envuelto en
+`withSentryConfig`, cosa que este proyecto no hace. Con ese nombre el archivo queda
+sin bundlear y Sentry nunca arranca en el navegador, **sin ningun error que lo
+delate**. `instrumentation-client.ts` lo carga Next de forma nativa desde 15.3.
 
 ```ts
 import * as Sentry from '@sentry/nextjs';
@@ -3125,7 +3132,7 @@ if (dsn) {
 }
 ```
 
-- [ ] **Step 3: Escribir `frontend/sentry.server.config.ts`**
+- [x] **Step 3: Escribir `frontend/sentry.server.config.ts`**
 
 ```ts
 import * as Sentry from '@sentry/nextjs';
@@ -3153,7 +3160,7 @@ if (dsn) {
 }
 ```
 
-- [ ] **Step 4: Escribir `frontend/instrumentation.ts`**
+- [x] **Step 4: Escribir `frontend/instrumentation.ts`**
 
 ```ts
 export async function register() {
@@ -3163,7 +3170,7 @@ export async function register() {
 }
 ```
 
-- [ ] **Step 5: Agregar las variables a `frontend/.env.example`**
+- [x] **Step 5: Agregar las variables a `frontend/.env.example`**
 
 ```
 # Un DSN esta disenado para ser publico: solo permite escribir eventos.
@@ -3173,12 +3180,19 @@ SENTRY_DSN=
 SENTRY_ENVIRONMENT=development
 ```
 
-- [ ] **Step 6: Verificar que construye**
+- [x] **Step 6: Verificar que construye**
 
 Run: `npm run typecheck && npm run build`
 Expected: PASS, sin DSN configurado y sin errores.
 
-- [ ] **Step 7: Commit**
+Para comprobar que el init del cliente **de verdad** entra al bundle (y no quedo como
+codigo muerto): `grep -rl sentry .next/static/chunks` tiene que devolver algo.
+
+Ojo con `npm install @sentry/nextjs@10.73.0`: npm lo escribe como `^10.73.0` en
+`package.json` y las Global Constraints piden version exacta. Corregir con
+`npm pkg set dependencies.@sentry/nextjs=10.73.0`.
+
+- [x] **Step 7: Commit**
 
 ```bash
 cd .. && git add frontend && git commit -m "feat(frontend): Sentry sin session replay y con depuracion de cookies"
