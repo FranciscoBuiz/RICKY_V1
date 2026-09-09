@@ -3209,7 +3209,7 @@ cd .. && git add frontend && git commit -m "feat(frontend): Sentry sin session r
 - Consumes: todo lo anterior.
 - Produces: nada.
 
-- [ ] **Step 1: Crear las credenciales en Google Cloud Console**
+- [x] **Step 1: Crear las credenciales en Google Cloud Console**
 
 1. Google Cloud Console → **APIs y servicios → Pantalla de consentimiento de OAuth**. Tipo **Externo**, completar nombre de la app y email de soporte.
 2. **Credenciales → Crear credenciales → ID de cliente de OAuth → Aplicación web**.
@@ -3218,7 +3218,7 @@ cd .. && git add frontend && git commit -m "feat(frontend): Sentry sin session r
 
 El URI tiene que coincidir **carácter por carácter** con `OAUTH_REDIRECT_URI`. Es el error más frecuente y el mensaje de Google no lo dice claro. Notar que apunta al puerto **3000** (Next), no al 4000: el navegador siempre habla con Next.
 
-- [ ] **Step 2: Sembrar el administrador inicial**
+- [x] **Step 2: Sembrar el administrador inicial**
 
 ```bash
 cd backend
@@ -3230,7 +3230,7 @@ npm run db:seed
 
 Expected: `Administrador inicial listo: <tu email>`.
 
-- [ ] **Step 3: Levantar los dos servicios**
+- [x] **Step 3: Levantar los dos servicios**
 
 En dos terminales:
 
@@ -3253,15 +3253,15 @@ cd frontend && npm run dev    # :3000
 7. En una ventana de incógnito, intentar entrar con una cuenta de Google **no invitada** → debe volver a `/login?error=no_invitado`.
 8. Borrar la cookie `motors_session` en las devtools y recargar `/admin` → vuelve a `/login`.
 
-- [ ] **Step 5: Actualizar `README.md`**
+- [x] **Step 5: Actualizar `README.md`**
 
 Reemplazar la sección "Puesta en marcha" por una que arranque la base, el backend y el frontend, en ese orden, y documente que hacen falta credenciales de Google en `backend/.env`. Agregar `backend/` a la sección "Estructura".
 
-- [ ] **Step 6: Actualizar `backend/README.md`**
+- [x] **Step 6: Actualizar `backend/README.md`**
 
 Reemplazar el texto de "todavía sin código" por: cómo levantar la base, correr migraciones, sembrar el admin, correr los tests, y el mapa de `src/`.
 
-- [ ] **Step 7: Actualizar `PRODUCT.md`**
+- [x] **Step 7: Actualizar `PRODUCT.md`**
 
 En "Restricciones y deudas confirmadas", la línea **"No hay auth real. El panel es sólo frontend; `/admin` y `/api/admin/*` siguen sin proteger"** ya no es del todo cierta y no puede quedar como está. Reemplazarla por:
 
@@ -3274,7 +3274,7 @@ En "Restricciones y deudas confirmadas", la línea **"No hay auth real. El panel
 
 En "Decisiones de producto abiertas", quitar "modelo de auth y roles reales": ya está decidido.
 
-- [ ] **Step 8: Correr toda la verificación**
+- [x] **Step 8: Correr toda la verificación**
 
 Run:
 ```bash
@@ -3283,7 +3283,7 @@ cd ../frontend && npm run typecheck && npm run build
 ```
 Expected: PASS en los cuatro.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 cd .. && git add . && git commit -m "docs: puesta en marcha del backend y estado real de auth en PRODUCT.md"

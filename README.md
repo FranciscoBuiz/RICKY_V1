@@ -10,19 +10,39 @@ en Mar del Plata): sitio público + panel de administración.
 
 ```
 frontend/   App Next.js (sitio publico + panel admin + route handlers actuales)
-backend/    Backend propio (en desarrollo)
+backend/    Servicio Fastify: ingreso con Google (OIDC), sesiones y usuarios
 ```
 
 ## Puesta en marcha
 
+Hacen falta **tres cosas corriendo**: Postgres en Docker, el backend y el
+frontend, en ese orden. Antes de empezar, `backend/.env` necesita **credenciales
+de Google** (`GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`): sin ellas el ingreso
+al panel no funciona. Cómo obtenerlas está en `backend/README.md`.
+
 ```bash
-cd frontend
+# 1. Base de datos (Docker Desktop tiene que estar corriendo)
+cd backend
 npm install
-npm run dev      # http://localhost:3000
-npm run build
-npm start
-npm run typecheck
+npm run db:up                 # Postgres 17 en :5432
+npx prisma migrate deploy
+npm run db:seed               # crea el admin de BOOTSTRAP_ADMIN_EMAIL
+
+# 2. Backend, en su propia terminal
+npm run dev                   # http://localhost:4000
+
+# 3. Frontend, en otra terminal
+cd ../frontend
+npm install
+npm run dev                   # http://localhost:3000
 ```
+
+Después: `npm run build`, `npm start` y `npm run typecheck` en `frontend/`;
+`npm test` y `npm run typecheck` en `backend/`.
+
+El navegador **nunca habla con el backend**: Next hace de BFF y reenvía
+`/api/auth/*` y `/api/settings/users*` a `:4000`. Por eso el URI de
+redireccionamiento que se carga en Google apunta al **3000**, no al 4000.
 
 ## Rutas
 
@@ -67,10 +87,10 @@ elegir otra fecha.
 | `/admin/configuracion` | `AdminConfiguracion.dc.html` |
 | `/admin/dashboard-v1` | `AdminDashboard v1.dc.html` (versión anterior, conservada) |
 
-> El panel es **frontend**: no hay lógica de negocio ni control de acceso
-> detrás. Los endpoints existen para que la UI no quede acoplada a datos
-> hardcodeados, pero leen y escriben contra un store en memoria. Cuando se
-> defina la capa de auth hay que proteger `/admin` y `/api/admin/*`.
+> `/admin` ya **exige sesión**: sin la cookie `motors_session` el middleware
+> manda a `/login`, y el backend es el único que decide si el token sirve. Lo
+> que sigue sin proteger es `/api/admin/*`, que además lee y escribe contra el
+> store en memoria de Next; se cubre cuando esos endpoints se muden al backend.
 
 ## API
 
@@ -91,9 +111,9 @@ GET    /api/appointments/availability?from=YYYY-MM-DD&days=N   cupo por día
 GET    /api/services
 GET    /api/sell-requests            POST /api/sell-requests
 GET    /api/settings                 PATCH /api/settings
-GET    /api/settings/users           POST /api/settings/users  DELETE /api/settings/users/[id]
+GET    /api/settings/users           POST /api/settings/users  PATCH · DELETE /api/settings/users/[id]
 GET    /api/settings/notifications   PATCH /api/settings/notifications
-POST   /api/auth/login  ·  /api/auth/register  ·  /api/auth/recover
+GET    /api/auth/google  ·  /api/auth/google/callback  ·  /api/auth/me  ·  POST /api/auth/logout
 ```
 
 `purchasePrice` y `expenses` sólo se exponen bajo `/api/admin/*`; el catálogo
@@ -191,7 +211,7 @@ por una base real no toca la UI.
 
 ## Pendientes
 
-- Auth real y protección de `/admin` y `/api/admin/*`.
+- Proteger `/api/admin/*`: hoy se sirve desde Next contra el store en memoria.
 - Base de datos, storage de imágenes y API de WhatsApp.
 - Fotos reales del stock (hoy son marcadores de bandas diagonales).
 - Copy definitivo: número de WhatsApp (`NEXT_PUBLIC_WHATSAPP_NUMBER`), horarios y redes.

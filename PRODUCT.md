@@ -73,16 +73,18 @@ tema claro/oscuro por `data-theme`.
 
 - El store es **en memoria** (`src/server/store.ts`): todo se reinicia con el
   proceso. Falta base de datos y storage de imágenes.
-- **No hay auth real.** El panel es sólo frontend; `/admin` y `/api/admin/*`
-  siguen sin proteger.
+- **Auth resuelta para el panel.** Ingreso con Google (OIDC), solo por
+  invitación, con sesión revocable y roles. Falta: `/api/admin/*` sigue
+  sirviéndose desde Next contra el store en memoria y todavía no está protegido;
+  se cubre cuando esos endpoints se muden al backend.
 - Falta la integración real de la API de WhatsApp.
 - Terminología del dominio (fijada en `src/types/index.ts`): estados de vehículo
   `available` / `reserved` / `sold`; estados de lead `new` / `contacted` /
   `negotiating` / `closed` / `discarded`; estados de turno `pending` /
   `confirmed` / `in_progress` / `completed` / `cancelled`.
 
-**Decisiones de producto abiertas:** modelo de auth y roles reales, si el stock
-se sincroniza con alguna otra fuente, y política de precios/publicación.
+**Decisiones de producto abiertas:** si el stock se sincroniza con alguna otra
+fuente y política de precios/publicación.
 
 ## Brand Commitments
 

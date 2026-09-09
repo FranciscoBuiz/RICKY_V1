@@ -7,9 +7,11 @@ Spec: `docs/superpowers/specs/2026-09-07-backend-auth-oidc-design.md`
 
 ## Dónde vamos
 
-**Tasks 1 a 11 terminadas y commiteadas. Falta sólo la Task 12** (puesta en marcha y
-verificación end-to-end). Los checkboxes del plan están marcados hasta ahí, así que el
-progreso se lee del plan y no hace falta reconstruirlo del `git log`.
+**Tasks 1 a 12 terminadas y commiteadas.** De la Task 12 queda pendiente **un solo
+paso, y es de una persona**: el Step 4, la prueba a mano del flujo en el navegador.
+Todo lo demás (credenciales, seed, documentación, verificación) está hecho. Los
+checkboxes del plan están al día, así que el progreso se lee del plan y no hace falta
+reconstruirlo del `git log`.
 
 | Task | Qué es | Estado |
 |---|---|---|
@@ -24,7 +26,7 @@ progreso se lee del plan y no hace falta reconstruirlo del `git log`.
 | 9 | Proxy y middleware en Next | ✅ |
 | 10 | Login con Google en el frontend | ✅ |
 | 11 | Sentry en el frontend | ✅ |
-| 12 | Puesta en marcha y verificación E2E | ⬅️ **acá seguimos** |
+| 12 | Puesta en marcha y verificación E2E | ✅ salvo el Step 4 (prueba a mano) |
 
 **Verificación al momento de parar:** backend `npm test` → **62 tests, 9 archivos, todos
 pasan**; `npm run typecheck` limpio. Frontend `npm run typecheck` limpio y `npm run build`
@@ -50,25 +52,27 @@ El volumen de Postgres sobrevive a `db:down`, así que los datos siguen ahí.
 
 ## Qué falta exactamente (Task 12)
 
-Pasos que **sólo puede hacer una persona**:
+Sólo el **Step 4: probar el flujo a mano en el navegador**, con los dos servicios
+levantados. La checklist, tal cual está en el plan:
 
-1. **Crear las credenciales en Google Cloud Console.** Pantalla de consentimiento
-   (Externa) → Credenciales → ID de cliente de OAuth → Aplicación web. Cargar:
-   - Orígenes autorizados de JavaScript: `http://localhost:3000`
-   - URIs de redireccionamiento autorizados: `http://localhost:3000/api/auth/google/callback`
+1. `http://localhost:3000/admin` → redirige a `/login?next=%2Fadmin`. ✅ ya comprobado
+   con `curl`.
+2. Clic en "Entrar con Google" → pantalla de Google. La URL de autorización ya se arma
+   bien (PKCE, `state`, `nonce` y el `redirect_uri` exacto): comprobado con `curl`, lo
+   que falta es completar el login real.
+3. Elegir la cuenta de `BOOTSTRAP_ADMIN_EMAIL` → vuelve a `/admin`, logueado. El usuario
+   sembrado pasa de `PENDING` a `ACTIVE` en ese primer ingreso.
+4. `http://localhost:3000/api/auth/me` → devuelve el usuario con `"role": "Administrador"`.
+5. En `/admin/configuracion`, invitar un email cualquiera → aparece como **pendiente**.
+6. Verificar que quedó en la base:
+   `docker exec motors-db psql -U motors -d motors -c 'select email, role, status from "User"'`
+7. En incógnito, entrar con una cuenta de Google **no invitada** → vuelve a
+   `/login?error=no_invitado`.
+8. Borrar la cookie `motors_session` y recargar `/admin` → vuelve a `/login`.
 
-   El redirect apunta al **3000 (Next), no al 4000**: el navegador nunca habla con el
-   backend, Next hace de BFF. Tiene que coincidir carácter por carácter con
-   `OAUTH_REDIRECT_URI`, sin barra final. Si la pantalla de consentimiento quedó en modo
-   "Prueba", hay que agregar la propia cuenta de Google en **Usuarios de prueba** o el
-   login corta con `access_denied`.
-2. **Probar el flujo a mano en el navegador** (Step 4 del plan).
-
-Pasos que puede hacer el agente:
-
-3. Sembrar el administrador inicial: `npm run db:seed`.
-4. Actualizar `README.md`, `backend/README.md` y `PRODUCT.md` (Steps 5-7).
-5. Correr toda la verificación y commitear (Steps 8-9).
+Lo demás está hecho: las credenciales de Google ya están en `backend/.env`, el admin
+inicial está sembrado (`buizfrancisco@gmail.com`, hoy `PENDING` hasta el primer ingreso),
+la documentación quedó actualizada y las cuatro verificaciones pasan.
 
 ## Configuración
 
