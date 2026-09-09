@@ -2873,7 +2873,7 @@ cd .. && git add frontend && git commit -m "feat(frontend): proxy al backend par
 - Consumes: `/api/auth/google` (Task 9).
 - Produces: nada que consuman tareas siguientes.
 
-- [ ] **Step 1: Borrar las paginas que dejan de tener sentido**
+- [x] **Step 1: Borrar las paginas que dejan de tener sentido**
 
 ```bash
 cd frontend
@@ -2883,7 +2883,7 @@ rm -rf src/app/registro src/app/recuperar-password
 Con Google como unico camino de entrada no hay contrasena que registrar ni que
 recuperar. Dejarlas en pie prometeria un flujo que ya no existe.
 
-- [ ] **Step 2: Reescribir `frontend/src/app/login/LoginView.tsx` por completo**
+- [x] **Step 2: Reescribir `frontend/src/app/login/LoginView.tsx` por completo**
 
 ```tsx
 'use client';
@@ -3010,7 +3010,7 @@ Tres cosas que este archivo resuelve y que es facil romper:
 - **Se van `useToast`, `apiSend`, `INPUT` e `isEmail`** de los imports: no queda nada
   que los use.
 
-- [ ] **Step 3: Sacar los usuarios del store en memoria**
+- [x] **Step 3: Sacar los usuarios del store en memoria**
 
 Los usuarios ahora viven en la base del backend. Dejar la copia en memoria garantiza
 que dos partes del panel muestren listas distintas.
@@ -3053,7 +3053,7 @@ export function removeUser(id: string): boolean {
 En `frontend/src/server/data/crm.ts`, borrar el export `seedUsers`: despues de lo
 anterior no lo usa nadie.
 
-- [ ] **Step 4: Verificar que no quedaron referencias colgando**
+- [x] **Step 4: Verificar que no quedaron referencias colgando**
 
 Run:
 ```bash
@@ -3064,13 +3064,21 @@ Expected: sin resultados. La unica coincidencia aceptable es `removeUser` en
 del componente (hace `DELETE` contra la API) y no tiene ninguna relacion con la del
 store.
 
-- [ ] **Step 5: Verificar que compila y construye**
+- [x] **Step 5: Verificar que compila y construye**
 
-Run: `npm run typecheck && npm run build`
+Run: `rm -rf .next/types && npm run typecheck && npm run build`
 Expected: PASS. La lista de rutas del build no debe incluir `/registro` ni
 `/recuperar-password`.
 
-- [ ] **Step 6: Commit**
+El `rm -rf .next/types` no es opcional despues de borrar rutas: Next deja ahi los
+tipos generados de las rutas viejas y `tsc` falla con `TS2307: Cannot find module
+'../../src/app/registro/page.js'`. No es un error del codigo, es cache de build.
+Lo mismo aplica a la Task 9, que borra las rutas de auth simuladas.
+
+Tambien conviene sacar `PanelUser` de los imports de `@/server/data/crm`: despues
+de borrar `seedUsers` no lo usa nadie mas en ese archivo.
+
+- [x] **Step 6: Commit**
 
 ```bash
 cd .. && git add frontend && git commit -m "feat(frontend): login con Google, baja de registro y recuperar-password"

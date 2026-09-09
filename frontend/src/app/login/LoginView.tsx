@@ -1,44 +1,26 @@
 'use client';
 
-import Link from 'next/link';
-import { useState, type FormEvent } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useState } from 'react';
 import { AuthShell } from '@/components/site/AuthShell';
-import { useToast } from '@/components/ui/Toast';
-import { apiSend } from '@/lib/api';
-import { INPUT } from '@/lib/design';
-import { isEmail } from '@/lib/validation';
 
-export function LoginView() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [remember, setRemember] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
-  const [signedIn, setSignedIn] = useState(false);
-  const toast = useToast();
+/** Los codigos los produce el callback del backend. */
+const MENSAJES: Record<string, string> = {
+  no_invitado: 'Esa cuenta no tiene acceso al panel. Pedile una invitacion a un administrador.',
+  email_sin_verificar: 'Tu cuenta de Google no tiene el email verificado.',
+  cuenta_en_conflicto: 'Ese email ya esta asociado a otra cuenta de Google.',
+  state_invalido: 'No pudimos validar el intento de ingreso. Proba de nuevo.',
+  sesion_expirada: 'Tardaste demasiado y el intento vencio. Proba de nuevo.',
+  google_rechazo: 'Cancelaste el ingreso con Google.',
+  google_fallo: 'No pudimos verificar tu cuenta con Google. Proba de nuevo.',
+};
 
-  // El botón queda gris hasta que el email tiene forma y hay contraseña.
-  const complete = isEmail(email) && password.length > 0;
+function LoginContent() {
+  const params = useSearchParams();
+  const [remember, setRemember] = useState(true);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!complete) return;
-
-    setLoading(true);
-    setErrorMsg('');
-
-    try {
-      await apiSend('/api/auth/login', 'POST', { email, password, remember });
-      setSignedIn(true);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'No pudimos ingresar.';
-      setErrorMsg(message);
-      toast.error('No pudimos ingresar', message);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const codigo = params.get('error');
+  const errorMsg = codigo ? (MENSAJES[codigo] ?? 'No pudimos iniciar tu sesion.') : '';
 
   return (
     <AuthShell>
@@ -54,11 +36,12 @@ export function LoginView() {
         Ingresar
       </h1>
       <p style={{ fontSize: 14, color: 'var(--muted)', textAlign: 'center', margin: '0 0 32px' }}>
-        Accedé a tu cuenta de 5848 Motors.
+        El panel es solo para el equipo de 5848 Motors.
       </p>
 
       {errorMsg && (
         <div
+          role="alert"
           style={{
             background: 'var(--danger-soft)',
             border: '1px solid var(--danger)',
@@ -72,125 +55,59 @@ export function LoginView() {
         </div>
       )}
 
-      {signedIn && (
-        <div
-          style={{
-            background: '#EFF6F0',
-            border: '1px solid #CFE6D3',
-            color: '#2F7A4D',
-            fontSize: 13,
-            padding: '12px 14px',
-            marginBottom: 16,
-          }}
-        >
-          Sesión iniciada. Te llevamos al panel cuando esté conectado el backend de auth.
-        </div>
-      )}
+      {/*
+        Un <a>, no un fetch: el flujo OAuth es una navegacion del navegador. Un
+        fetch recibiria el 302 hacia Google y no llevaria a ningun lado.
+      */}
+      <a
+        href={`/api/auth/google${remember ? '?remember=1' : ''}`}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 10,
+          background: 'var(--invert-bg)',
+          color: 'var(--invert-ink)',
+          padding: 14,
+          fontSize: 14,
+          fontWeight: 600,
+          textDecoration: 'none',
+        }}
+      >
+        Entrar con Google
+      </a>
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <div>
-          <label
-            htmlFor="login-email"
-            style={{ fontSize: 12, letterSpacing: '0.04em', color: 'var(--muted)', display: 'block', marginBottom: 6 }}
-          >
-            Email
-          </label>
-          <input
-            id="login-email"
-            required
-            type="email"
-            inputMode="email"
-            autoComplete="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value.replace(/\s/g, ''))}
-            aria-invalid={email.length > 0 && !isEmail(email) ? true : undefined}
-            style={INPUT}
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="login-password"
-            style={{ fontSize: 12, letterSpacing: '0.04em', color: 'var(--muted)', display: 'block', marginBottom: 6 }}
-          >
-            Contraseña
-          </label>
-          <div style={{ position: 'relative' }}>
-            <input
-              id="login-password"
-              required
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              style={{ ...INPUT, paddingRight: 78 }}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword((visible) => !visible)}
-              style={{
-                position: 'absolute',
-                right: 10,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'none',
-                border: 'none',
-                fontSize: 12,
-                color: 'var(--muted)',
-                cursor: 'pointer',
-              }}
-            >
-              {showPassword ? 'Ocultar' : 'Mostrar'}
-            </button>
-          </div>
-        </div>
-
-        <div
-          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 2 }}
-        >
-          <label
-            style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--ink-strong)' }}
-          >
-            <input
-              type="checkbox"
-              checked={remember}
-              onChange={() => setRemember((value) => !value)}
-            />
-            Recordarme
-          </label>
-          <Link
-            href="/recuperar-password"
-            className="ui-link"
-            style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}
-          >
-            Olvidé mi contraseña
-          </Link>
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading || !complete}
-          aria-disabled={!complete}
-          style={{
-            background: loading || !complete ? 'var(--border)' : 'var(--invert-bg)',
-            color: loading || !complete ? 'var(--muted)' : 'var(--invert-ink)',
-            border: 'none',
-            padding: 14,
-            fontSize: 14,
-            fontWeight: 600,
-            cursor: loading || !complete ? 'not-allowed' : 'pointer',
-            marginTop: 6,
-          }}
-        >
-          {loading ? 'Ingresando…' : 'Ingresar'}
-        </button>
-      </form>
+      <label
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          fontSize: 13,
+          color: 'var(--ink-strong)',
+          marginTop: 14,
+        }}
+      >
+        <input type="checkbox" checked={remember} onChange={() => setRemember((v) => !v)} />
+        Recordarme en este dispositivo
+      </label>
 
       <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--muted)', margin: '24px 0 0' }}>
-        ¿No tenés cuenta?{' '}
-        <Link href="/registro" className="ui-link" style={{ fontWeight: 600, color: 'var(--ink)' }}>
-          Registrate
-        </Link>
+        El acceso al panel es por invitacion. Si no podes entrar, pedile a un
+        administrador que te sume desde Configuracion.
       </p>
     </AuthShell>
+  );
+}
+
+/**
+ * `useSearchParams` exige un Suspense por encima o `next build` falla al
+ * prerenderizar la pagina. Va aca y no en `page.tsx` para que el archivo quede
+ * autocontenido.
+ */
+export function LoginView() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
   );
 }

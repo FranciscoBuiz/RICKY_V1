@@ -9,7 +9,6 @@ import {
   seedNotifications,
   seedServices,
   seedSettings,
-  seedUsers,
   seedVehicleAlerts,
 } from '@/server/data/crm';
 import { seedVehicles } from '@/server/data/vehicles';
@@ -21,7 +20,6 @@ import type {
   DetailingService,
   Lead,
   NotificationPrefs,
-  PanelUser,
   PublicVehicle,
   SellRequest,
   StockSummary,
@@ -41,7 +39,6 @@ interface Store {
   appointments: Appointment[];
   services: DetailingService[];
   settings: AgencySettings;
-  users: PanelUser[];
   notificationPrefs: NotificationPrefs;
   sellRequests: SellRequest[];
   seq: number;
@@ -56,7 +53,6 @@ function createStore(): Store {
     appointments: seedAppointments.map((a) => ({ ...a })),
     services: seedServices.map((s) => ({ ...s })),
     settings: { ...seedSettings },
-    users: seedUsers.map((u) => ({ ...u })),
     notificationPrefs: { ...seedNotificationPrefs },
     sellRequests: [],
     seq: 1,
@@ -337,30 +333,6 @@ export function updateSettings(patch: Partial<AgencySettings>): AgencySettings {
   const s = store();
   s.settings = { ...s.settings, ...patch };
   return s.settings;
-}
-
-export function listUsers(): PanelUser[] {
-  return store().users;
-}
-
-export function inviteUser(email: string, role: PanelUser['role']): PanelUser {
-  const user: PanelUser = {
-    id: nextId('u'),
-    name: email.split('@')[0],
-    email,
-    role,
-    status: 'pending',
-  };
-  store().users.push(user);
-  return user;
-}
-
-export function removeUser(id: string): boolean {
-  const s = store();
-  const index = s.users.findIndex((u) => u.id === id);
-  if (index === -1) return false;
-  s.users.splice(index, 1);
-  return true;
 }
 
 export function getNotificationPrefs(): NotificationPrefs {

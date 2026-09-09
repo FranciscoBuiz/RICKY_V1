@@ -8,7 +8,6 @@ import type {
   DetailingService,
   Lead,
   NotificationPrefs,
-  PanelUser,
   VehicleAlert,
 } from '@/types';
 
@@ -314,12 +313,6 @@ export const seedSettings: AgencySettings = {
   detailingDropoff: '09:00',
   detailingPickup: '18:00',
 };
-
-export const seedUsers: PanelUser[] = [
-  { id: 'u1', name: 'Francisco Roldán', email: 'francisco@5848motors.com.ar', role: 'Administrador', status: 'active' },
-  { id: 'u2', name: 'Valeria Sosa', email: 'valeria@5848motors.com.ar', role: 'Editor', status: 'active' },
-  { id: 'u3', name: 'Martín Ibáñez', email: 'martin@5848motors.com.ar', role: 'Solo lectura', status: 'pending' },
-];
 
 export const seedNotificationPrefs: NotificationPrefs = {
   newLead: true,
