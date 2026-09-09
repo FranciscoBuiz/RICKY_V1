@@ -1,5 +1,6 @@
 import './load-env.js';
 import { buildApp } from './app.js';
+import { createGoogleOidcClient } from './auth/oidc.js';
 import { loadEnv } from './env.js';
 import { initSentry } from './observability/sentry.js';
 
@@ -8,7 +9,9 @@ const env = loadEnv();
 // Antes de construir la app: si no, los errores de arranque no se reportan.
 const sentryActivo = initSentry(env);
 
-const app = await buildApp({ env });
+const oidc = await createGoogleOidcClient(env);
+
+const app = await buildApp({ env, oidc });
 
 await app.listen({ port: env.PORT, host: '0.0.0.0' });
 app.log.info(`Sentry ${sentryActivo ? 'activo' : 'desactivado (sin DSN)'}`);

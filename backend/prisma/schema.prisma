@@ -35,7 +35,7 @@ model Session {
   tokenHash  String    @unique
   userId     String
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  ttlMs      Int
+  ttlMs      BigInt
   createdAt  DateTime  @default(now())
   lastSeenAt DateTime  @default(now())
   expiresAt  DateTime

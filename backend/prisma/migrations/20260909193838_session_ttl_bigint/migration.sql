@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Session" ALTER COLUMN "ttlMs" SET DATA TYPE BIGINT;

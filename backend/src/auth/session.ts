@@ -73,7 +73,9 @@ export async function resolveSession(
   if (ahora.getTime() - sesion.lastSeenAt.getTime() >= VENTANA_RENOVACION_MS) {
     await prisma.session.update({
       where: { id: sesion.id },
-      data: { lastSeenAt: ahora, expiresAt: new Date(ahora.getTime() + sesion.ttlMs) },
+      // La columna es BIGINT porque el TTL de "recordarme" (30 días en ms) no
+      // entra en un INTEGER de Postgres; acá vuelve a ser number para la fecha.
+      data: { lastSeenAt: ahora, expiresAt: new Date(ahora.getTime() + Number(sesion.ttlMs)) },
     });
   }
 

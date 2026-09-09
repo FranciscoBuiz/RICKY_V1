@@ -529,7 +529,7 @@ model Session {
   tokenHash  String    @unique
   userId     String
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  ttlMs      Int
+  ttlMs      BigInt
   createdAt  DateTime  @default(now())
   lastSeenAt DateTime  @default(now())
   expiresAt  DateTime
@@ -565,6 +565,11 @@ export default defineConfig({
 deslizante que sí especifica: `ttlMs` recuerda cuánto dura esta sesión (12 h o 30 días
 según "recordarme") y `lastSeenAt` es lo que permite renovar como mucho una vez por
 hora. Sin guardar el TTL original, al renovar no habría con qué extenderla.
+
+`ttlMs` es **`BigInt`, no `Int`**: el TTL de "recordarme" son 30 días, o sea
+2.592.000.000 ms, y un `INTEGER` de Postgres corta en 2.147.483.647. Con `Int` el
+login con "recordarme" muere en un 500 (`P2020`, value out of range) y el TTL
+corto de 12 h no lo revela, porque ese sí entra.
 
 - [x] **Step 2: Instalar el driver adapter, generar el cliente y migrar**
 
@@ -1319,7 +1324,9 @@ export async function resolveSession(
   if (ahora.getTime() - sesion.lastSeenAt.getTime() >= VENTANA_RENOVACION_MS) {
     await prisma.session.update({
       where: { id: sesion.id },
-      data: { lastSeenAt: ahora, expiresAt: new Date(ahora.getTime() + sesion.ttlMs) },
+      // La columna es BIGINT porque el TTL de "recordarme" (30 días en ms) no
+      // entra en un INTEGER de Postgres; acá vuelve a ser number para la fecha.
+      data: { lastSeenAt: ahora, expiresAt: new Date(ahora.getTime() + Number(sesion.ttlMs)) },
     });
   }
 
@@ -1728,7 +1735,7 @@ cd .. && git add backend && git commit -m "feat(backend): cliente OIDC de Google
   - `AppDeps` pasa a ser `{ env: Env; oidc: OidcClient }`
   - `OAUTH_COOKIE = 'motors_oauth'`
 
-- [ ] **Step 1: Escribir el test que falla, `backend/tests/auth-routes.test.ts`**
+- [x] **Step 1: Escribir el test que falla, `backend/tests/auth-routes.test.ts`**
 
 ```ts
 import type { FastifyInstance } from 'fastify';
@@ -1925,7 +1932,10 @@ describe('rutas de auth', () => {
     });
 
     const sesion = await prisma.session.findFirst();
-    expect(sesion?.ttlMs).toBe(30 * 24 * 60 * 60 * 1000);
+    // La columna es BIGINT porque 30 días en ms no entran en un INTEGER. Prisma
+    // la tipa como `bigint`, pero el adapter de `pg` devuelve un number: el
+    // `Number()` deja la aserción a salvo de cuál de los dos venga.
+    expect(Number(sesion?.ttlMs)).toBe(30 * 24 * 60 * 60 * 1000);
     await app.close();
   });
 
@@ -2002,12 +2012,12 @@ test propio a propósito: la cookie tiene `maxAge` de 10 minutos, así que venci
 state", que es el segundo test. Un test que fuerce el vencimiento estaría probando
 al navegador, no a nuestro código.
 
-- [ ] **Step 2: Correr el test y verificar que falla**
+- [x] **Step 2: Correr el test y verificar que falla**
 
 Run: `npm test -- auth-routes`
 Expected: FAIL — `buildApp` no acepta `oidc`.
 
-- [ ] **Step 3: Escribir `backend/src/users/roles.ts`** (primero: `auth/routes.ts` lo importa)
+- [x] **Step 3: Escribir `backend/src/users/roles.ts`** (primero: `auth/routes.ts` lo importa)
 
 ```ts
 import type { Role } from '../db/prisma.js';
@@ -2027,7 +2037,7 @@ export const ROL_POR_CLAVE: Record<string, Role> = {
 };
 ```
 
-- [ ] **Step 4: Escribir `backend/src/auth/routes.ts`**
+- [x] **Step 4: Escribir `backend/src/auth/routes.ts`**
 
 ```ts
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
@@ -2209,7 +2219,7 @@ export function registerAuthRoutes(
 }
 ```
 
-- [ ] **Step 5: Montar las rutas en `backend/src/app.ts`**
+- [x] **Step 5: Montar las rutas en `backend/src/app.ts`**
 
 Reemplazar `AppDeps` y agregar el registro:
 
@@ -2240,7 +2250,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
 }
 ```
 
-- [ ] **Step 6: Actualizar `backend/tests/health.test.ts` y `backend/tests/guard.test.ts`**
+- [x] **Step 6: Actualizar `backend/tests/health.test.ts` y `backend/tests/guard.test.ts`**
 
 Ambos llaman a `buildApp({ env })` y ahora falta `oidc`. Agregar en cada uno, antes del `describe`:
 
@@ -2257,7 +2267,7 @@ const oidcNoUsado: OidcClient = {
 
 y cambiar cada `buildApp({ env })` por `buildApp({ env, oidc: oidcNoUsado })`.
 
-- [ ] **Step 7: Construir el cliente OIDC real en `backend/src/main.ts`**
+- [x] **Step 7: Construir el cliente OIDC real en `backend/src/main.ts`**
 
 Insertar antes de `const app = await buildApp(...)`:
 
@@ -2269,12 +2279,12 @@ const oidc = await createGoogleOidcClient(env);
 
 y cambiar la construcción a `const app = await buildApp({ env, oidc });`.
 
-- [ ] **Step 8: Correr toda la suite**
+- [x] **Step 8: Correr toda la suite**
 
 Run: `npm test && npm run typecheck`
-Expected: PASS, 42 tests.
+Expected: PASS, 51 tests.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 cd .. && git add backend && git commit -m "feat(backend): flujo OIDC con PKCE, state firmado y sesion por cookie"

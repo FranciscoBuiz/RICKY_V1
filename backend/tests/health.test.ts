@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildApp } from '../src/app.js';
+import type { OidcClient } from '../src/auth/oidc.js';
 import { loadEnv } from '../src/env.js';
 
 const env = loadEnv({
@@ -12,9 +13,16 @@ const env = loadEnv({
   SESSION_COOKIE_SECRET: 'x'.repeat(32),
 });
 
+const oidcNoUsado: OidcClient = {
+  buildAuthUrl: () => new URL('https://accounts.google.com'),
+  exchange: async () => {
+    throw new Error('no se usa en este test');
+  },
+};
+
 describe('GET /health', () => {
   it('responde ok', async () => {
-    const app = await buildApp({ env });
+    const app = await buildApp({ env, oidc: oidcNoUsado });
     const respuesta = await app.inject({ method: 'GET', url: '/health' });
 
     expect(respuesta.statusCode).toBe(200);

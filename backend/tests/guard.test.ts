@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { buildApp } from '../src/app.js';
 import { requireRole, requireSession } from '../src/auth/guard.js';
+import type { OidcClient } from '../src/auth/oidc.js';
 import { createSession, SESSION_COOKIE, TTL_CORTO_MS } from '../src/auth/session.js';
 import { prisma, type Role } from '../src/db/prisma.js';
 import { loadEnv } from '../src/env.js';
@@ -19,8 +20,15 @@ const env = loadEnv({
   SESSION_COOKIE_SECRET: 'x'.repeat(32),
 });
 
+const oidcNoUsado: OidcClient = {
+  buildAuthUrl: () => new URL('https://accounts.google.com'),
+  exchange: async () => {
+    throw new Error('no se usa en este test');
+  },
+};
+
 async function appDePrueba(): Promise<FastifyInstance> {
-  const app = await buildApp({ env });
+  const app = await buildApp({ env, oidc: oidcNoUsado });
   app.get('/privado', { preHandler: requireSession }, async (request) => ({
     email: request.user!.email,
   }));
