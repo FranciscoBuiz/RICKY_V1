@@ -75,7 +75,7 @@ Cada módulo tiene una dependencia hacia adentro y ninguna hacia afuera: `sessio
   - `buildApp(deps: AppDeps): Promise<FastifyInstance>`
   - `sendError(reply, status: number, message: string)`
 
-- [ ] **Step 1: Crear el proyecto y las dependencias**
+- [x] **Step 1: Crear el proyecto y las dependencias**
 
 ```bash
 cd backend
@@ -86,7 +86,7 @@ npm install fastify@5.12.3 @fastify/cookie@11.1.2 openid-client@6.8.8 zod@4.5.4 
 npm install -D typescript@5.9.3 vitest@4.1.11 tsx@4.23.13 prisma@7.10.0 "@types/node@^22.15.0"
 ```
 
-- [ ] **Step 2: Escribir `backend/tsconfig.json`**
+- [x] **Step 2: Escribir `backend/tsconfig.json`**
 
 ```json
 {
@@ -107,7 +107,7 @@ npm install -D typescript@5.9.3 vitest@4.1.11 tsx@4.23.13 prisma@7.10.0 "@types/
 }
 ```
 
-- [ ] **Step 3: Escribir `backend/.gitignore`**
+- [x] **Step 3: Escribir `backend/.gitignore`**
 
 ```
 node_modules
@@ -119,7 +119,7 @@ src/generated
 
 `src/generated` es código que produce Prisma en cada `generate`. Versionarlo genera diffs enormes y conflictos de merge sin ningún valor.
 
-- [ ] **Step 4: Escribir `backend/docker-compose.yml`**
+- [x] **Step 4: Escribir `backend/docker-compose.yml`**
 
 ```yaml
 services:
@@ -148,13 +148,13 @@ volumes:
 
 El `$${POSTGRES_USER}` con doble `$` es intencional: escapa la interpolación de Compose para que la variable la resuelva el shell **adentro** del contenedor.
 
-- [ ] **Step 5: Escribir `backend/docker/init-test-db.sql`**
+- [x] **Step 5: Escribir `backend/docker/init-test-db.sql`**
 
 ```sql
 CREATE DATABASE motors_test;
 ```
 
-- [ ] **Step 6: Escribir `backend/.env.example`**
+- [x] **Step 6: Escribir `backend/.env.example`**
 
 ```
 # Postgres (los lee docker-compose al crear el contenedor)
@@ -187,7 +187,7 @@ SENTRY_ENVIRONMENT=development
 SENTRY_TRACES_SAMPLE_RATE=0.1
 ```
 
-- [ ] **Step 7: Copiar el ejemplo a `.env` y `.env.test`**
+- [x] **Step 7: Copiar el ejemplo a `.env` y `.env.test`**
 
 ```bash
 cp .env.example .env
@@ -202,7 +202,7 @@ DATABASE_URL=postgresql://motors:motors_dev_password@localhost:5432/motors_test
 NODE_ENV=test
 ```
 
-- [ ] **Step 8: Escribir el test que falla, `backend/tests/env.test.ts`**
+- [x] **Step 8: Escribir el test que falla, `backend/tests/env.test.ts`**
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -246,7 +246,7 @@ describe('loadEnv', () => {
 });
 ```
 
-- [ ] **Step 9: Escribir `backend/vitest.config.ts` y `backend/tests/setup.ts`**
+- [x] **Step 9: Escribir `backend/vitest.config.ts` y `backend/tests/setup.ts`**
 
 ```ts
 // vitest.config.ts
@@ -272,12 +272,12 @@ try {
 }
 ```
 
-- [ ] **Step 10: Correr el test y verificar que falla**
+- [x] **Step 10: Correr el test y verificar que falla**
 
 Run: `npm test -- env`
 Expected: FAIL — `Failed to load ../src/env.js` (todavía no existe).
 
-- [ ] **Step 11: Escribir `backend/src/env.ts`**
+- [x] **Step 11: Escribir `backend/src/env.ts`**
 
 ```ts
 import { z } from 'zod';
@@ -326,12 +326,12 @@ export function loadEnv(source: NodeJS.ProcessEnv | Record<string, unknown> = pr
 
 El filtrado de cadenas vacías importa: un `.env` con `SENTRY_DSN=` deja la variable definida como `''`, y sin esto zod la tomaría como un valor presente.
 
-- [ ] **Step 12: Correr el test y verificar que pasa**
+- [x] **Step 12: Correr el test y verificar que pasa**
 
 Run: `npm test -- env`
 Expected: PASS, 5 tests.
 
-- [ ] **Step 13: Escribir el test que falla, `backend/tests/health.test.ts`**
+- [x] **Step 13: Escribir el test que falla, `backend/tests/health.test.ts`**
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -363,12 +363,12 @@ describe('GET /health', () => {
 });
 ```
 
-- [ ] **Step 14: Correr el test y verificar que falla**
+- [x] **Step 14: Correr el test y verificar que falla**
 
 Run: `npm test -- health`
 Expected: FAIL — no existe `../src/app.js`.
 
-- [ ] **Step 15: Escribir `backend/src/http/errors.ts`**
+- [x] **Step 15: Escribir `backend/src/http/errors.ts`**
 
 ```ts
 import type { FastifyReply } from 'fastify';
@@ -382,7 +382,7 @@ export function sendError(reply: FastifyReply, status: number, message: string):
 }
 ```
 
-- [ ] **Step 16: Escribir `backend/src/app.ts`**
+- [x] **Step 16: Escribir `backend/src/app.ts`**
 
 ```ts
 import cookie from '@fastify/cookie';
@@ -411,7 +411,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
 }
 ```
 
-- [ ] **Step 17: Escribir `backend/src/main.ts`**
+- [x] **Step 17: Escribir `backend/src/main.ts`**
 
 ```ts
 import { buildApp } from './app.js';
@@ -435,7 +435,7 @@ for (const señal of ['SIGINT', 'SIGTERM'] as const) {
 }
 ```
 
-- [ ] **Step 18: Agregar los scripts a `backend/package.json`**
+- [x] **Step 18: Agregar los scripts a `backend/package.json`**
 
 ```bash
 npm pkg set scripts.dev="tsx watch src/main.ts"
@@ -450,12 +450,12 @@ npm pkg set scripts.db:logs="docker compose logs -f db"
 
 `docker compose up -d --wait` no vuelve hasta que el healthcheck pasa. Sin `--wait`, el comando siguiente le pega a un Postgres que todavía arranca.
 
-- [ ] **Step 19: Correr los tests y el typecheck**
+- [x] **Step 19: Correr los tests y el typecheck**
 
 Run: `npm test && npm run typecheck`
 Expected: PASS, 6 tests, sin errores de tipos.
 
-- [ ] **Step 20: Levantar la base y verificar que responde**
+- [x] **Step 20: Levantar la base y verificar que responde**
 
 Run:
 ```bash
@@ -464,7 +464,7 @@ docker exec motors-db psql -U motors -d motors_test -c "select 1"
 ```
 Expected: el contenedor queda `healthy` y el `psql` devuelve una fila. Que `motors_test` exista confirma que corrió el script de `initdb`.
 
-- [ ] **Step 21: Commit**
+- [x] **Step 21: Commit**
 
 ```bash
 cd ..
@@ -489,7 +489,7 @@ git commit -m "feat(backend): andamiaje Fastify, Postgres en Docker y /health"
   - `seedBootstrapAdmin(email: string): Promise<void>` desde `prisma/seed.ts`.
   - `limpiarBase(): Promise<void>` desde `tests/db.ts`, para usar en `beforeEach`.
 
-- [ ] **Step 1: Escribir `backend/prisma/schema.prisma` y `backend/prisma.config.ts`**
+- [x] **Step 1: Escribir `backend/prisma/schema.prisma` y `backend/prisma.config.ts`**
 
 ```prisma
 generator client {
@@ -566,7 +566,7 @@ deslizante que sí especifica: `ttlMs` recuerda cuánto dura esta sesión (12 h 
 según "recordarme") y `lastSeenAt` es lo que permite renovar como mucho una vez por
 hora. Sin guardar el TTL original, al renovar no habría con qué extenderla.
 
-- [ ] **Step 2: Instalar el driver adapter, generar el cliente y migrar**
+- [x] **Step 2: Instalar el driver adapter, generar el cliente y migrar**
 
 ```bash
 npm install @prisma/adapter-pg@7.10.0 pg@8.23.0
@@ -589,7 +589,7 @@ Si `prisma generate` avisa que el formato de módulo no coincide con este proyec
 agregar `moduleFormat = "esm"` dentro del bloque `generator client` y volver a correr
 `npx prisma generate`.
 
-- [ ] **Step 3: Escribir `backend/src/load-env.ts` y `backend/src/db/prisma.ts`**
+- [x] **Step 3: Escribir `backend/src/load-env.ts` y `backend/src/db/prisma.ts`**
 
 ```ts
 // src/load-env.ts
@@ -654,7 +654,7 @@ por un import, que tiene que ser **el primero del archivo**:
 import './load-env.js';
 ```
 
-- [ ] **Step 4: Escribir `backend/tests/db.ts`**
+- [x] **Step 4: Escribir `backend/tests/db.ts`**
 
 ```ts
 import { prisma } from '../src/db/prisma.js';
@@ -668,7 +668,7 @@ export async function limpiarBase(): Promise<void> {
 }
 ```
 
-- [ ] **Step 5: Escribir el test que falla, `backend/tests/seed.test.ts`**
+- [x] **Step 5: Escribir el test que falla, `backend/tests/seed.test.ts`**
 
 ```ts
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
@@ -717,12 +717,12 @@ describe('seedBootstrapAdmin', () => {
 
 El tercer test es el que importa: correr el seed dos veces es normal (`db:reset`), y no puede degradar al administrador que ya entró.
 
-- [ ] **Step 6: Correr el test y verificar que falla**
+- [x] **Step 6: Correr el test y verificar que falla**
 
 Run: `npm test -- seed`
 Expected: FAIL — no existe `../prisma/seed.js`.
 
-- [ ] **Step 7: Escribir `backend/prisma/seed.ts`**
+- [x] **Step 7: Escribir `backend/prisma/seed.ts`**
 
 ```ts
 import '../src/load-env.js';
@@ -772,12 +772,12 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
 
 El `update: {}` del upsert es la clave de la idempotencia: si el usuario ya existe, no se toca nada.
 
-- [ ] **Step 8: Correr el test y verificar que pasa**
+- [x] **Step 8: Correr el test y verificar que pasa**
 
 Run: `npm test -- seed`
 Expected: PASS, 3 tests.
 
-- [ ] **Step 9: Agregar los scripts de base**
+- [x] **Step 9: Agregar los scripts de base**
 
 ```bash
 npm pkg set scripts.db:migrate="prisma migrate dev"
@@ -785,7 +785,7 @@ npm pkg set scripts.db:seed="tsx prisma/seed.ts"
 npm pkg set scripts.db:reset="docker compose down -v && docker compose up -d --wait && prisma migrate deploy && tsx prisma/seed.ts"
 ```
 
-- [ ] **Step 10: Aplicar las migraciones a la base de tests**
+- [x] **Step 10: Aplicar las migraciones a la base de tests**
 
 ```bash
 DATABASE_URL=$(grep '^DATABASE_URL=' .env.test | cut -d= -f2-) npx prisma migrate deploy
@@ -793,12 +793,12 @@ DATABASE_URL=$(grep '^DATABASE_URL=' .env.test | cut -d= -f2-) npx prisma migrat
 
 Expected: aplica la migración `init` sobre `motors_test`. Sin esto, todo test que toque la base falla con "table does not exist".
 
-- [ ] **Step 11: Correr toda la suite**
+- [x] **Step 11: Correr toda la suite**
 
 Run: `npm test && npm run typecheck`
 Expected: PASS, 9 tests.
 
-- [ ] **Step 12: Commit**
+- [x] **Step 12: Commit**
 
 ```bash
 cd .. && git add backend && git commit -m "feat(backend): esquema Prisma, migracion inicial y seed del primer admin"
@@ -819,7 +819,7 @@ cd .. && git add backend && git commit -m "feat(backend): esquema Prisma, migrac
   - `scrubEvent(event: SentryEvent): SentryEvent` — función pura.
   - `initSentry(env: Env): boolean` — `false` si no hay DSN.
 
-- [ ] **Step 1: Escribir el test que falla, `backend/tests/sentry.test.ts`**
+- [x] **Step 1: Escribir el test que falla, `backend/tests/sentry.test.ts`**
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -940,12 +940,12 @@ describe('initSentry', () => {
 
 El import del test pasa a ser `import { initSentry, scrubEvent } from '../src/observability/sentry.js';`.
 
-- [ ] **Step 2: Correr el test y verificar que falla**
+- [x] **Step 2: Correr el test y verificar que falla**
 
 Run: `npm test -- sentry`
 Expected: FAIL — no existe `../src/observability/sentry.js`.
 
-- [ ] **Step 3: Escribir `backend/src/observability/sentry.ts`**
+- [x] **Step 3: Escribir `backend/src/observability/sentry.ts`**
 
 ```ts
 import * as Sentry from '@sentry/node';
@@ -1057,12 +1057,12 @@ export function initSentry(env: Env): boolean {
 }
 ```
 
-- [ ] **Step 4: Correr el test y verificar que pasa**
+- [x] **Step 4: Correr el test y verificar que pasa**
 
 Run: `npm test -- sentry`
 Expected: PASS, 10 tests.
 
-- [ ] **Step 5: Inicializar Sentry en `backend/src/main.ts`**
+- [x] **Step 5: Inicializar Sentry en `backend/src/main.ts`**
 
 `main.ts` ya arranca con `import './load-env.js';` desde la Task 2. **Ese import se
 conserva y sigue siendo el primero**: no vuelvas a poner el `process.loadEnvFile`
@@ -1091,12 +1091,12 @@ for (const señal of ['SIGINT', 'SIGTERM'] as const) {
 }
 ```
 
-- [ ] **Step 6: Verificar la suite completa**
+- [x] **Step 6: Verificar la suite completa**
 
 Run: `npm test && npm run typecheck`
 Expected: PASS, 19 tests.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 cd .. && git add backend && git commit -m "feat(backend): Sentry con depuracion de cookies, codigos OAuth y tokens"
@@ -1121,7 +1121,7 @@ cd .. && git add backend && git commit -m "feat(backend): Sentry con depuracion 
   - `revokeSession(token: string): Promise<void>`
   - `revokeAllSessions(userId: string): Promise<void>`
 
-- [ ] **Step 1: Escribir el test que falla, `backend/tests/session.test.ts`**
+- [x] **Step 1: Escribir el test que falla, `backend/tests/session.test.ts`**
 
 ```ts
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
@@ -1236,12 +1236,12 @@ describe('sesiones', () => {
 });
 ```
 
-- [ ] **Step 2: Correr el test y verificar que falla**
+- [x] **Step 2: Correr el test y verificar que falla**
 
 Run: `npm test -- session`
 Expected: FAIL — no existe `../src/auth/session.js`.
 
-- [ ] **Step 3: Escribir `backend/src/auth/session.ts`**
+- [x] **Step 3: Escribir `backend/src/auth/session.ts`**
 
 ```ts
 import { createHash, randomBytes } from 'node:crypto';
@@ -1349,12 +1349,12 @@ export async function revokeAllSessions(userId: string): Promise<void> {
 }
 ```
 
-- [ ] **Step 4: Correr el test y verificar que pasa**
+- [x] **Step 4: Correr el test y verificar que pasa**
 
 Run: `npm test -- session`
 Expected: PASS, 10 tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 cd .. && git add backend && git commit -m "feat(backend): sesiones opacas con hash, expiracion deslizante y revocacion"
@@ -1375,7 +1375,7 @@ cd .. && git add backend && git commit -m "feat(backend): sesiones opacas con ha
   - `requireRole(...roles: Role[])` — devuelve un `preHandler`.
   - Ampliación de tipos: `FastifyRequest.user?: SessionUser`.
 
-- [ ] **Step 1: Escribir el test que falla, `backend/tests/guard.test.ts`**
+- [x] **Step 1: Escribir el test que falla, `backend/tests/guard.test.ts`**
 
 ```ts
 import type { FastifyInstance } from 'fastify';
@@ -1482,12 +1482,12 @@ describe('guards', () => {
 });
 ```
 
-- [ ] **Step 2: Correr el test y verificar que falla**
+- [x] **Step 2: Correr el test y verificar que falla**
 
 Run: `npm test -- guard`
 Expected: FAIL — no existe `../src/auth/guard.js`.
 
-- [ ] **Step 3: Escribir `backend/src/auth/guard.ts`**
+- [x] **Step 3: Escribir `backend/src/auth/guard.ts`**
 
 ```ts
 import type { FastifyReply, FastifyRequest, preHandlerHookHandler } from 'fastify';
@@ -1534,12 +1534,12 @@ export function requireRole(...roles: Role[]): preHandlerHookHandler {
 }
 ```
 
-- [ ] **Step 4: Correr el test y verificar que pasa**
+- [x] **Step 4: Correr el test y verificar que pasa**
 
 Run: `npm test -- guard`
 Expected: PASS, 6 tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 cd .. && git add backend && git commit -m "feat(backend): guards de sesion y rol"
