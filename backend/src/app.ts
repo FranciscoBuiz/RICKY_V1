@@ -3,6 +3,7 @@ import Fastify, { type FastifyInstance } from 'fastify';
 import { registerAuthRoutes } from './auth/routes.js';
 import type { OidcClient } from './auth/oidc.js';
 import type { Env } from './env.js';
+import { registerUserRoutes } from './users/routes.js';
 
 export interface AppDeps {
   env: Env;
@@ -23,6 +24,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
 
   app.get('/health', async () => ({ ok: true }));
   registerAuthRoutes(app, deps);
+  registerUserRoutes(app);
 
   return app;
 }

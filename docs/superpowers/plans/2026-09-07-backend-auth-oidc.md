@@ -2306,7 +2306,7 @@ cd .. && git add backend && git commit -m "feat(backend): flujo OIDC con PKCE, s
   - `toPanelUser(fila): PanelUser`
   - `registerUserRoutes(app: FastifyInstance): void`
 
-- [ ] **Step 1: Escribir el test que falla, `backend/tests/users-routes.test.ts`**
+- [x] **Step 1: Escribir el test que falla, `backend/tests/users-routes.test.ts`**
 
 ```ts
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
@@ -2520,12 +2520,12 @@ describe('rutas de usuarios', () => {
 });
 ```
 
-- [ ] **Step 2: Correr el test y verificar que falla**
+- [x] **Step 2: Correr el test y verificar que falla**
 
 Run: `npm test -- users-routes`
 Expected: FAIL — la ruta `/users` no existe (404).
 
-- [ ] **Step 3: Escribir `backend/src/users/repo.ts`**
+- [x] **Step 3: Escribir `backend/src/users/repo.ts`**
 
 ```ts
 import { prisma, type Role, type UserStatus } from '../db/prisma.js';
@@ -2581,7 +2581,7 @@ export async function inviteUser(email: string, role: Role): Promise<PanelUser> 
 }
 ```
 
-- [ ] **Step 4: Escribir `backend/src/users/routes.ts`**
+- [x] **Step 4: Escribir `backend/src/users/routes.ts`**
 
 ```ts
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
@@ -2668,7 +2668,7 @@ export function registerUserRoutes(app: FastifyInstance): void {
 }
 ```
 
-- [ ] **Step 5: Montar las rutas en `backend/src/app.ts`**
+- [x] **Step 5: Montar las rutas en `backend/src/app.ts`**
 
 Agregar el import y la llamada después de `registerAuthRoutes(app, deps);`:
 
@@ -2679,12 +2679,12 @@ import { registerUserRoutes } from './users/routes.js';
   registerUserRoutes(app);
 ```
 
-- [ ] **Step 6: Correr los tests y verificar que pasan**
+- [x] **Step 6: Correr los tests y verificar que pasan**
 
 Run: `npm test && npm run typecheck`
-Expected: PASS, 53 tests.
+Expected: PASS, 62 tests.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 cd .. && git add backend && git commit -m "feat(backend): endpoints de usuarios e invitaciones con guard de ADMIN"
