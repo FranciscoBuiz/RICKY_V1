@@ -211,15 +211,21 @@ cómo se ven y qué acciones ofrecen.
 
 | Entidad | Estados | Cómo se cubre |
 |---|---|---|
-| `Lead` | `new`, `contacted`, `negotiating`, `closed`, `discarded` | Cinco consultas de demostración, una por estado. |
-| `Appointment` | `pending`, `confirmed`, `in_progress`, `completed`, `cancelled` | Cinco turnos, uno por estado, con fechas coherentes: `completed` y `cancelled` en el pasado, `pending` y `confirmed` a futuro. |
-| `ActionAlertType` | `urgent`, `important`, `pending` | Tres alertas en el dashboard. |
+| `Lead` | `new`, `contacted`, `negotiating`, `closed`, `discarded` | **Ya cubiertos** por las 12 consultas de la semilla actual. Se fija con tests. |
+| `Appointment` | `pending`, `confirmed`, `in_progress`, `completed`, `cancelled` | **Ya cubiertos** por los 12 turnos. Lo que falta es descongelar las fechas: `crm.ts:15` clava la agenda a `'2026-09'`, así que en un mes todos los turnos quedan en el pasado y el panel deja de tener sentido. Pasan a offsets relativos a hoy. |
+| `ActionAlertType` | `urgent`, `important`, `pending` | **Ya cubiertos** por `seedActionAlerts`. Se fija con tests. |
 | `PanelUser` | `ACTIVE`, `PENDING` | El admin de bootstrap queda `ACTIVE` en su primer login; el seed del backend agrega un segundo usuario invitado que queda `PENDING`. |
 | `Vehicle` | `available`, `reserved`, `sold` | **No se cubre sobre los vehículos reales** (Decisión 8). Los tres estados siguen existiendo en el panel; ninguno de los seis autos reales se marca con un estado falso. |
 | `SellRequest` | — | No tiene campo de estado. Nada que cubrir. |
 
-Las consultas y turnos de demostración se nombran de forma que se lean como
-demostración, no como contactos reales.
+Las consultas y turnos de demostración ya se nombran de forma que se lean como
+demostración (`'Martina G.'`, `martina@example.com`, teléfonos `223 555-01NN`).
+
+Hay un efecto secundario de la Fase 2 que esta fase tiene que limpiar: las
+consultas y los turnos mencionan el stock del prototipo — Corolla XEi, T-Cross,
+208 Feline, Amarok, Ranger, Onix — que deja de existir cuando el catálogo pasa a
+ser el real. Sin corregirlo, el panel muestra consultas sobre autos que no están
+en venta.
 
 ## Fase 4 — Empaquetado y despliegue
 
