@@ -1562,7 +1562,7 @@ cd .. && git add backend && git commit -m "feat(backend): guards de sesion y rol
   - `GOOGLE_ISSUER = 'https://accounts.google.com'`
   - `identityFromClaims(claims: unknown): GoogleIdentity` — exportada para poder testear el mapeo sin red.
 
-- [ ] **Step 1: Escribir el test que falla, `backend/tests/oidc.test.ts`**
+- [x] **Step 1: Escribir el test que falla, `backend/tests/oidc.test.ts`**
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -1609,12 +1609,12 @@ describe('identityFromClaims', () => {
 });
 ```
 
-- [ ] **Step 2: Correr el test y verificar que falla**
+- [x] **Step 2: Correr el test y verificar que falla**
 
 Run: `npm test -- oidc`
 Expected: FAIL — no existe `../src/auth/oidc.js`.
 
-- [ ] **Step 3: Escribir `backend/src/auth/oidc.ts`**
+- [x] **Step 3: Escribir `backend/src/auth/oidc.ts`**
 
 ```ts
 import * as client from 'openid-client';
@@ -1701,12 +1701,12 @@ export const generarCodeVerifier = client.randomPKCECodeVerifier;
 export const calcularCodeChallenge = client.calculatePKCECodeChallenge;
 ```
 
-- [ ] **Step 4: Correr el test y verificar que pasa**
+- [x] **Step 4: Correr el test y verificar que pasa**
 
 Run: `npm test -- oidc`
 Expected: PASS, 5 tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 cd .. && git add backend && git commit -m "feat(backend): cliente OIDC de Google detras de una interfaz inyectable"
