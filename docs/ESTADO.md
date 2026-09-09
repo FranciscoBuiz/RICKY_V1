@@ -7,11 +7,12 @@ Spec: `docs/superpowers/specs/2026-09-07-backend-auth-oidc-design.md`
 
 ## Dónde vamos
 
-**Tasks 1 a 12 terminadas y commiteadas.** De la Task 12 queda pendiente **un solo
-paso, y es de una persona**: el Step 4, la prueba a mano del flujo en el navegador.
-Todo lo demás (credenciales, seed, documentación, verificación) está hecho. Los
-checkboxes del plan están al día, así que el progreso se lee del plan y no hace falta
-reconstruirlo del `git log`.
+**Las 12 tasks están terminadas y commiteadas**, incluido el Step 4 de la Task 12: el
+ingreso con Google se probó a mano en el navegador y funciona. Los checkboxes del plan
+están al día, así que el progreso se lee del plan y no hace falta reconstruirlo del
+`git log`.
+
+Lo que sigue es decidir qué hacer con la rama `feat/backend-auth-oidc`.
 
 | Task | Qué es | Estado |
 |---|---|---|
@@ -26,7 +27,7 @@ reconstruirlo del `git log`.
 | 9 | Proxy y middleware en Next | ✅ |
 | 10 | Login con Google en el frontend | ✅ |
 | 11 | Sentry en el frontend | ✅ |
-| 12 | Puesta en marcha y verificación E2E | ✅ salvo el Step 4 (prueba a mano) |
+| 12 | Puesta en marcha y verificación E2E | ✅ |
 
 **Verificación al momento de parar:** backend `npm test` → **62 tests, 9 archivos, todos
 pasan**; `npm run typecheck` limpio. Frontend `npm run typecheck` limpio y `npm run build`
@@ -50,29 +51,25 @@ cd frontend  && npm run dev    # :3000
 
 El volumen de Postgres sobrevive a `db:down`, así que los datos siguen ahí.
 
-## Qué falta exactamente (Task 12)
+## Trampa del entorno que costó una hora
 
-Sólo el **Step 4: probar el flujo a mano en el navegador**, con los dos servicios
-levantados. La checklist, tal cual está en el plan:
+**Nunca dejar dos `next dev` sobre el mismo `frontend/.next`.** Se pisan la compilación:
+`app-build-manifest.json` declara `static/css/app/layout.css` pero el archivo no llega a
+disco, el `<link>` da 404 y **todas las páginas salen sin estilos**. De regalo, el
+callback de Google tira 500 con `Jest worker encountered 2 child process exceptions`.
 
-1. `http://localhost:3000/admin` → redirige a `/login?next=%2Fadmin`. ✅ ya comprobado
-   con `curl`.
-2. Clic en "Entrar con Google" → pantalla de Google. La URL de autorización ya se arma
-   bien (PKCE, `state`, `nonce` y el `redirect_uri` exacto): comprobado con `curl`, lo
-   que falta es completar el login real.
-3. Elegir la cuenta de `BOOTSTRAP_ADMIN_EMAIL` → vuelve a `/admin`, logueado. El usuario
-   sembrado pasa de `PENDING` a `ACTIVE` en ese primer ingreso.
-4. `http://localhost:3000/api/auth/me` → devuelve el usuario con `"role": "Administrador"`.
-5. En `/admin/configuracion`, invitar un email cualquiera → aparece como **pendiente**.
-6. Verificar que quedó en la base:
-   `docker exec motors-db psql -U motors -d motors -c 'select email, role, status from "User"'`
-7. En incógnito, entrar con una cuenta de Google **no invitada** → vuelve a
-   `/login?error=no_invitado`.
-8. Borrar la cookie `motors_session` y recargar `/admin` → vuelve a `/login`.
+Pasa fácil porque matar el `npm run dev` no mata al hijo (`next dev`, `tsx watch`): el
+segundo servidor avisa `Port 3000 is in use ... using available port 3001`, se va al 3001
+y el navegador sigue hablando con el huérfano del 3000. Antes de relanzar, comprobar:
 
-Lo demás está hecho: las credenciales de Google ya están en `backend/.env`, el admin
-inicial está sembrado (`buizfrancisco@gmail.com`, hoy `PENDING` hasta el primer ingreso),
-la documentación quedó actualizada y las cuatro verificaciones pasan.
+```powershell
+Get-CimInstance Win32_Process -Filter "Name='node.exe'" |
+  Where-Object { $_.CommandLine -like '*RICKY_V1*' } | Select-Object ProcessId, CommandLine
+Get-NetTCPConnection -LocalPort 3000,4000 -State Listen -ErrorAction SilentlyContinue
+```
+
+Lo que sobreviva se mata con `taskkill /PID <pid> /T /F` (el `/T` es el que se lleva el
+árbol). Si `.next` ya quedó pisado, hay que borrarlo: recompilar solo no lo repara.
 
 ## Configuración
 

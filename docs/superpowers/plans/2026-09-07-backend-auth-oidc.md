@@ -3239,7 +3239,7 @@ cd backend && npm run dev     # :4000
 cd frontend && npm run dev    # :3000
 ```
 
-- [ ] **Step 4: Verificar el flujo completo a mano**
+- [x] **Step 4: Verificar el flujo completo a mano**
 
 1. Abrir `http://localhost:3000/admin` → debe redirigir a `/login`.
 2. Clic en "Entrar con Google" → pantalla de Google.
