@@ -879,6 +879,40 @@ describe('scrubEvent', () => {
     expect(evento.user).toEqual({ id: 'user-1' });
   });
 
+  it('borra query_string, que es donde Sentry deja la query cruda', () => {
+    const evento = scrubEvent({
+      request: {
+        url: 'http://localhost:4000/auth/google/callback?code=4/0Ax7SECRETO',
+        query_string: 'code=4/0Ax7SECRETO&state=abc123&scope=openid',
+      },
+    });
+
+    expect(evento.request?.query_string).toBeUndefined();
+  });
+
+  it('con una URL que no parsea falla cerrado y no explota', () => {
+    const evento = scrubEvent({
+      request: { url: '/auth/callback?code=SECRETO123&state=xyz', data: { algo: 'sensible' } },
+    });
+
+    expect(evento.request?.url).toBe('[depurado]');
+    expect(evento.request?.url).not.toContain('SECRETO123');
+    // Sin poder leer el path, no se puede descartar que sea /auth: se borra igual.
+    expect(evento.request?.data).toBeUndefined();
+  });
+
+  it('borra headers sensibles sin importar como esten capitalizados', () => {
+    const evento = scrubEvent({
+      request: {
+        url: 'http://localhost:4000/users',
+        headers: { Cookie: 'motors_session=real', Authorization: 'Bearer secreto' },
+      },
+    });
+
+    expect(evento.request?.headers?.Cookie).toBeUndefined();
+    expect(evento.request?.headers?.Authorization).toBeUndefined();
+  });
+
   it('no explota con un evento vacío', () => {
     expect(() => scrubEvent({})).not.toThrow();
   });
@@ -921,6 +955,12 @@ import type { Env } from '../env.js';
 export interface SentryEvent {
   request?: {
     url?: string;
+    /**
+     * Sentry lo puebla solo, con la query **cruda y sin filtrar**, desde sus
+     * integraciones por defecto (`httpIntegration` + `requestDataIntegration`).
+     * Es el campo que en produccion lleva el `code` de OAuth.
+     */
+    query_string?: string | Record<string, string> | Array<[string, string]>;
     cookies?: Record<string, string>;
     headers?: Record<string, string | undefined>;
     data?: unknown;
@@ -935,20 +975,8 @@ export interface SentryEvent {
  * canjearlo por la identidad del usuario.
  */
 const PARAMS_SENSIBLES = ['code', 'state', 'id_token', 'access_token', 'refresh_token'];
-const HEADERS_SENSIBLES = ['cookie', 'set-cookie', 'authorization'];
+const HEADERS_SENSIBLES = new Set(['cookie', 'set-cookie', 'authorization']);
 const DEPURADO = '[depurado]';
-
-function depurarUrl(url: string): string {
-  try {
-    const parsed = new URL(url);
-    for (const param of PARAMS_SENSIBLES) {
-      if (parsed.searchParams.has(param)) parsed.searchParams.set(param, DEPURADO);
-    }
-    return parsed.toString();
-  } catch {
-    return url;
-  }
-}
 
 /**
  * Corre sobre todo evento antes de salir del proceso. Un servicio de auth es el
@@ -959,15 +987,49 @@ export function scrubEvent(event: SentryEvent): SentryEvent {
   if (event.request) {
     const { request } = event;
 
-    if (request.url) request.url = depurarUrl(request.url);
+    // La URL se parsea **una sola vez** y el resultado se reusa para depurar los
+    // parametros y para decidir si el path es de /auth. Parsearla dos veces fue un
+    // bug real: la segunda llamada explotaba justo con las URLs que la primera no
+    // habia podido arreglar.
+    let parsed: URL | null = null;
+    if (request.url !== undefined) {
+      try {
+        parsed = new URL(request.url);
+      } catch {
+        parsed = null;
+      }
+
+      if (parsed) {
+        for (const param of PARAMS_SENSIBLES) {
+          if (parsed.searchParams.has(param)) parsed.searchParams.set(param, DEPURADO);
+        }
+        request.url = parsed.toString();
+      } else {
+        // Se falla **cerrado**: si no se puede leer la URL, tampoco se puede saber
+        // que lleva adentro, asi que no sale. Devolverla cruda seria justo lo
+        // contrario de lo que este modulo existe para hacer.
+        request.url = DEPURADO;
+      }
+    }
+
+    // Sentry escribe este campo por su cuenta con la query cruda. `request.url`
+    // ya lleva la misma informacion depurada, asi que borrarlo entero no pierde
+    // nada util y cierra la unica via por la que el `code` seguia saliendo.
+    delete request.query_string;
+
     delete request.cookies;
 
     if (request.headers) {
-      for (const header of HEADERS_SENSIBLES) delete request.headers[header];
+      // Comparacion en minusculas: Node ya normaliza los headers entrantes, pero
+      // `scrubEvent` es una funcion exportada y no puede depender de eso.
+      for (const clave of Object.keys(request.headers)) {
+        if (HEADERS_SENSIBLES.has(clave.toLowerCase())) delete request.headers[clave];
+      }
     }
 
-    // El cuerpo de /auth/* puede traer tokens; ninguno vale lo que arriesga.
-    if (request.url && new URL(request.url).pathname.startsWith('/auth')) {
+    // El cuerpo de /auth/* puede traer tokens; ninguno vale lo que arriesga. Si la
+    // URL no parseo, tampoco se sabe el path: se borra igual.
+    if (!parsed || parsed.pathname.startsWith('/auth')) {
       delete request.data;
     }
   }
@@ -998,22 +1060,19 @@ export function initSentry(env: Env): boolean {
 - [ ] **Step 4: Correr el test y verificar que pasa**
 
 Run: `npm test -- sentry`
-Expected: PASS, 7 tests.
+Expected: PASS, 10 tests.
 
 - [ ] **Step 5: Inicializar Sentry en `backend/src/main.ts`**
 
-Reemplazar el contenido por:
+`main.ts` ya arranca con `import './load-env.js';` desde la Task 2. **Ese import se
+conserva y sigue siendo el primero**: no vuelvas a poner el `process.loadEnvFile`
+inline. El archivo queda asi:
 
 ```ts
+import './load-env.js';
 import { buildApp } from './app.js';
 import { loadEnv } from './env.js';
 import { initSentry } from './observability/sentry.js';
-
-try {
-  process.loadEnvFile('.env');
-} catch {
-  // Sin archivo: las variables vienen del entorno.
-}
 
 const env = loadEnv();
 
@@ -1035,7 +1094,7 @@ for (const señal of ['SIGINT', 'SIGTERM'] as const) {
 - [ ] **Step 6: Verificar la suite completa**
 
 Run: `npm test && npm run typecheck`
-Expected: PASS, 16 tests.
+Expected: PASS, 19 tests.
 
 - [ ] **Step 7: Commit**
 
@@ -2213,7 +2272,7 @@ y cambiar la construcción a `const app = await buildApp({ env, oidc });`.
 - [ ] **Step 8: Correr toda la suite**
 
 Run: `npm test && npm run typecheck`
-Expected: PASS, 39 tests.
+Expected: PASS, 42 tests.
 
 - [ ] **Step 9: Commit**
 
@@ -2613,7 +2672,7 @@ import { registerUserRoutes } from './users/routes.js';
 - [ ] **Step 6: Correr los tests y verificar que pasan**
 
 Run: `npm test && npm run typecheck`
-Expected: PASS, 50 tests.
+Expected: PASS, 53 tests.
 
 - [ ] **Step 7: Commit**
 
