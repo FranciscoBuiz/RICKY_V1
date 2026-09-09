@@ -1,8 +1,16 @@
-import { NextResponse } from 'next/server';
-import { removeUser } from '@/server/store';
+import type { NextRequest } from 'next/server';
+import { proxyToBackend } from '@/lib/proxy';
 
-export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  if (!removeUser(id)) return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
-  return NextResponse.json({ ok: true });
+type Contexto = { params: Promise<{ id: string }> };
+
+export async function PATCH(request: NextRequest, contexto: Contexto) {
+  const { id } = await contexto.params;
+  return proxyToBackend(request, `/users/${id}`);
 }
+
+export async function DELETE(request: NextRequest, contexto: Contexto) {
+  const { id } = await contexto.params;
+  return proxyToBackend(request, `/users/${id}`);
+}
+
+export const dynamic = 'force-dynamic';

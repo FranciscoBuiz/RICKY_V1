@@ -2704,14 +2704,14 @@ cd .. && git add backend && git commit -m "feat(backend): endpoints de usuarios 
 - Consumes: rutas del backend (Tasks 7 y 8).
 - Produces: `proxyToBackend(request, path)` desde `frontend/src/lib/proxy.ts`.
 
-- [ ] **Step 1: Borrar las rutas simuladas**
+- [x] **Step 1: Borrar las rutas simuladas**
 
 ```bash
 cd frontend
 rm -rf src/app/api/auth/login src/app/api/auth/register src/app/api/auth/recover
 ```
 
-- [ ] **Step 2: Escribir `frontend/src/lib/proxy.ts`**
+- [x] **Step 2: Escribir `frontend/src/lib/proxy.ts`**
 
 ```ts
 import type { NextRequest } from 'next/server';
@@ -2759,7 +2759,7 @@ export async function proxyToBackend(request: NextRequest, backendPath: string):
 }
 ```
 
-- [ ] **Step 3: Escribir `frontend/src/app/api/auth/[...path]/route.ts`**
+- [x] **Step 3: Escribir `frontend/src/app/api/auth/[...path]/route.ts`**
 
 ```ts
 import type { NextRequest } from 'next/server';
@@ -2778,7 +2778,7 @@ export const POST = reenviar;
 export const dynamic = 'force-dynamic';
 ```
 
-- [ ] **Step 4: Reemplazar `frontend/src/app/api/settings/users/route.ts`**
+- [x] **Step 4: Reemplazar `frontend/src/app/api/settings/users/route.ts`**
 
 ```ts
 import type { NextRequest } from 'next/server';
@@ -2795,7 +2795,7 @@ export async function POST(request: NextRequest) {
 export const dynamic = 'force-dynamic';
 ```
 
-- [ ] **Step 5: Reemplazar `frontend/src/app/api/settings/users/[id]/route.ts`**
+- [x] **Step 5: Reemplazar `frontend/src/app/api/settings/users/[id]/route.ts`**
 
 ```ts
 import type { NextRequest } from 'next/server';
@@ -2816,7 +2816,7 @@ export async function DELETE(request: NextRequest, contexto: Contexto) {
 export const dynamic = 'force-dynamic';
 ```
 
-- [ ] **Step 6: Escribir `frontend/src/middleware.ts`**
+- [x] **Step 6: Escribir `frontend/src/middleware.ts`**
 
 ```ts
 import { NextResponse, type NextRequest } from 'next/server';
@@ -2840,7 +2840,7 @@ export function middleware(request: NextRequest) {
 export const config = { matcher: ['/admin/:path*'] };
 ```
 
-- [ ] **Step 7: Agregar `BACKEND_URL` a `frontend/.env.example`**
+- [x] **Step 7: Agregar `BACKEND_URL` a `frontend/.env.example`**
 
 ```
 # URL interna del backend. SIN el prefijo NEXT_PUBLIC_: con el prefijo,
@@ -2850,12 +2850,12 @@ BACKEND_URL=http://localhost:4000
 
 Y crear `frontend/.env.local` con la misma línea.
 
-- [ ] **Step 8: Verificar que compila**
+- [x] **Step 8: Verificar que compila**
 
 Run: `cd frontend && npm run typecheck`
 Expected: PASS. Las funciones de usuarios del store quedan sin usar pero siguen exportadas, y un export sin uso no rompe el typecheck: se borran en la Task 10.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 cd .. && git add frontend && git commit -m "feat(frontend): proxy al backend para auth y usuarios, middleware de /admin"
