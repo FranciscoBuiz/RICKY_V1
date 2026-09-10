@@ -8,7 +8,7 @@ import { SiteHeader } from '@/components/site/SiteHeader';
 import { VehicleCard, VehicleGrid } from '@/components/site/VehicleCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useResource } from '@/lib/api';
-import { EYEBROW, PAGE_TITLE, SHELL } from '@/lib/design';
+import { EYEBROW, PAGE_TITLE, PRICE_STEPS, SHELL } from '@/lib/design';
 import { money, pluralize } from '@/lib/format';
 import { useIsNarrow } from '@/lib/hooks';
 import type { PublicVehicle, VehicleSort } from '@/types';
@@ -43,9 +43,6 @@ const EMPTY_FILTERS: Filters = {
   priceMax: 'all',
   search: '',
 };
-
-/** Topes de precio del filtro rápido, en pesos. */
-const PRICE_STEPS = [15_000_000, 20_000_000, 25_000_000, 30_000_000, 40_000_000];
 
 const SORT_OPTIONS: { value: VehicleSort; label: string }[] = [
   { value: 'featured', label: 'Ordenar — Destacados' },

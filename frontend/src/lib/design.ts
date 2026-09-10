@@ -234,3 +234,11 @@ export function whatsappHref(message?: string): string | null {
   const base = `https://wa.me/${WHATSAPP_NUMBER}`;
   return message ? `${base}?text=${encodeURIComponent(message)}` : base;
 }
+
+/**
+ * Escalones del filtro de precio, en dólares. Estaba duplicado en `CatalogoView`
+ * y en `QuickSearch` con valores en millones de pesos: con dólares, esos
+ * escalones dejaban los seis vehículos del mismo lado y el filtro no filtraba
+ * nada. Vive acá para que no vuelvan a divergir.
+ */
+export const PRICE_STEPS = [8_000, 10_000, 13_000, 20_000, 40_000];

@@ -1,7 +1,12 @@
 const LOCALE = 'es-AR';
 
+/**
+ * Los seis vehículos están publicados en dólares y sus precios ya circularon
+ * así por WhatsApp. Convertir a pesos exigiría una cotización inventada que
+ * envejece en semanas.
+ */
 export function money(value: number): string {
-  return `$ ${value.toLocaleString(LOCALE)}`;
+  return `US$ ${value.toLocaleString(LOCALE)}`;
 }
 
 export function kilometers(value: number): string {

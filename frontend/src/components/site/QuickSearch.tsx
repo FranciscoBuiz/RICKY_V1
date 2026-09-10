@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, type CSSProperties, type FormEvent } from 'react';
+import { PRICE_STEPS } from '@/lib/design';
 import { money } from '@/lib/format';
 
 /**
@@ -12,9 +13,6 @@ import { money } from '@/lib/format';
  * controles reales y sólo se ofrecen las facetas que el catálogo sabe filtrar:
  * marca, precio máximo y texto libre.
  */
-
-/** Topes de precio, alineados con los del catálogo. */
-const PRICE_STEPS = [15_000_000, 20_000_000, 25_000_000, 30_000_000, 40_000_000];
 
 const CONTROL: CSSProperties = {
   border: '1px solid var(--border)',
