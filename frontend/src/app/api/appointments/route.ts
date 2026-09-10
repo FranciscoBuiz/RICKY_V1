@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
+import { getSession, sinSesion } from '@/lib/session';
 import { createAppointment, dayAvailability, listAppointments, type AppointmentInput } from '@/server/store';
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-export async function GET() {
+export async function GET(request: Request) {
+  if (!(await getSession(request))) return sinSesion();
   return NextResponse.json({ appointments: listAppointments() });
 }
 

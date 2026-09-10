@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
+import { getSession, sinSesion } from '@/lib/session';
 import { createLead, listLeads, type LeadInput } from '@/server/store';
 
-export async function GET() {
+/** Listado del panel: incluye teléfono y email de cada persona que consultó. */
+export async function GET(request: Request) {
+  if (!(await getSession(request))) return sinSesion();
   return NextResponse.json({ leads: listLeads() });
 }
 
