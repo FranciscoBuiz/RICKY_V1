@@ -616,7 +616,7 @@ git commit -m "fix(frontend): consultas, turnos y configuracion exigen sesion"
   - `Vehicle.bodyType` suma `'Moto'`; `Vehicle.fuel` suma `'Nafta/GNC'`
   - `Vehicle.engine`, `.traction`, `.doors`, `.description` pasan a opcionales
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 `frontend/src/types/vehicle-model.test.ts`:
 
@@ -659,12 +659,12 @@ describe('modelo Vehicle', () => {
 });
 ```
 
-- [ ] **Step 2: Correr el test y verificar que falla**
+- [x] **Step 2: Correr el test y verificar que falla**
 
 Run: `cd frontend && npm test -- vehicle-model`
 Expected: FAIL — `'Moto'` no es asignable a `bodyType`, y `images` no existe en `Vehicle`.
 
-- [ ] **Step 3: Cambiar el modelo**
+- [x] **Step 3: Cambiar el modelo**
 
 En `frontend/src/types/index.ts`, reemplazar la interfaz `Vehicle` (líneas 3-24) por:
 
@@ -709,23 +709,23 @@ export interface Vehicle {
 }
 ```
 
-- [ ] **Step 4: Correr el typecheck para ver qué se rompió**
+- [x] **Step 4: Correr el typecheck para ver qué se rompió**
 
 Run: `cd frontend && npm run typecheck`
 Expected: FAIL — `seedVehicles` en `src/server/data/vehicles.ts` no tiene `images`, y todo consumidor de `vehicle.description` / `.engine` / `.doors` / `.traction` ahora recibe `undefined` posible.
 
 Anotar la lista de archivos que salen en el error: son los que la Task 7, 8 y 9 tienen que tocar.
 
-- [ ] **Step 5: Dejar la semilla existente compilando**
+- [x] **Step 5: Dejar la semilla existente compilando**
 
 Agregar `images: []` a cada uno de los objetos de `seedVehicles` en `frontend/src/server/data/vehicles.ts`. No se toca nada más de esa semilla: la Task 5 la reemplaza entera.
 
-- [ ] **Step 6: Correr test y typecheck**
+- [x] **Step 6: Correr test y typecheck**
 
 Run: `cd frontend && npm test && npm run typecheck`
 Expected: los tests pasan. El typecheck puede seguir marcando los consumidores de los campos ahora opcionales — se arreglan en las Tasks 7-9. Si marca algo **fuera** de `VehicleCard.tsx`, `VehiculoDetalleView.tsx` y `AdminVehiculosView.tsx`, anotarlo y arreglarlo acá.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add frontend/src/types/index.ts frontend/src/types/vehicle-model.test.ts frontend/src/server/data/vehicles.ts
@@ -745,7 +745,7 @@ git commit -m "feat(frontend): el modelo de vehiculo acepta fotos, motos y datos
 - Consumes: `Vehicle`, `VehicleImage` de `@/types` (Task 4).
 - Produces: `seedVehicles` con los seis vehículos reales.
 
-- [ ] **Step 1: Copiar las fotos**
+- [x] **Step 1: Copiar las fotos**
 
 Desde la raíz del repo, en PowerShell:
 
@@ -764,7 +764,7 @@ Verificar que son 45 archivos y 12 MB:
 
 Expected: `45` y `12,0 MB` aproximadamente. Reparto por carpeta: `etios17` 10, `hilux18` 9, `palio15` 8, `fox17` 7, `etios16` 6, `pcx26` 5.
 
-- [ ] **Step 2: Escribir el test que falla**
+- [x] **Step 2: Escribir el test que falla**
 
 `frontend/src/server/data/vehicles.test.ts`:
 
@@ -824,12 +824,12 @@ describe('seedVehicles', () => {
 });
 ```
 
-- [ ] **Step 3: Correr el test y verificar que falla**
+- [x] **Step 3: Correr el test y verificar que falla**
 
 Run: `cd frontend && npm test -- vehicles`
 Expected: FAIL — los ids son los del prototipo (`v-corolla-xei`, …).
 
-- [ ] **Step 4: Reemplazar la semilla**
+- [x] **Step 4: Reemplazar la semilla**
 
 `frontend/src/server/data/vehicles.ts` — reemplazar `seedVehicles` entero (las opciones de filtro que están más abajo en el archivo se revisan en el Step 5):
 
@@ -977,18 +977,18 @@ export const seedVehicles: Vehicle[] = [
 ];
 ```
 
-- [ ] **Step 5: Revisar las opciones de filtro del mismo archivo**
+- [x] **Step 5: Revisar las opciones de filtro del mismo archivo**
 
 `frontend/src/server/data/vehicles.ts` exporta también `brandOptions`, `bodyTypeOptions`, `fuelOptions` y `transmissionOptions`, que consume `/api/vehicles`. Revisar cada una y dejarla consistente con los seis vehículos: las marcas pasan a ser Toyota, Fiat, Volkswagen y Honda; `bodyTypeOptions` suma `'Moto'`; `fuelOptions` suma `'Nafta/GNC'`.
 
 Si esas listas se derivan de `seedVehicles`, no hay nada que hacer. Si están escritas a mano, actualizarlas.
 
-- [ ] **Step 6: Correr los tests**
+- [x] **Step 6: Correr los tests**
 
 Run: `cd frontend && npm test -- vehicles`
 Expected: PASS — 6 tests.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add frontend/public/vehiculos frontend/src/server/data/vehicles.ts frontend/src/server/data/vehicles.test.ts
