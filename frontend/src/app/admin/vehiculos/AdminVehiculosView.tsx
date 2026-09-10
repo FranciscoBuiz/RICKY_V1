@@ -120,6 +120,19 @@ function marginTone(value: number): string {
   return value < 0 ? 'var(--danger)' : 'var(--ok)';
 }
 
+/**
+ * Sin precio de compra no hay margen que calcular. Antes esto daba el precio de
+ * venta entero y se leía como una ganancia del 100 %: los seis vehículos reales
+ * vienen con `purchasePrice` en 0 porque son costos que la agencia no nos pasó.
+ */
+function margenVisible(vehicle: Vehicle): { texto: string; tono: string } {
+  if (vehicle.purchasePrice === 0) {
+    return { texto: 'sin cargar', tono: 'var(--muted)' };
+  }
+  const margen = vehicle.price - vehicle.purchasePrice - vehicle.expenses;
+  return { texto: money(margen), tono: marginTone(margen) };
+}
+
 export function AdminVehiculosView() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | VehicleStatus>('all');
@@ -189,19 +202,19 @@ export function AdminVehiculosView() {
       model: vehicle.model,
       version: vehicle.version,
       year: String(vehicle.year),
-      engine: vehicle.engine,
+      engine: vehicle.engine ?? '',
       fuel: vehicle.fuel,
       transmission: vehicle.transmission,
-      traction: vehicle.traction,
+      traction: vehicle.traction ?? '',
       bodyType: vehicle.bodyType,
       mileage: String(vehicle.mileage),
       color: vehicle.color,
-      purchasePrice: String(vehicle.purchasePrice),
+      purchasePrice: vehicle.purchasePrice ? String(vehicle.purchasePrice) : '',
       listingPrice: String(vehicle.price),
       status: vehicle.status,
-      description: vehicle.description,
+      description: vehicle.description ?? '',
     });
-    setExpenses({ ...EMPTY_EXPENSES, otros: String(vehicle.expenses || '') });
+    setExpenses({ ...EMPTY_EXPENSES, otros: vehicle.expenses ? String(vehicle.expenses) : '' });
     setDrawerTab('datos');
     setShowErrors(false);
     setDrawerOpen(true);
@@ -412,7 +425,7 @@ export function AdminVehiculosView() {
             </div>
 
             {vehicles.map((vehicle) => {
-              const margin = vehicle.price - vehicle.purchasePrice - vehicle.expenses;
+              const margen = margenVisible(vehicle);
               return (
                 <div
                   key={vehicle.id}
@@ -429,14 +442,19 @@ export function AdminVehiculosView() {
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  <div
-                    style={{
-                      width: 40,
-                      height: 30,
-                      backgroundImage:
-                        'repeating-linear-gradient(135deg, var(--placeholder-a) 0 6px, var(--border) 6px 12px)',
-                    }}
-                  />
+                  <div style={{ width: 56, height: 42, overflow: 'hidden', flexShrink: 0 }}>
+                    {vehicle.images.length > 0 ? (
+                      <img
+                        src={vehicle.images[0].src}
+                        alt=""
+                        aria-hidden
+                        loading="lazy"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', background: 'var(--placeholder-a)' }} />
+                    )}
+                  </div>
                   <div style={{ fontWeight: 600 }}>
                     {vehicle.brand} {vehicle.model}
                   </div>
@@ -445,14 +463,24 @@ export function AdminVehiculosView() {
                     {kilometersShort(vehicle.mileage)}
                   </div>
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>
-                    {money(vehicle.purchasePrice)}
+                    {vehicle.purchasePrice === 0 ? (
+                      <span style={{ color: 'var(--muted)' }}>—</span>
+                    ) : (
+                      money(vehicle.purchasePrice)
+                    )}
                   </div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>{money(vehicle.expenses)}</div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>
+                    {vehicle.expenses === 0 ? (
+                      <span style={{ color: 'var(--muted)' }}>—</span>
+                    ) : (
+                      money(vehicle.expenses)
+                    )}
+                  </div>
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>{money(vehicle.price)}</div>
                   <div
-                    style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: marginTone(margin), fontWeight: 600 }}
+                    style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: margen.tono, fontWeight: 600 }}
                   >
-                    {money(margin)}
+                    {margen.texto}
                   </div>
                   <div>
                     <span style={pillStyle(adminVehicleStatus[vehicle.status], dark)}>
@@ -480,7 +508,7 @@ export function AdminVehiculosView() {
         {status === 'ready' && vehicles.length > 0 && isMobile && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {vehicles.map((vehicle) => {
-              const margin = vehicle.price - vehicle.purchasePrice - vehicle.expenses;
+              const margen = margenVisible(vehicle);
               return (
                 <div
                   key={vehicle.id}
@@ -496,7 +524,7 @@ export function AdminVehiculosView() {
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 10 }}>
                     {vehicle.year} · {kilometersShort(vehicle.mileage)} · Margen pot.{' '}
-                    <span style={{ color: marginTone(margin), fontWeight: 600 }}>{money(margin)}</span>
+                    <span style={{ color: margen.tono, fontWeight: 600 }}>{margen.texto}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button type="button" onClick={() => openEdit(vehicle)} style={ACTION_BUTTON}>
