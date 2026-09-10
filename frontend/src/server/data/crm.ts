@@ -1,3 +1,4 @@
+import { isoDate } from '@/lib/format';
 import type {
   ActionAlert,
   ActivityEntry,
@@ -11,10 +12,26 @@ import type {
   VehicleAlert,
 } from '@/types';
 
-/** Fecha base de la agenda del prototipo (semana del 03/09). */
-const AGENDA_WEEK = '2026-09';
-
-const day = (d: number) => `${AGENDA_WEEK}-${String(d).padStart(2, '0')}`;
+/**
+ * Días desde hoy, no una fecha fija. Antes esto era `AGENDA_WEEK = '2026-09'`,
+ * con lo cual la agenda entera envejecía: un turno "confirmado" pasaba a estar
+ * en el pasado con solo dejar correr el calendario. La demo queda levantada en
+ * el home lab, así que tiene que seguir teniendo sentido en un mes.
+ *
+ * Uso `isoDate` (hora local) en vez de `date.toISOString().slice(0, 10)` (UTC)
+ * a propósito: Argentina es UTC-3, así que entre las 21:00 y la medianoche
+ * hora local, `toISOString()` ya cayó en el día siguiente en UTC. Con eso,
+ * `day(0)` dejaría de ser "hoy" tres horas por día, todos los días — y ese es
+ * justo el offset que usa el turno `in_progress` para verse hoy en el panel.
+ * `isoDate` ya es el formateador que usa el resto del proyecto para esto
+ * mismo (`lib/format.ts`, `server/store.ts`), así que no es una convención
+ * nueva.
+ */
+const day = (offset: number): string => {
+  const fecha = new Date();
+  fecha.setDate(fecha.getDate() + offset);
+  return isoDate(fecha);
+};
 
 export const seedLeads: Lead[] = [
   {
@@ -23,11 +40,11 @@ export const seedLeads: Lead[] = [
     contact: '223 555-0111 · martina@example.com',
     phone: '223 555-0111',
     email: 'martina@example.com',
-    vehicle: 'Corolla XEi',
+    vehicle: 'Toyota Etios XLS',
     origin: 'Web',
     date: '02/09',
     createdAt: '2026-09-02T10:12:00',
-    message: 'Quiero consultar por el Corolla, ¿tiene service oficial?',
+    message: 'Quiero consultar por el Etios, ¿tiene service oficial?',
     status: 'new',
   },
   {
@@ -36,7 +53,7 @@ export const seedLeads: Lead[] = [
     contact: '223 555-0112',
     phone: '223 555-0112',
     email: 'lucas@example.com',
-    vehicle: 'T-Cross',
+    vehicle: 'Volkswagen Fox Comfort',
     origin: 'WhatsApp',
     date: '02/09',
     createdAt: '2026-09-02T09:40:00',
@@ -49,7 +66,7 @@ export const seedLeads: Lead[] = [
     contact: '223 555-0113 · sol@example.com',
     phone: '223 555-0113',
     email: 'sol@example.com',
-    vehicle: 'Ranger XLT',
+    vehicle: 'Toyota Hilux SW4 SRX',
     origin: 'Web',
     date: '01/09',
     createdAt: '2026-09-01T17:05:00',
@@ -62,7 +79,7 @@ export const seedLeads: Lead[] = [
     contact: '223 555-0114',
     phone: '223 555-0114',
     email: 'bruno@example.com',
-    vehicle: '208 Feline',
+    vehicle: 'Fiat Palio Essence',
     origin: 'Instagram',
     date: '31/08',
     createdAt: '2026-08-31T12:30:00',
@@ -75,7 +92,7 @@ export const seedLeads: Lead[] = [
     contact: '223 555-0115',
     phone: '223 555-0115',
     email: 'camila@example.com',
-    vehicle: 'Onix RS',
+    vehicle: 'Honda PCX Deluxe',
     origin: 'Web',
     date: '30/08',
     createdAt: '2026-08-30T18:20:00',
@@ -88,7 +105,7 @@ export const seedLeads: Lead[] = [
     contact: '223 555-0116',
     phone: '223 555-0116',
     email: 'diego@example.com',
-    vehicle: 'Amarok V6',
+    vehicle: 'Toyota Etios XLS 2016',
     origin: 'WhatsApp',
     date: '29/08',
     createdAt: '2026-08-29T11:00:00',
@@ -101,7 +118,7 @@ export const seedLeads: Lead[] = [
     contact: '223 555-0117',
     phone: '223 555-0117',
     email: 'valentina@example.com',
-    vehicle: 'Hilux SRX',
+    vehicle: 'Toyota Hilux SW4 SRX',
     origin: 'Web',
     date: '28/08',
     createdAt: '2026-08-28T15:45:00',
@@ -116,7 +133,7 @@ export const seedDashboardLeads = [
     id: 'dl1',
     customerName: 'Lucas Fernández',
     source: 'Web',
-    vehicle: 'Toyota Corolla XEi 2024',
+    vehicle: 'Toyota Etios XLS',
     message: 'Hola, quería saber si todavía está disponible…',
     minsAgo: 18,
     status: 'new',
@@ -125,7 +142,7 @@ export const seedDashboardLeads = [
     id: 'dl2',
     customerName: 'Martina G.',
     source: 'WhatsApp',
-    vehicle: 'T-Cross',
+    vehicle: 'Volkswagen Fox Comfort',
     message: '¿Acepta permuta por un Fiesta 2018?',
     minsAgo: 47,
     status: 'new',
@@ -134,7 +151,7 @@ export const seedDashboardLeads = [
     id: 'dl3',
     customerName: 'Bruno F.',
     source: 'Instagram',
-    vehicle: '208 Feline',
+    vehicle: 'Fiat Palio Essence',
     message: 'Consulto precio final del vehículo.',
     minsAgo: 130,
     status: 'new',
@@ -143,7 +160,7 @@ export const seedDashboardLeads = [
     id: 'dl4',
     customerName: 'Sol R.',
     source: 'Web',
-    vehicle: 'Ranger XLT',
+    vehicle: 'Toyota Hilux SW4 SRX',
     message: 'Interesado, ¿puedo verla este finde?',
     minsAgo: 260,
     status: 'contacted',
@@ -164,9 +181,9 @@ export const seedAppointments: Appointment[] = [
   {
     id: 't1',
     client: 'Fernando A.',
-    vehicle: 'Corolla XEi',
+    vehicle: 'Toyota Etios XLS',
     service: 'Detailing exterior',
-    date: day(3),
+    date: day(1),
     time: '15:00',
     phone: '223 555-0101',
     email: 'fernando@example.com',
@@ -176,9 +193,9 @@ export const seedAppointments: Appointment[] = [
   {
     id: 't2',
     client: 'Carla M.',
-    vehicle: 'T-Cross',
+    vehicle: 'Volkswagen Fox Comfort',
     service: 'Lavado premium',
-    date: day(4),
+    date: day(3),
     time: '10:00',
     phone: '223 555-0102',
     email: 'carla@example.com',
@@ -188,9 +205,9 @@ export const seedAppointments: Appointment[] = [
   {
     id: 't3',
     client: 'Nicolás T.',
-    vehicle: 'Ranger XLT',
+    vehicle: 'Toyota Hilux SW4 SRX',
     service: 'Pulido',
-    date: day(4),
+    date: day(0),
     time: '13:30',
     phone: '223 555-0103',
     email: 'nicolas@example.com',
@@ -200,9 +217,9 @@ export const seedAppointments: Appointment[] = [
   {
     id: 't4',
     client: 'Julieta S.',
-    vehicle: '208 Feline',
+    vehicle: 'Fiat Palio Essence',
     service: 'Protección',
-    date: day(5),
+    date: day(-2),
     time: '09:00',
     phone: '223 555-0104',
     email: 'julieta@example.com',
@@ -212,9 +229,9 @@ export const seedAppointments: Appointment[] = [
   {
     id: 't5',
     client: 'Marcos D.',
-    vehicle: 'Onix RS',
+    vehicle: 'Honda PCX Deluxe',
     service: 'Detailing interior',
-    date: day(5),
+    date: day(-9),
     time: '11:00',
     phone: '223 555-0105',
     email: 'marcos@example.com',
@@ -224,7 +241,7 @@ export const seedAppointments: Appointment[] = [
   {
     id: 't6',
     client: 'Agustina R.',
-    vehicle: 'Amarok V6',
+    vehicle: 'Toyota Etios XLS 2016',
     service: 'Lavado premium',
     date: day(6),
     time: '16:00',
@@ -241,7 +258,7 @@ export const seedTodayAppointments = [
     id: 'ap1',
     time: '09:00',
     customerName: 'Juan Pérez',
-    vehicle: 'Toyota Corolla',
+    vehicle: 'Toyota Etios XLS',
     service: 'Detailing exterior',
     status: 'confirmed',
   },
@@ -249,7 +266,7 @@ export const seedTodayAppointments = [
     id: 'ap2',
     time: '10:30',
     customerName: 'María Gómez',
-    vehicle: 'Volkswagen T-Cross',
+    vehicle: 'Volkswagen Fox Comfort',
     service: 'Detailing interior',
     status: 'pending',
   },
@@ -257,7 +274,7 @@ export const seedTodayAppointments = [
     id: 'ap3',
     time: '11:30',
     customerName: 'Carlos Rodríguez',
-    vehicle: 'Ford Ranger',
+    vehicle: 'Toyota Hilux SW4 SRX',
     service: 'Lavado premium',
     status: 'confirmed',
   },
@@ -265,7 +282,7 @@ export const seedTodayAppointments = [
     id: 'ap4',
     time: '13:00',
     customerName: 'Lucía Fernández',
-    vehicle: 'Peugeot 208',
+    vehicle: 'Fiat Palio Essence',
     service: 'Pulido',
     status: 'in_progress',
   },
@@ -273,7 +290,7 @@ export const seedTodayAppointments = [
     id: 'ap5',
     time: '15:00',
     customerName: 'Agustín Bravo',
-    vehicle: 'Chevrolet Onix',
+    vehicle: 'Honda PCX Deluxe',
     service: 'Protección',
     status: 'completed',
   },
@@ -281,7 +298,7 @@ export const seedTodayAppointments = [
     id: 'ap6',
     time: '16:30',
     customerName: 'Sofía Martín',
-    vehicle: 'VW Amarok',
+    vehicle: 'Toyota Etios XLS 2016',
     service: 'Detailing exterior',
     status: 'confirmed',
   },
@@ -351,7 +368,7 @@ export const seedActionAlerts: ActionAlert[] = [
     id: 'a3',
     type: 'pending',
     title: '1 vehículo con documentación pendiente',
-    description: 'Toyota Corolla XEi — falta cédula verde.',
+    description: 'Toyota Hilux SW4 SRX — falta cédula verde.',
     actionLabel: 'Revisar vehículo',
     href: '/admin/vehiculos',
   },
@@ -366,24 +383,24 @@ export const seedActionAlerts: ActionAlert[] = [
 ];
 
 export const seedVehicleAlerts: VehicleAlert[] = [
-  { vehicle: 'Toyota Corolla XEi', issue: 'Documentación pendiente', actionLabel: 'Resolver' },
-  { vehicle: 'Volkswagen Golf', issue: 'Fotos pendientes', actionLabel: 'Agregar fotos' },
-  { vehicle: 'Ford Ranger', issue: 'Precio pendiente de actualización', actionLabel: 'Editar vehículo' },
-  { vehicle: 'Fiat Cronos', issue: 'Gastos sin categorizar', actionLabel: 'Revisar gastos' },
+  { vehicle: 'Toyota Hilux SW4 SRX', issue: 'Documentación pendiente', actionLabel: 'Resolver' },
+  { vehicle: 'Honda PCX Deluxe', issue: 'Fotos pendientes', actionLabel: 'Agregar fotos' },
+  { vehicle: 'Volkswagen Fox Comfort', issue: 'Precio pendiente de actualización', actionLabel: 'Editar vehículo' },
+  { vehicle: 'Fiat Palio Essence', issue: 'Gastos sin categorizar', actionLabel: 'Revisar gastos' },
 ];
 
 export const seedActivity: ActivityEntry[] = [
-  { time: '08:42', text: 'Se agregó Toyota Corolla XEi al catálogo.' },
+  { time: '08:42', text: 'Se agregó Toyota Etios XLS al catálogo.' },
   { time: '08:31', text: 'Juan Pérez confirmó su turno de detailing.' },
-  { time: '08:15', text: 'Nueva consulta sobre Volkswagen Golf.' },
-  { time: 'Ayer 18:43', text: 'Se actualizó el precio de Ford Ranger.' },
+  { time: '08:15', text: 'Nueva consulta sobre Fiat Palio Essence.' },
+  { time: 'Ayer 18:43', text: 'Se actualizó el precio de Toyota Hilux SW4 SRX.' },
 ];
 
 export const seedNotifications: AdminNotification[] = [
-  { text: 'Nueva consulta sobre Volkswagen Golf.', time: 'Hace 15 min' },
+  { text: 'Nueva consulta sobre Volkswagen Fox Comfort.', time: 'Hace 15 min' },
   { text: 'Turno de María Gómez pendiente de confirmar.', time: 'Hace 40 min' },
   { text: 'Consulta de Lucas Fernández sin responder hace más de 2 h.', time: 'Hace 2 h' },
-  { text: 'Se cargó Toyota Corolla XEi al catálogo.', time: 'Ayer' },
+  { text: 'Se cargó Toyota Etios XLS al catálogo.', time: 'Ayer' },
 ];
 
 export const seedBusinessMetrics: BusinessMetric[] = [
