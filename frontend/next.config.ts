@@ -20,6 +20,17 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        /* Mismo criterio que `/uploads`: son assets versionados por nombre de
+           archivo, así que pueden cachearse para siempre. */
+        source: '/vehiculos/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
     ];
   },
 };

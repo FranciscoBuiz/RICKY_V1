@@ -26,14 +26,47 @@ export function VehicleCard({ vehicle, index, showFuel = false }: VehicleCardPro
       style={{ background: 'var(--bg)', display: 'block', textDecoration: 'none', color: 'var(--ink)' }}
     >
       <div style={{ position: 'relative', aspectRatio: '4 / 3', overflow: 'hidden' }}>
-        <div style={photoPlaceholder(index)}>
-          <span style={PLACEHOLDER_LABEL}>
-            [ foto — {vehicle.brand} {vehicle.model} ]
-          </span>
-        </div>
-        <div className="vehicle-photo-alt" style={{ ...photoPlaceholder(index, true), opacity: 0 }}>
-          <span style={PLACEHOLDER_LABEL}>[ foto 2 ]</span>
-        </div>
+        {vehicle.images.length > 0 ? (
+          <>
+            <img
+              src={vehicle.images[0].src}
+              alt={vehicle.images[0].alt}
+              loading={index < 3 ? 'eager' : 'lazy'}
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+            {vehicle.images[1] ? (
+              <img
+                className="vehicle-photo-alt"
+                src={vehicle.images[1].src}
+                alt=""
+                aria-hidden
+                loading="lazy"
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  opacity: 0,
+                  transition: 'opacity 0.4s ease',
+                }}
+              />
+            ) : null}
+          </>
+        ) : (
+          <>
+            {/* Sin fotos: el marcador de bandas. Es lo que ve todo vehículo que
+                el panel dé de alta, porque todavía no se pueden subir fotos. */}
+            <div style={photoPlaceholder(index)}>
+              <span style={PLACEHOLDER_LABEL}>
+                [ foto — {vehicle.brand} {vehicle.model} ]
+              </span>
+            </div>
+            <div style={{ ...photoPlaceholder(index, true), opacity: 0 }} className="vehicle-photo-alt">
+              <span style={PLACEHOLDER_LABEL}>[ foto 2 ]</span>
+            </div>
+          </>
+        )}
         <div style={statusBadge(vehicle.status)}>{meta.label}</div>
       </div>
 
