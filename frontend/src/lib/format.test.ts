@@ -27,4 +27,11 @@ describe('PRICE_STEPS', () => {
   it('está ordenado de menor a mayor', () => {
     expect([...PRICE_STEPS].sort((a, b) => a - b)).toEqual([...PRICE_STEPS]);
   });
+
+  it('el escalón más bajo particiona el catálogo real, no lo deja todo de un lado', () => {
+    const precios = seedVehicles.map((v) => v.price);
+    const escalonMasBajo = PRICE_STEPS[0];
+    expect(precios.some((price) => price <= escalonMasBajo)).toBe(true);
+    expect(precios.some((price) => price > escalonMasBajo)).toBe(true);
+  });
 });
