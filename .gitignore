@@ -1,3 +1,7 @@
+# El .env de produccion vive solo en el servidor. Un secreto commiteado no se
+# borra del historial.
+.env
+
 node_modules
 .env*.local
 *.tsbuildinfo
