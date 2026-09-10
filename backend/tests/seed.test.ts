@@ -42,6 +42,11 @@ describe('seedBootstrapAdmin', () => {
 });
 
 describe('seedInvitedUser', () => {
+  beforeEach(limpiarBase);
+  afterAll(async () => {
+    await prisma.$disconnect();
+  });
+
   it('crea el usuario invitado en PENDING, sin googleSub', async () => {
     await seedInvitedUser('invitado@example.com', 'EDITOR');
 
