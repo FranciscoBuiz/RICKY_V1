@@ -25,6 +25,7 @@ export const seedVehicles: Vehicle[] = [
     location: 'Mar del Plata',
     description:
       'Toyota Corolla XEi 2024 con service oficial al día. Único dueño, uso particular. Interior en excelente estado, sin detalles de chapa ni pintura. Se entrega con documentación al día y verificación mecánica realizada por 5848 Motors.',
+    images: [],
     purchasePrice: 27000000,
     expenses: 800000,
   },
@@ -48,6 +49,7 @@ export const seedVehicles: Vehicle[] = [
     location: 'Mar del Plata',
     description:
       'Volkswagen T-Cross Highline con equipamiento completo. Service en concesionario oficial, cubiertas en excelente estado y documentación al día.',
+    images: [],
     purchasePrice: 24500000,
     expenses: 600000,
   },
@@ -71,6 +73,7 @@ export const seedVehicles: Vehicle[] = [
     location: 'Mar del Plata',
     description:
       'Peugeot 208 Feline con techo panorámico y tapizado en excelente estado. Unidad revisada por nuestro taller antes de la publicación.',
+    images: [],
     purchasePrice: 18200000,
     expenses: 500000,
   },
@@ -94,6 +97,7 @@ export const seedVehicles: Vehicle[] = [
     location: 'Mar del Plata',
     description:
       'Ford Ranger XLT de uso particular, con caja cubierta y enganche. Mantenimiento al día y neumáticos nuevos.',
+    images: [],
     purchasePrice: 29000000,
     expenses: 1200000,
   },
@@ -117,6 +121,7 @@ export const seedVehicles: Vehicle[] = [
     location: 'Mar del Plata',
     description:
       'Fiat Cronos Drive prácticamente a estrenar, con muy bajo kilometraje y garantía de fábrica vigente.',
+    images: [],
     purchasePrice: 15800000,
     expenses: 400000,
   },
@@ -140,6 +145,7 @@ export const seedVehicles: Vehicle[] = [
     location: 'Mar del Plata',
     description:
       'Chevrolet Onix RS con pantalla multimedia, cámara de retroceso y control de estabilidad. Muy buen estado general.',
+    images: [],
     purchasePrice: 14500000,
     expenses: 350000,
   },
@@ -163,6 +169,7 @@ export const seedVehicles: Vehicle[] = [
     location: 'Mar del Plata',
     description:
       'Volkswagen Amarok V6 Highline con equipamiento full. Unidad impecable, con service oficial y cubiertas nuevas.',
+    images: [],
     purchasePrice: 35000000,
     expenses: 1400000,
   },
@@ -186,6 +193,7 @@ export const seedVehicles: Vehicle[] = [
     location: 'Mar del Plata',
     description:
       'Toyota Hilux SRX 4x4 con historial de service completo. Excelente estado mecánico y de carrocería.',
+    images: [],
     purchasePrice: 32000000,
     expenses: 1100000,
   },
@@ -209,6 +217,7 @@ export const seedVehicles: Vehicle[] = [
     location: 'Mar del Plata',
     description:
       'Peugeot 2008 Allure con bajo kilometraje, tapizados impecables y garantía vigente.',
+    images: [],
     purchasePrice: 23000000,
     expenses: 520000,
   },
@@ -232,6 +241,7 @@ export const seedVehicles: Vehicle[] = [
     location: 'Mar del Plata',
     description:
       'Chevrolet Tracker Premier prácticamente 0km, con todo el equipamiento de la versión tope de gama.',
+    images: [],
     purchasePrice: 26500000,
     expenses: 600000,
   },
@@ -255,6 +265,7 @@ export const seedVehicles: Vehicle[] = [
     location: 'Mar del Plata',
     description:
       'Ford Focus SE con mantenimiento al día. Buena opción de entrada, con revisión mecánica realizada.',
+    images: [],
     purchasePrice: 12800000,
     expenses: 420000,
   },
@@ -278,6 +289,7 @@ export const seedVehicles: Vehicle[] = [
     location: 'Mar del Plata',
     description:
       'Fiat Toro Volcano 4x4 con caja automática, muy completa y en excelente estado general.',
+    images: [],
     purchasePrice: 28200000,
     expenses: 900000,
   },

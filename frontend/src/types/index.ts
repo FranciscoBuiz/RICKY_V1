@@ -1,5 +1,11 @@
 export type VehicleStatus = 'available' | 'reserved' | 'sold';
 
+/** Una foto del vehículo. `src` es una ruta pública servida desde `public/`. */
+export interface VehicleImage {
+  src: string;
+  alt: string;
+}
+
 export interface Vehicle {
   id: string;
   brand: string;
@@ -7,18 +13,27 @@ export interface Vehicle {
   version: string;
   year: number;
   mileage: number;
-  fuel: 'Nafta' | 'Diesel';
+  fuel: 'Nafta' | 'Diesel' | 'Nafta/GNC';
   transmission: 'Manual' | 'Automática';
-  bodyType: 'Sedán' | 'SUV' | 'Hatchback' | 'Pick-up';
+  bodyType: 'Sedán' | 'SUV' | 'Hatchback' | 'Pick-up' | 'Moto';
+  /** En dólares: es la moneda en la que la agencia publica. */
   price: number;
   status: VehicleStatus;
   featured: boolean;
-  engine: string;
-  traction: string;
   color: string;
-  doors: number;
   location: string;
-  description: string;
+  /**
+   * Vacío mientras el vehículo no tenga fotos cargadas. La UI cae al marcador
+   * de bandas en ese caso: es lo que va a ver cualquier vehículo que el panel
+   * dé de alta, porque todavía no hay forma de subir fotos.
+   */
+  images: VehicleImage[];
+  /* Opcionales: los seis vehículos reales no traen estos datos y el Principio 2
+     de PRODUCT.md prohíbe rellenarlos. La ficha omite la fila que falta. */
+  engine?: string;
+  traction?: string;
+  doors?: number;
+  description?: string;
   /** Interno — sólo se expone en el panel admin. */
   purchasePrice: number;
   expenses: number;
