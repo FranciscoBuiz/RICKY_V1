@@ -1009,7 +1009,7 @@ git commit -m "feat(frontend): los seis vehiculos reales de la agencia con sus 4
 **Interfaces:**
 - Produces: `money(value: number): string` devuelve `"US$ 12.900"`. `PRICE_STEPS` pasa a `@/lib/design` como fuente única.
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 `frontend/src/lib/format.test.ts`:
 
@@ -1046,12 +1046,12 @@ describe('PRICE_STEPS', () => {
 });
 ```
 
-- [ ] **Step 2: Correr el test y verificar que falla**
+- [x] **Step 2: Correr el test y verificar que falla**
 
 Run: `cd frontend && npm test -- format`
 Expected: FAIL — `money(12900)` devuelve `"$ 12.900"`, y `PRICE_STEPS` no existe en `@/lib/design`.
 
-- [ ] **Step 3: Cambiar `money`**
+- [x] **Step 3: Cambiar `money`**
 
 En `frontend/src/lib/format.ts`, reemplazar la función:
 
@@ -1066,7 +1066,7 @@ export function money(value: number): string {
 }
 ```
 
-- [ ] **Step 4: Mover `PRICE_STEPS` a `design.ts` con valores en dólares**
+- [x] **Step 4: Mover `PRICE_STEPS` a `design.ts` con valores en dólares**
 
 Agregar al final de `frontend/src/lib/design.ts`:
 
@@ -1080,7 +1080,7 @@ Agregar al final de `frontend/src/lib/design.ts`:
 export const PRICE_STEPS = [8_000, 10_000, 13_000, 20_000, 40_000];
 ```
 
-- [ ] **Step 5: Consumirlo desde los dos componentes**
+- [x] **Step 5: Consumirlo desde los dos componentes**
 
 En `frontend/src/app/catalogo/CatalogoView.tsx`, borrar la línea 48
 (`const PRICE_STEPS = [15_000_000, …];`) y agregar `PRICE_STEPS` al import que ya
@@ -1089,16 +1089,16 @@ trae otras cosas de `@/lib/design`.
 En `frontend/src/components/site/QuickSearch.tsx`, borrar la línea 17 e importar
 `PRICE_STEPS` de `@/lib/design` igual.
 
-- [ ] **Step 6: Correr los tests**
+- [x] **Step 6: Correr los tests**
 
 Run: `cd frontend && npm test`
 Expected: PASS — toda la suite.
 
-- [ ] **Step 7: Verificar el filtro a mano**
+- [x] **Step 7: Verificar el filtro a mano**
 
 Levantar `npm run dev`, abrir `/catalogo` y elegir "Hasta US$ 10.000": tienen que quedar el Palio (9.500) y la PCX (7.500). Elegir "Hasta US$ 8.000": solo la PCX.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add frontend/src/lib frontend/src/app/catalogo/CatalogoView.tsx frontend/src/components/site/QuickSearch.tsx
@@ -1117,7 +1117,7 @@ git commit -m "feat(frontend): precios en dolares y escalones de filtro en un so
 - Consumes: `Vehicle.images` (Task 4), `seedVehicles` (Task 5).
 - Produces: la card renderiza `images[0]` con `images[1]` en el hover; sin fotos, conserva el marcador de bandas.
 
-- [ ] **Step 1: Cachear `/vehiculos/*` como inmutable**
+- [x] **Step 1: Cachear `/vehiculos/*` como inmutable**
 
 En `frontend/next.config.ts`, agregar una segunda entrada al array que devuelve `headers()`:
 
@@ -1135,7 +1135,7 @@ En `frontend/next.config.ts`, agregar una segunda entrada al array que devuelve 
       },
 ```
 
-- [ ] **Step 2: Cambiar el bloque de la foto en `VehicleCard`**
+- [x] **Step 2: Cambiar el bloque de la foto en `VehicleCard`**
 
 Reemplazar el `<div>` con `aspectRatio: '4 / 3'` (y su contenido) por:
 
@@ -1190,13 +1190,13 @@ Reemplazar el `<div>` con `aspectRatio: '4 / 3'` (y su contenido) por:
 optimizador de Next necesitaría configuración extra en el contenedor, y el
 `Cache-Control` del Step 1 ya resuelve la parte que importa.
 
-- [ ] **Step 3: Verificar a mano**
+- [x] **Step 3: Verificar a mano**
 
 `npm run dev`, abrir `/` y `/catalogo`. Las seis cards muestran su foto; al pasar
 el mouse aparece la segunda. La clase `vehicle-photo-alt` ya tiene su regla de
 hover en el CSS global, así que no hay que tocar estilos.
 
-- [ ] **Step 4: Typecheck y commit**
+- [x] **Step 4: Typecheck y commit**
 
 ```bash
 cd frontend && npm run typecheck && npm test
@@ -1215,7 +1215,7 @@ git commit -m "feat(frontend): la card del catalogo muestra la foto real del veh
 - Consumes: `Vehicle.images` (Task 4).
 - Produces: galería con la cantidad real de fotos del vehículo, no las 5 fijas de hoy.
 
-- [ ] **Step 1: Reemplazar `PHOTO_COUNT` por la cantidad real**
+- [x] **Step 1: Reemplazar `PHOTO_COUNT` por la cantidad real**
 
 `PHOTO_COUNT = 5` (línea 26) es una constante de módulo, pero ahora depende del
 vehículo. Dentro del componente, derivarla:
@@ -1231,7 +1231,7 @@ Reemplazar cada uso de `PHOTO_COUNT` por `photoCount`, incluidos los `useCallbac
 de `prev` y `next` (líneas 74-75), a los que hay que agregarles `photoCount` en el
 array de dependencias.
 
-- [ ] **Step 2: Renderizar la foto activa**
+- [x] **Step 2: Renderizar la foto activa**
 
 En el bloque de la foto principal (alrededor de la línea 190), mostrar la imagen
 cuando exista y el marcador cuando no:
@@ -1252,7 +1252,7 @@ cuando exista y el marcador cuando no:
         )}
 ```
 
-- [ ] **Step 3: Renderizar las miniaturas**
+- [x] **Step 3: Renderizar las miniaturas**
 
 En el `Array.from({ length: PHOTO_COUNT }, …)` de la línea 254, recorrer `fotos`
 cuando las haya:
@@ -1284,7 +1284,7 @@ cuando las haya:
 Conservar el resto de los estilos y atributos que ya tenía cada miniatura
 (el borde del activo, sobre todo): leerlos del archivo antes de reemplazar.
 
-- [ ] **Step 4: Hacer que la ficha de datos omita lo que no hay**
+- [x] **Step 4: Hacer que la ficha de datos omita lo que no hay**
 
 `engine`, `traction`, `doors` y `description` ahora pueden ser `undefined`. En la
 lista de especificaciones de la ficha, filtrar las filas sin dato en vez de
@@ -1308,13 +1308,13 @@ mostrar una vacía:
 Adaptar los nombres a los que el archivo ya use. La descripción, cuando falte, se
 omite entera: no se reemplaza por texto genérico.
 
-- [ ] **Step 5: Verificar a mano**
+- [x] **Step 5: Verificar a mano**
 
 Abrir `/vehiculos/etios17` (10 fotos, con GNC en combustible), `/vehiculos/pcx26`
 (5 fotos, 0 km, moto) y comprobar que las flechas dan la vuelta bien y que no
 aparece ninguna fila de spec vacía.
 
-- [ ] **Step 6: Typecheck y commit**
+- [x] **Step 6: Typecheck y commit**
 
 ```bash
 cd frontend && npm run typecheck && npm test
@@ -1333,7 +1333,7 @@ git commit -m "feat(frontend): la ficha muestra las fotos reales y omite los dat
 - Consumes: `Vehicle.images`, `purchasePrice === 0` (Tasks 4 y 5).
 - Produces: la tabla del panel muestra miniatura, y la columna de margen dice "sin cargar" cuando no hay costo.
 
-- [ ] **Step 1: Mostrar "sin cargar" en vez de un margen falso**
+- [x] **Step 1: Mostrar "sin cargar" en vez de un margen falso**
 
 En `AdminVehiculosView.tsx` hay dos lugares que calculan el margen (líneas 415 y
 483). Extraer la decisión a una función arriba del componente:
@@ -1360,7 +1360,7 @@ usando `texto` y `tono`.
 Hacer lo mismo con las celdas de `purchasePrice` y `expenses` (líneas 448 y 450):
 cuando valen 0, mostrar `—` en `var(--muted)` en lugar de `US$ 0`.
 
-- [ ] **Step 2: Agregar la miniatura a la tabla**
+- [x] **Step 2: Agregar la miniatura a la tabla**
 
 En la fila de cada vehículo, antes de la columna del nombre, una miniatura de 56×42
 que caiga al marcador cuando no hay fotos:
@@ -1384,7 +1384,7 @@ que caiga al marcador cuando no hay fotos:
 Es decorativa: el nombre del vehículo está al lado, así que `alt=""` y `aria-hidden`
 evitan que el lector de pantalla lo lea dos veces.
 
-- [ ] **Step 3: Revisar el formulario de alta**
+- [x] **Step 3: Revisar el formulario de alta**
 
 El formulario setea `purchasePrice: String(vehicle.purchasePrice)` (línea 199) y
 `expenses` (línea 204). Con `0`, eso pone `"0"` en el campo. Cambiarlo para que
@@ -1401,13 +1401,13 @@ y
     setExpenses({ ...EMPTY_EXPENSES, otros: vehicle.expenses ? String(vehicle.expenses) : '' });
 ```
 
-- [ ] **Step 4: Verificar a mano**
+- [x] **Step 4: Verificar a mano**
 
 Entrar a `/admin/vehiculos` con sesión. Los seis vehículos con su miniatura, la
 columna de margen diciendo "sin cargar", y compra y gastos con `—`. Editar uno y
 cargarle un precio de compra: el margen tiene que aparecer calculado.
 
-- [ ] **Step 5: Typecheck y commit**
+- [x] **Step 5: Typecheck y commit**
 
 ```bash
 cd frontend && npm run typecheck && npm test
@@ -1435,7 +1435,7 @@ no es agregar estados sino tres cosas que sí están rotas o quedan rotas despu�
 la Task 5: fijar esa cobertura con tests para que no se pierda, descongelar las
 fechas, y corregir los vehículos que dejaron de existir.
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 `frontend/src/server/data/crm.test.ts`:
 
@@ -1488,12 +1488,12 @@ describe('semilla del panel', () => {
 });
 ```
 
-- [ ] **Step 2: Correr el test y verificar que falla**
+- [x] **Step 2: Correr el test y verificar que falla**
 
 Run: `cd frontend && npm test -- crm`
 Expected: FAIL — faltan estados.
 
-- [ ] **Step 3: Arreglar las fechas congeladas**
+- [x] **Step 3: Arreglar las fechas congeladas**
 
 `crm.ts:15` tiene `const AGENDA_WEEK = '2026-09'` y `day(d)` arma
 `` `${AGENDA_WEEK}-${d}` ``: **toda la agenda está clavada a septiembre de 2026.**
@@ -1526,7 +1526,7 @@ poner el offset que corresponda a su estado:
 - `in_progress` → `day(0)`, hoy.
 - `pending` y `confirmed` → positivos (`day(1)`, `day(3)`, `day(6)`).
 
-- [ ] **Step 4: Corregir los vehículos que ya no existen**
+- [x] **Step 4: Corregir los vehículos que ya no existen**
 
 Las consultas y los turnos mencionan el stock del prototipo — Corolla XEi,
 T-Cross, 208 Feline, Amarok V6, Ranger XLT, Onix RS, Cronos, Golf — y la Task 5
@@ -1541,7 +1541,7 @@ El `vehicle: '—'` que ya existe se deja: es una consulta general, sin vehícul
 Ajustar también el texto de los `message` que nombran el modelo viejo
 (`'Quiero consultar por el Corolla…'`).
 
-- [ ] **Step 5: Comprobar la cobertura de estados**
+- [x] **Step 5: Comprobar la cobertura de estados**
 
 Los diez estados **ya están cubiertos** por los doce leads y los doce turnos que
 la semilla trae. El test del Step 1 no agrega registros: fija esa cobertura para
@@ -1550,12 +1550,12 @@ después de los pasos anteriores, agregar el registro que falte siguiendo el
 formato que el archivo ya usa: `contact` con `223 555-01NN · nombre@example.com`,
 nombre de pila más inicial (`'Martina G.'`).
 
-- [ ] **Step 6: Correr los tests**
+- [x] **Step 6: Correr los tests**
 
 Run: `cd frontend && npm test`
 Expected: PASS — toda la suite.
 
-- [ ] **Step 7: Verificar a mano**
+- [x] **Step 7: Verificar a mano**
 
 Entrar a `/admin/consultas` y `/admin/detailing`. Cada sección tiene que mostrar
 todos sus estados, con sus colores y sus acciones. Comprobar que los turnos
@@ -1565,7 +1565,7 @@ la agenda de detailing muestra el turno `in_progress` en el día de hoy.
 Comprobar también que ninguna consulta menciona un vehículo que no esté en el
 catálogo.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add frontend/src/server/data/crm.ts frontend/src/server/data/crm.test.ts
