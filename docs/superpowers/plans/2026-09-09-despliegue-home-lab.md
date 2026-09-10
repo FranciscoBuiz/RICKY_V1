@@ -1585,7 +1585,7 @@ git commit -m "fix(frontend): la agenda del panel estaba clavada a septiembre de
 - Consumes: `seedBootstrapAdmin(email: string)` que ya existe.
 - Produces: `seedInvitedUser(email: string, role: Role)` — segundo usuario, queda `PENDING`.
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 Agregar a `backend/tests/seed.test.ts` (crearlo si no existe, siguiendo el patrón
 de los otros archivos de `backend/tests/`, que ya levantan la base de tests):
@@ -1616,7 +1616,7 @@ describe('seedInvitedUser', () => {
 });
 ```
 
-- [ ] **Step 2: Correr el test y verificar que falla**
+- [x] **Step 2: Correr el test y verificar que falla**
 
 ```bash
 cd backend
@@ -1627,7 +1627,7 @@ npm test -- seed
 
 Expected: FAIL — `seedInvitedUser` no existe.
 
-- [ ] **Step 3: Agregar la función**
+- [x] **Step 3: Agregar la función**
 
 En `backend/prisma/seed.ts`, junto a `seedBootstrapAdmin`:
 
@@ -1655,7 +1655,7 @@ export async function seedInvitedUser(email: string, role: Role): Promise<void> 
 
 Importar `Role` desde `../src/db/prisma.js`, como hace el resto del backend.
 
-- [ ] **Step 4: Llamarla desde el ejecutable**
+- [x] **Step 4: Llamarla desde el ejecutable**
 
 En el bloque `if (import.meta.url === pathToFileURL(...))` del final del archivo,
 después de `seedBootstrapAdmin`:
@@ -1670,7 +1670,7 @@ después de `seedBootstrapAdmin`:
 
 Es opcional a propósito: sin la variable, el seed hace exactamente lo que hacía.
 
-- [ ] **Step 5: Documentar la variable**
+- [x] **Step 5: Documentar la variable**
 
 Agregar a `backend/.env.example`, debajo de `BOOTSTRAP_ADMIN_EMAIL`:
 
@@ -1679,12 +1679,12 @@ Agregar a `backend/.env.example`, debajo de `BOOTSTRAP_ADMIN_EMAIL`:
 SEED_INVITED_EMAIL=
 ```
 
-- [ ] **Step 6: Correr los tests del backend**
+- [x] **Step 6: Correr los tests del backend**
 
 Run: `cd backend && npm test && npm run typecheck`
 Expected: PASS — los 62 que ya había más los 2 nuevos.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add backend/prisma/seed.ts backend/tests/seed.test.ts backend/.env.example
@@ -1705,7 +1705,7 @@ git commit -m "feat(backend): usuario invitado opcional en la semilla, para ver 
 **Interfaces:**
 - Produces: imagen que expone el puerto 4000 y arranca migrando.
 
-- [ ] **Step 1: Escribir el `.dockerignore`**
+- [x] **Step 1: Escribir el `.dockerignore`**
 
 `backend/.dockerignore`:
 
@@ -1723,7 +1723,7 @@ docker-compose.yml
 imagen. Copiar el de la máquina de desarrollo traería binarios compilados para
 Windows.
 
-- [ ] **Step 2: Escribir el entrypoint**
+- [x] **Step 2: Escribir el entrypoint**
 
 `backend/docker-entrypoint.sh`:
 
@@ -1747,7 +1747,7 @@ echo "Levantando Fastify..."
 exec npm start
 ```
 
-- [ ] **Step 3: Escribir el Dockerfile**
+- [x] **Step 3: Escribir el Dockerfile**
 
 `backend/Dockerfile`:
 
@@ -1782,7 +1782,7 @@ EXPOSE 4000
 ENTRYPOINT ["./docker-entrypoint.sh"]
 ```
 
-- [ ] **Step 4: Construir la imagen y verificar que `prisma generate` corrió**
+- [x] **Step 4: Construir la imagen y verificar que `prisma generate` corrió**
 
 ```bash
 cd backend
@@ -1795,7 +1795,7 @@ Expected: lista los archivos del cliente (`client.ts`, `models.ts`, …).
 **Si `prisma generate` o el build fallan por OpenSSL**, cambiar la primera línea a
 `FROM node:22-bookworm` y volver a construir. Anotarlo en el commit.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/Dockerfile backend/docker-entrypoint.sh backend/.dockerignore
@@ -1815,7 +1815,7 @@ git commit -m "feat(backend): imagen con prisma generate y migraciones en el arr
 - Consumes: `NEXT_PUBLIC_WHATSAPP_NUMBER` como build arg.
 - Produces: imagen que expone el puerto 3000 y sirve el `standalone`.
 
-- [ ] **Step 1: Activar `standalone`**
+- [x] **Step 1: Activar `standalone`**
 
 En `frontend/next.config.ts`, dentro de `nextConfig`, antes de `headers()`:
 
@@ -1826,7 +1826,7 @@ En `frontend/next.config.ts`, dentro de `nextConfig`, antes de `headers()`:
   output: 'standalone',
 ```
 
-- [ ] **Step 2: Escribir el `.dockerignore`**
+- [x] **Step 2: Escribir el `.dockerignore`**
 
 `frontend/.dockerignore`:
 
@@ -1844,7 +1844,7 @@ vitest.config.ts
 
 `public/` **no** se ignora: son los 30 MB de fotos y videos que el sitio sirve.
 
-- [ ] **Step 3: Escribir el Dockerfile**
+- [x] **Step 3: Escribir el Dockerfile**
 
 `frontend/Dockerfile`:
 
@@ -1884,7 +1884,7 @@ ENV HOSTNAME=0.0.0.0
 CMD ["node", "server.js"]
 ```
 
-- [ ] **Step 4: Construir y verificar que los assets llegaron**
+- [x] **Step 4: Construir y verificar que los assets llegaron**
 
 ```bash
 cd frontend
@@ -1896,7 +1896,7 @@ Expected: lista los chunks estáticos y las seis carpetas de vehículos. **Este 
 es el que atrapa el error del comentario**: si `public/vehiculos` no aparece, la
 copia del Step 3 está mal.
 
-- [ ] **Step 5: Levantar la imagen sola y comprobar que responde**
+- [x] **Step 5: Levantar la imagen sola y comprobar que responde**
 
 ```bash
 docker run --rm -p 3001:3000 -e BACKEND_URL=http://localhost:4000 motors-web:test
@@ -1904,7 +1904,7 @@ curl -s -o /dev/null -w "%{http_code}\n" localhost:3001    # 200
 curl -s -o /dev/null -w "%{http_code}\n" localhost:3001/vehiculos/etios17/01.jpg  # 200
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add frontend/Dockerfile frontend/.dockerignore frontend/next.config.ts
@@ -1924,7 +1924,7 @@ git commit -m "feat(frontend): imagen standalone con los assets copiados a mano"
 - Consumes: las imágenes de las Tasks 12 y 13.
 - Produces: `docker compose up -d --build` levanta los tres servicios con solo `web` publicando puerto.
 
-- [ ] **Step 1: Cerrar el agujero del `.gitignore` — antes que nada**
+- [x] **Step 1: Cerrar el agujero del `.gitignore` — antes que nada**
 
 El `.gitignore` de la raíz ignora `.env*.local` pero **no `.env` a secas**, así que
 el `.env` de producción se commitearía con los secretos adentro. Agregar arriba de
@@ -1944,7 +1944,7 @@ git status --short   # .env NO tiene que aparecer
 rm .env
 ```
 
-- [ ] **Step 2: Escribir el `compose.yaml`**
+- [x] **Step 2: Escribir el `compose.yaml`**
 
 `compose.yaml` en la raíz:
 
@@ -2018,7 +2018,7 @@ volumes:
   motors-db-data:
 ```
 
-- [ ] **Step 3: Escribir el `.env.example`**
+- [x] **Step 3: Escribir el `.env.example`**
 
 `.env.example` en la raíz:
 
@@ -2064,7 +2064,7 @@ SENTRY_DSN=
 NEXT_PUBLIC_SENTRY_DSN=
 ```
 
-- [ ] **Step 4: Probar el stack entero en la máquina de desarrollo**
+- [x] **Step 4: Probar el stack entero en la máquina de desarrollo**
 
 ```bash
 cp .env.example .env
@@ -2081,7 +2081,7 @@ docker compose ps
 
 Expected: los tres `healthy`.
 
-- [ ] **Step 5: Correr la escalera de verificación**
+- [x] **Step 5: Correr la escalera de verificación**
 
 ```bash
 curl -s -o /dev/null -w "%{http_code}\n" localhost:3000                    # 200
@@ -2094,14 +2094,14 @@ curl -s localhost:3000/api/vehicles | head -c 200                          # los
 El tercero es el que confirma el aislamiento: **si responde, `backend` tiene un
 `ports:` que no debería tener.**
 
-- [ ] **Step 6: Bajar el stack de prueba**
+- [x] **Step 6: Bajar el stack de prueba**
 
 ```bash
 docker compose down
 rm .env
 ```
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add compose.yaml .env.example .gitignore
