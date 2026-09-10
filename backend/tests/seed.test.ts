@@ -1,6 +1,6 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { prisma } from '../src/db/prisma.js';
-import { seedBootstrapAdmin } from '../prisma/seed.js';
+import { seedBootstrapAdmin, seedInvitedUser } from '../prisma/seed.js';
 import { limpiarBase } from './db.js';
 
 describe('seedBootstrapAdmin', () => {
@@ -38,5 +38,25 @@ describe('seedBootstrapAdmin', () => {
     expect(usuario?.googleSub).toBe('google-123');
     expect(usuario?.name).toBe('Jefe Real');
     expect(await prisma.user.count()).toBe(1);
+  });
+});
+
+describe('seedInvitedUser', () => {
+  it('crea el usuario invitado en PENDING, sin googleSub', async () => {
+    await seedInvitedUser('invitado@example.com', 'EDITOR');
+
+    const usuario = await prisma.user.findUnique({ where: { email: 'invitado@example.com' } });
+
+    expect(usuario?.status).toBe('PENDING');
+    expect(usuario?.role).toBe('EDITOR');
+    expect(usuario?.googleSub).toBeNull();
+  });
+
+  it('es idempotente: corre en cada arranque del contenedor', async () => {
+    await seedInvitedUser('invitado@example.com', 'EDITOR');
+    await seedInvitedUser('invitado@example.com', 'EDITOR');
+
+    const cuantos = await prisma.user.count({ where: { email: 'invitado@example.com' } });
+    expect(cuantos).toBe(1);
   });
 });

@@ -1,6 +1,6 @@
 import '../src/load-env.js';
 import { pathToFileURL } from 'node:url';
-import { prisma } from '../src/db/prisma.js';
+import { prisma, type Role } from '../src/db/prisma.js';
 
 /**
  * Crea el primer administrador. Nadie puede invitarlo: el login es solo por
@@ -24,6 +24,26 @@ export async function seedBootstrapAdmin(email: string): Promise<void> {
   });
 }
 
+/**
+ * Segundo usuario, invitado y sin estrenar. Existe para que el panel muestre el
+ * estado PENDING además del ACTIVE del administrador: sin esto, la pantalla de
+ * usuarios tiene una sola fila y no se ve cómo luce una invitación sin aceptar.
+ */
+export async function seedInvitedUser(email: string, role: Role): Promise<void> {
+  const normalizado = email.trim().toLowerCase();
+
+  await prisma.user.upsert({
+    where: { email: normalizado },
+    update: {},
+    create: {
+      email: normalizado,
+      name: normalizado.split('@')[0] ?? normalizado,
+      role,
+      status: 'PENDING',
+    },
+  });
+}
+
 // Ejecutable directo: `tsx prisma/seed.ts`
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   const email = process.env.BOOTSTRAP_ADMIN_EMAIL;
@@ -34,5 +54,12 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
 
   await seedBootstrapAdmin(email);
   console.log(`Administrador inicial listo: ${email.toLowerCase()}`);
+
+  const invitado = process.env.SEED_INVITED_EMAIL;
+  if (invitado) {
+    await seedInvitedUser(invitado, 'EDITOR');
+    console.log(`Usuario invitado listo: ${invitado.toLowerCase()}`);
+  }
+
   await prisma.$disconnect();
 }
