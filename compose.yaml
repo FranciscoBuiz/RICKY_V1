@@ -49,6 +49,12 @@ services:
       context: ./frontend
       args:
         NEXT_PUBLIC_WHATSAPP_NUMBER: ${NEXT_PUBLIC_WHATSAPP_NUMBER:-}
+        # NEXT_PUBLIC_* se hornea en el bundle del navegador: tiene que entrar
+        # como build arg, no como variable de runtime. En `environment:` no
+        # llega nunca al cliente y solo miente sobre lo que se puede cambiar
+        # sin reconstruir.
+        NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+        NEXT_PUBLIC_SENTRY_ENVIRONMENT: production
     restart: unless-stopped
     depends_on:
       backend:
@@ -56,9 +62,17 @@ services:
     environment:
       NODE_ENV: production
       BACKEND_URL: http://backend:4000
-      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
       SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
       SENTRY_ENVIRONMENT: production
+    healthcheck:
+      # Es el unico servicio expuesto por Funnel y el unico sin forma propia
+      # de notar que se colgó: un Next colgado responde igual que uno sano
+      # hasta que se lo chequea.
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
     ports:
       # El unico puerto publicado. Tailscale Funnel apunta acá.
       - "3000:3000"
