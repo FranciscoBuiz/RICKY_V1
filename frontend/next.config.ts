@@ -3,6 +3,11 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   reactStrictMode: true,
 
+  /* `standalone` arma en .next/standalone un servidor con sólo las dependencias
+     que el runtime usa de verdad. La imagen final pasa de cientos de MB a
+     decenas, y en un home lab eso es tiempo de build en cada iteración. */
+  output: 'standalone',
+
   /**
    * Los videos de los heroes pesan 9,3 MB y 8,6 MB y se servían con
    * `Cache-Control: max-age=0`, así que cada visita los volvía a descargar
