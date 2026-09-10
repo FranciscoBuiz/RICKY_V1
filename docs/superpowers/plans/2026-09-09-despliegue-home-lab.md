@@ -39,7 +39,7 @@
   - `getSession(request: Request): Promise<PanelUser | null>`
   - `sinSesion(): NextResponse` — respuesta `401` con la forma `{ error }` que ya consume `frontend/src/lib/api.ts`.
 
-- [ ] **Step 1: Instalar vitest con versión exacta**
+- [x] **Step 1: Instalar vitest con versión exacta**
 
 ```bash
 cd frontend
@@ -50,7 +50,7 @@ npm pkg set scripts.test:watch="vitest"
 
 Comprobar que `package.json` quedó con `"vitest": "4.1.11"` y no `"^4.1.11"`. Si tiene el `^`, corregirlo a mano (Global Constraints).
 
-- [ ] **Step 2: Configurar vitest**
+- [x] **Step 2: Configurar vitest**
 
 `frontend/vitest.config.ts`:
 
@@ -73,7 +73,7 @@ export default defineConfig({
 });
 ```
 
-- [ ] **Step 3: Escribir el test que falla**
+- [x] **Step 3: Escribir el test que falla**
 
 `frontend/src/lib/session.test.ts`:
 
@@ -149,12 +149,12 @@ describe('getSession', () => {
 });
 ```
 
-- [ ] **Step 4: Correr el test y verificar que falla**
+- [x] **Step 4: Correr el test y verificar que falla**
 
 Run: `cd frontend && npm test`
 Expected: FAIL — `Failed to resolve import "@/lib/session"`.
 
-- [ ] **Step 5: Escribir el helper**
+- [x] **Step 5: Escribir el helper**
 
 `frontend/src/lib/session.ts`:
 
@@ -198,12 +198,12 @@ export function sinSesion(): NextResponse {
 }
 ```
 
-- [ ] **Step 6: Correr el test y verificar que pasa**
+- [x] **Step 6: Correr el test y verificar que pasa**
 
 Run: `cd frontend && npm test`
 Expected: PASS — 5 tests.
 
-- [ ] **Step 7: Typecheck y commit**
+- [x] **Step 7: Typecheck y commit**
 
 ```bash
 cd frontend && npm run typecheck
@@ -225,7 +225,7 @@ git commit -m "feat(frontend): helper de sesion contra el backend, con vitest"
 - Consumes: `getSession`, `sinSesion` de `@/lib/session` (Task 1).
 - Produces: nada nuevo. A partir de acá, todo `/api/admin/*` responde `401` sin sesión.
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 `frontend/src/app/api/admin/admin-auth.test.ts`:
 
@@ -315,12 +315,12 @@ describe('POST /api/admin/vehicles', () => {
 });
 ```
 
-- [ ] **Step 2: Correr el test y verificar que falla**
+- [x] **Step 2: Correr el test y verificar que falla**
 
 Run: `cd frontend && npm test -- admin-auth`
 Expected: FAIL — los tests de `401` reciben `200`.
 
-- [ ] **Step 3: Proteger `/api/admin/dashboard`**
+- [x] **Step 3: Proteger `/api/admin/dashboard`**
 
 En `frontend/src/app/api/admin/dashboard/route.ts`, agregar el import y cambiar la firma de `GET`, que hoy no recibe argumentos:
 
@@ -345,7 +345,7 @@ export async function GET(request: Request) {
 }
 ```
 
-- [ ] **Step 4: Proteger `/api/admin/vehicles`**
+- [x] **Step 4: Proteger `/api/admin/vehicles`**
 
 En `frontend/src/app/api/admin/vehicles/route.ts`, agregar la guarda como primera línea de `GET` y de `POST`:
 
@@ -377,7 +377,7 @@ export async function POST(request: Request) {
 }
 ```
 
-- [ ] **Step 5: Proteger `/api/admin/vehicles/[id]`**
+- [x] **Step 5: Proteger `/api/admin/vehicles/[id]`**
 
 Leer `frontend/src/app/api/admin/vehicles/[id]/route.ts` y agregar la misma guarda como primera línea de **cada** handler exportado (`GET`, `PATCH`, `DELETE` — los que existan), sin cambiar nada más:
 
@@ -387,12 +387,12 @@ if (!(await getSession(request))) return sinSesion();
 
 Agregar el import `import { getSession, sinSesion } from '@/lib/session';`.
 
-- [ ] **Step 6: Correr los tests y verificar que pasan**
+- [x] **Step 6: Correr los tests y verificar que pasan**
 
 Run: `cd frontend && npm test`
 Expected: PASS — los 5 de `session.test.ts` más los 5 de `admin-auth.test.ts`.
 
-- [ ] **Step 7: Typecheck y commit**
+- [x] **Step 7: Typecheck y commit**
 
 ```bash
 cd frontend && npm run typecheck
@@ -429,7 +429,7 @@ git commit -m "fix(frontend): /api/admin/* exigia ninguna sesion y servia costos
 | `GET /api/services` | `/api/settings/notifications` (todos los métodos) |
 | `GET /api/appointments/availability` | |
 
-- [ ] **Step 1: Escribir el test de tabla que falla**
+- [x] **Step 1: Escribir el test de tabla que falla**
 
 `frontend/src/app/api/reparto-publico.test.ts`:
 
@@ -520,12 +520,12 @@ describe('rutas que siguen públicas', () => {
 });
 ```
 
-- [ ] **Step 2: Correr el test y verificar que falla**
+- [x] **Step 2: Correr el test y verificar que falla**
 
 Run: `cd frontend && npm test -- reparto-publico`
 Expected: FAIL — las tres rutas privadas responden `200`.
 
-- [ ] **Step 3: Cerrar los `GET` de leads y appointments**
+- [x] **Step 3: Cerrar los `GET` de leads y appointments**
 
 En `frontend/src/app/api/leads/route.ts`, el `GET` hoy no recibe argumentos. Cambiarlo:
 
@@ -554,7 +554,7 @@ export async function GET(request: Request) {
 
 El `POST` **no se toca**.
 
-- [ ] **Step 4: Cerrar los `PATCH` de `[id]` y de settings**
+- [x] **Step 4: Cerrar los `PATCH` de `[id]` y de settings**
 
 En `frontend/src/app/api/leads/[id]/route.ts` y `frontend/src/app/api/appointments/[id]/route.ts`, agregar como primera línea de cada handler:
 
@@ -568,12 +568,12 @@ En `frontend/src/app/api/settings/notifications/route.ts`, agregarla a **todos**
 
 Agregar `import { getSession, sinSesion } from '@/lib/session';` en cada archivo.
 
-- [ ] **Step 5: Correr toda la suite**
+- [x] **Step 5: Correr toda la suite**
 
 Run: `cd frontend && npm test`
 Expected: PASS — `session`, `admin-auth` y `reparto-publico`.
 
-- [ ] **Step 6: Verificar a mano que el sitio público sigue entero**
+- [x] **Step 6: Verificar a mano que el sitio público sigue entero**
 
 ```bash
 cd frontend && npm run dev
@@ -592,7 +592,7 @@ Abrir `/contacto` en el navegador y mandar una consulta: tiene que entrar sin se
 
 **Antes de relanzar el dev server, comprobar que no quedó otro huérfano** (`docs/ESTADO.md`, "Trampa del entorno que costó una hora"): dos `next dev` sobre el mismo `.next` dejan todas las páginas sin estilos.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add frontend/src/app/api
