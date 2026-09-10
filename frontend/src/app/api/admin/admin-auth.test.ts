@@ -81,3 +81,83 @@ describe('POST /api/admin/vehicles', () => {
     expect(respuesta.status).toBe(401);
   });
 });
+
+describe('GET /api/admin/vehicles/[id]', () => {
+  it('responde 401 sin sesión', async () => {
+    mockGetSession.mockResolvedValue(null);
+    const { GET } = await import('@/app/api/admin/vehicles/[id]/route');
+
+    const respuesta = await GET(new Request('http://localhost:3000/api/admin/vehicles/no-existe'), {
+      params: Promise.resolve({ id: 'no-existe' }),
+    });
+
+    expect(respuesta.status).toBe(401);
+  });
+
+  it('no responde 401 con sesión (aunque el vehículo no exista)', async () => {
+    mockGetSession.mockResolvedValue(USUARIO);
+    const { GET } = await import('@/app/api/admin/vehicles/[id]/route');
+
+    const respuesta = await GET(new Request('http://localhost:3000/api/admin/vehicles/no-existe'), {
+      params: Promise.resolve({ id: 'no-existe' }),
+    });
+
+    expect(respuesta.status).not.toBe(401);
+  });
+});
+
+describe('PATCH /api/admin/vehicles/[id]', () => {
+  it('responde 401 sin sesión', async () => {
+    mockGetSession.mockResolvedValue(null);
+    const { PATCH } = await import('@/app/api/admin/vehicles/[id]/route');
+
+    const respuesta = await PATCH(
+      new Request('http://localhost:3000/api/admin/vehicles/no-existe', {
+        method: 'PATCH',
+        body: JSON.stringify({ brand: 'Intruso' }),
+      }),
+      { params: Promise.resolve({ id: 'no-existe' }) },
+    );
+
+    expect(respuesta.status).toBe(401);
+  });
+
+  it('no responde 401 con sesión (aunque el vehículo no exista)', async () => {
+    mockGetSession.mockResolvedValue(USUARIO);
+    const { PATCH } = await import('@/app/api/admin/vehicles/[id]/route');
+
+    const respuesta = await PATCH(
+      new Request('http://localhost:3000/api/admin/vehicles/no-existe', {
+        method: 'PATCH',
+        body: JSON.stringify({ brand: 'Intruso' }),
+      }),
+      { params: Promise.resolve({ id: 'no-existe' }) },
+    );
+
+    expect(respuesta.status).not.toBe(401);
+  });
+});
+
+describe('DELETE /api/admin/vehicles/[id]', () => {
+  it('responde 401 sin sesión', async () => {
+    mockGetSession.mockResolvedValue(null);
+    const { DELETE } = await import('@/app/api/admin/vehicles/[id]/route');
+
+    const respuesta = await DELETE(new Request('http://localhost:3000/api/admin/vehicles/no-existe'), {
+      params: Promise.resolve({ id: 'no-existe' }),
+    });
+
+    expect(respuesta.status).toBe(401);
+  });
+
+  it('no responde 401 con sesión (aunque el vehículo no exista)', async () => {
+    mockGetSession.mockResolvedValue(USUARIO);
+    const { DELETE } = await import('@/app/api/admin/vehicles/[id]/route');
+
+    const respuesta = await DELETE(new Request('http://localhost:3000/api/admin/vehicles/no-existe'), {
+      params: Promise.resolve({ id: 'no-existe' }),
+    });
+
+    expect(respuesta.status).not.toBe(401);
+  });
+});
