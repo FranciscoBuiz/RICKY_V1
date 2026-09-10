@@ -14,6 +14,7 @@ import {
   INSTAGRAM_HANDLE,
   INSTAGRAM_URL,
   PAGE_TITLE,
+  PLACEHOLDER_LABEL,
   SHELL,
   vehicleStatusMeta,
   whatsappHref,
@@ -21,9 +22,7 @@ import {
 import { displayPhone, fieldsValid, focusFirstInvalid } from '@/lib/fields';
 import { kilometers, money } from '@/lib/format';
 import { useIsNarrow, useKeydown } from '@/lib/hooks';
-import type { PublicVehicle } from '@/types';
-
-const PHOTO_COUNT = 5;
+import type { PublicVehicle, VehicleImage } from '@/types';
 
 /** Bandas de la galería: cada foto tiene su propio patrón para distinguirlas. */
 function galleryStripe(index: number): string {
@@ -64,6 +63,15 @@ export function VehiculoDetalleView({ vehicle }: { vehicle: PublicVehicle }) {
   const isMobile = useIsNarrow(860);
   const toast = useToast();
 
+  /* Antes eran 5 fijas porque todas las fotos eran marcadores. Ahora cada
+     vehículo trae las suyas: el Etios 2017 tiene 10 y la PCX 5. */
+  const fotos = vehicle.images;
+  const photoCount = Math.max(fotos.length, 1);
+  // Slots de la tira de miniaturas: las fotos reales, o `photoCount` huecos
+  // vacíos para el marcador cuando el vehículo todavía no tiene ninguna.
+  const thumbnailSlots: (VehicleImage | undefined)[] =
+    fotos.length > 0 ? fotos : Array.from({ length: photoCount });
+
   const title = `${vehicle.brand} ${vehicle.model} ${vehicle.version}`;
   const shortTitle = `${vehicle.brand} ${vehicle.model}`;
   const statusMeta = vehicleStatusMeta[vehicle.status];
@@ -71,8 +79,11 @@ export function VehiculoDetalleView({ vehicle }: { vehicle: PublicVehicle }) {
   // `null` mientras no haya número confirmado; el CTA cae a Instagram, que sí lo está.
   const waHref = whatsappHref(waMessage);
 
-  const prev = useCallback(() => setActiveIndex((i) => (i + PHOTO_COUNT - 1) % PHOTO_COUNT), []);
-  const next = useCallback(() => setActiveIndex((i) => (i + 1) % PHOTO_COUNT), []);
+  const prev = useCallback(
+    () => setActiveIndex((i) => (i + photoCount - 1) % photoCount),
+    [photoCount],
+  );
+  const next = useCallback(() => setActiveIndex((i) => (i + 1) % photoCount), [photoCount]);
 
   useKeydown(
     useCallback(
@@ -86,21 +97,23 @@ export function VehiculoDetalleView({ vehicle }: { vehicle: PublicVehicle }) {
     lightboxOpen,
   );
 
+  /* Mismo criterio que el catálogo anterior: las specs se arman de los campos
+     reales y se saltea el que nadie cargó. Una fila "Motor: —" es ruido. */
   const specs = [
     { label: 'Marca', value: vehicle.brand },
     { label: 'Modelo', value: vehicle.model },
     { label: 'Versión', value: vehicle.version },
     { label: 'Año', value: String(vehicle.year) },
     { label: 'Kilometraje', value: kilometers(vehicle.mileage) },
-    { label: 'Motor', value: vehicle.engine },
+    vehicle.engine ? { label: 'Motor', value: vehicle.engine } : null,
     { label: 'Combustible', value: vehicle.fuel },
     { label: 'Transmisión', value: vehicle.transmission },
-    { label: 'Tracción', value: vehicle.traction },
+    vehicle.traction ? { label: 'Tracción', value: vehicle.traction } : null,
     { label: 'Carrocería', value: vehicle.bodyType },
     { label: 'Color', value: vehicle.color },
-    { label: 'Puertas', value: String(vehicle.doors) },
+    vehicle.doors ? { label: 'Puertas', value: String(vehicle.doors) } : null,
     { label: 'Ubicación', value: vehicle.location },
-  ];
+  ].filter((spec): spec is { label: string; value: string } => spec !== null);
 
   const setLeadField = (key: keyof typeof EMPTY_LEAD) => (value: string) =>
     setLead((prev) => ({ ...prev, [key]: value }));
@@ -189,27 +202,28 @@ export function VehiculoDetalleView({ vehicle }: { vehicle: PublicVehicle }) {
             onKeyDown={(event) => event.key === 'Enter' && setLightboxOpen(true)}
             style={{ position: 'relative', aspectRatio: '4 / 3', overflow: 'hidden', cursor: 'zoom-in' }}
           >
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                background: galleryStripe(activeIndex),
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <span
+            {fotos.length > 0 ? (
+              <img
+                src={fotos[activeIndex].src}
+                alt={fotos[activeIndex].alt}
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            ) : (
+              <div
                 style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: 12,
-                  color: 'var(--placeholder-ink)',
-                  letterSpacing: '0.08em',
+                  position: 'absolute',
+                  inset: 0,
+                  background: galleryStripe(activeIndex),
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
-                [ foto {activeIndex + 1} de {PHOTO_COUNT} — {vehicle.model} {vehicle.version} ]
-              </span>
-            </div>
+                <span style={PLACEHOLDER_LABEL}>
+                  [ foto {activeIndex + 1} de {photoCount} — {vehicle.model} {vehicle.version} ]
+                </span>
+              </div>
+            )}
             <div
               style={{
                 position: 'absolute',
@@ -251,7 +265,7 @@ export function VehiculoDetalleView({ vehicle }: { vehicle: PublicVehicle }) {
           </div>
 
           <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-            {Array.from({ length: PHOTO_COUNT }, (_, index) => (
+            {thumbnailSlots.map((foto, index) => (
               <button
                 key={index}
                 type="button"
@@ -260,21 +274,40 @@ export function VehiculoDetalleView({ vehicle }: { vehicle: PublicVehicle }) {
                 onClick={() => setActiveIndex(index)}
                 style={{
                   flex: 1,
+                  position: 'relative',
                   aspectRatio: '1',
+                  overflow: 'hidden',
                   border: index === activeIndex ? '2px solid var(--accent)' : '1px solid var(--border)',
-                  background: galleryStripe(index),
                   padding: 0,
                   cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                 }}
               >
-                <span
-                  style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--placeholder-ink)' }}
-                >
-                  {index + 1}
-                </span>
+                {foto && typeof foto === 'object' && 'src' in foto ? (
+                  <img
+                    src={foto.src}
+                    alt=""
+                    aria-hidden
+                    loading="lazy"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: galleryStripe(index),
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <span
+                      style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--placeholder-ink)' }}
+                    >
+                      {index + 1}
+                    </span>
+                  </div>
+                )}
               </button>
             ))}
           </div>
@@ -413,15 +446,18 @@ export function VehiculoDetalleView({ vehicle }: { vehicle: PublicVehicle }) {
         </div>
       </section>
 
-      {/* DESCRIPCIÓN */}
-      <section style={{ ...SHELL, padding: '56px var(--gutter) 0' }}>
-        <div style={{ maxWidth: 720 }}>
-          <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 22, margin: '0 0 16px' }}>
-            Descripción
-          </h2>
-          <p style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--ink-strong)' }}>{vehicle.description}</p>
-        </div>
-      </section>
+      {/* DESCRIPCIÓN: ningún vehículo real la trae todavía, así que la sección
+          entera se omite en vez de mostrar el título con un párrafo vacío. */}
+      {vehicle.description ? (
+        <section style={{ ...SHELL, padding: '56px var(--gutter) 0' }}>
+          <div style={{ maxWidth: 720 }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 22, margin: '0 0 16px' }}>
+              Descripción
+            </h2>
+            <p style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--ink-strong)' }}>{vehicle.description}</p>
+          </div>
+        </section>
+      ) : null}
 
       {/* CONSULTA */}
       <section id="consulta" style={{ ...SHELL, padding: '80px var(--gutter) 96px' }}>
@@ -622,7 +658,7 @@ export function VehiculoDetalleView({ vehicle }: { vehicle: PublicVehicle }) {
             }}
           >
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#8f8a83' }}>
-              [ foto {activeIndex + 1} de {PHOTO_COUNT} ]
+              [ foto {activeIndex + 1} de {photoCount} ]
             </span>
           </div>
           <div style={{ display: 'flex', gap: 24, marginTop: 24 }}>
