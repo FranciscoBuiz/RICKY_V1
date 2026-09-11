@@ -140,6 +140,11 @@ export const seedVehicles: Vehicle[] = [
   },
 ];
 
+/*
+ * Estas listas siguen al stock de hoy, no al tipo: `Vehicle['bodyType']` acepta
+ * también `'Pick-up'`, y una pick-up cargada desde el panel quedaría invisible
+ * para el filtro de carrocería sin que nada avise. Si entra una, sumala acá.
+ */
 export const brandOptions = ['Toyota', 'Fiat', 'Volkswagen', 'Honda'];
 export const bodyTypeOptions = ['Sedán', 'SUV', 'Hatchback', 'Moto'];
 export const fuelOptions = ['Nafta', 'Diesel', 'Nafta/GNC'];

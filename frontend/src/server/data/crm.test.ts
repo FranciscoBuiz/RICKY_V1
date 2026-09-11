@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { isoDate } from '@/lib/format';
 import { seedActionAlerts, seedAppointments, seedLeads } from '@/server/data/crm';
 import type { AppointmentStatus, LeadStatus } from '@/types';
 
@@ -27,7 +28,7 @@ describe('semilla del panel', () => {
   });
 
   it('pone los turnos terminados y cancelados en el pasado', () => {
-    const hoy = new Date().toISOString().slice(0, 10);
+    const hoy = isoDate(new Date());
     for (const turno of seedAppointments) {
       if (turno.status === 'completed' || turno.status === 'cancelled') {
         expect(turno.date < hoy).toBe(true);
@@ -36,7 +37,7 @@ describe('semilla del panel', () => {
   });
 
   it('pone los turnos pendientes y confirmados a futuro', () => {
-    const hoy = new Date().toISOString().slice(0, 10);
+    const hoy = isoDate(new Date());
     for (const turno of seedAppointments) {
       if (turno.status === 'pending' || turno.status === 'confirmed') {
         expect(turno.date >= hoy).toBe(true);

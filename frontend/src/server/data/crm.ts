@@ -1,4 +1,5 @@
-import { isoDate } from '@/lib/format';
+import { isoDate, money } from '@/lib/format';
+import { seedVehicles } from '@/server/data/vehicles';
 import type {
   ActionAlert,
   ActivityEntry,
@@ -403,12 +404,30 @@ export const seedNotifications: AdminNotification[] = [
   { text: 'Se cargó Toyota Etios XLS al catálogo.', time: 'Ayer' },
 ];
 
+/**
+ * Valor de lista del stock que hoy está a la venta, sumado del catálogo real y
+ * en dólares, que es como publica la agencia.
+ */
+const valorPotencialDelStock = seedVehicles
+  .filter((v) => v.status !== 'sold')
+  .reduce((total, v) => total + v.price, 0);
+
+/**
+ * Las tres métricas de costo dicen "sin cargar", igual que la columna de margen
+ * del panel de vehículos: `purchasePrice` y `expenses` de los seis vehículos
+ * reales están en `0` porque la agencia no nos pasó esos números. Antes había
+ * cifras en pesos (`$ 284,5M` de capital invertido, `$ 38,9M` de margen) sobre
+ * un stock cuyo costo registrado es cero y en una moneda que el catálogo ya no
+ * usa: contenido factual inventado, y en la primera pantalla que ve el dueño.
+ */
+const SIN_CARGAR = 'sin cargar';
+
 export const seedBusinessMetrics: BusinessMetric[] = [
-  { label: 'Capital invertido', value: '$ 284,5M', delta: '' },
-  { label: 'Valor potencial del stock', value: '$ 323,4M', delta: '+6% vs. mes anterior', deltaTone: 'positive' },
-  { label: 'Margen potencial', value: '$ 38,9M', delta: '' },
+  { label: 'Capital invertido', value: SIN_CARGAR, delta: '' },
+  { label: 'Valor potencial del stock', value: money(valorPotencialDelStock), delta: '' },
+  { label: 'Margen potencial', value: SIN_CARGAR, delta: '' },
   { label: 'Ventas del mes', value: '12', delta: '+12% vs. mes anterior', deltaTone: 'positive' },
-  { label: 'Margen realizado', value: '$ 6,1M', delta: '-4% vs. mes anterior', deltaTone: 'negative' },
+  { label: 'Margen realizado', value: SIN_CARGAR, delta: '' },
 ];
 
 export const processSteps = [
