@@ -34,7 +34,7 @@ function galleryStripe(index: number): string {
     'var(--placeholder-a)',
   ];
   const angle = index % 2 === 0 ? 135 : 45;
-  return `repeating-linear-gradient(${angle}deg, ${tints[index]} 0 20px, var(--placeholder-d) 20px 40px)`;
+  return `repeating-linear-gradient(${angle}deg, ${tints[index % tints.length]} 0 20px, var(--placeholder-d) 20px 40px)`;
 }
 
 const NAV_BUTTON: CSSProperties = {
@@ -282,7 +282,7 @@ export function VehiculoDetalleView({ vehicle }: { vehicle: PublicVehicle }) {
                   cursor: 'pointer',
                 }}
               >
-                {foto && typeof foto === 'object' && 'src' in foto ? (
+                {foto ? (
                   <img
                     src={foto.src}
                     alt=""
@@ -647,20 +647,29 @@ export function VehiculoDetalleView({ vehicle }: { vehicle: PublicVehicle }) {
           >
             ×
           </button>
-          <div
-            style={{
-              width: 'min(90vw, 1000px)',
-              aspectRatio: '4 / 3',
-              backgroundImage: 'repeating-linear-gradient(135deg, #2A2620 0 22px, #201D19 22px 44px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#8f8a83' }}>
-              [ foto {activeIndex + 1} de {photoCount} ]
-            </span>
-          </div>
+          {fotos.length > 0 ? (
+            <img
+              src={fotos[activeIndex].src}
+              alt={fotos[activeIndex].alt}
+              /* `contain` y no `cover`: un zoom que recorta la foto no es un zoom. */
+              style={{ width: 'min(90vw, 1000px)', maxHeight: '80vh', objectFit: 'contain' }}
+            />
+          ) : (
+            <div
+              style={{
+                width: 'min(90vw, 1000px)',
+                aspectRatio: '4 / 3',
+                backgroundImage: 'repeating-linear-gradient(135deg, #2A2620 0 22px, #201D19 22px 44px)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#8f8a83' }}>
+                [ foto {activeIndex + 1} de {photoCount} ]
+              </span>
+            </div>
+          )}
           <div style={{ display: 'flex', gap: 24, marginTop: 24 }}>
             <button
               type="button"

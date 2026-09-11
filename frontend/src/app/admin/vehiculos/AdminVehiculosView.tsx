@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState, type CSSProperties } from 'react';
+import { margenVisible, marginTone } from '@/app/admin/vehiculos/margen';
 import { AdminShell } from '@/components/admin/AdminShell';
 import { AutocompleteField } from '@/components/ui/AutocompleteField';
 import { ErrorState } from '@/components/ui/ErrorState';
@@ -22,7 +23,7 @@ interface StockResponse {
   stock: StockSummary;
 }
 
-const TABLE_GRID = '48px 220px 64px 90px 130px 120px 130px 130px 100px 140px';
+const TABLE_GRID = '56px 220px 64px 90px 130px 120px 130px 130px 100px 140px';
 
 const EXPENSE_LABELS = [
   'Transferencia',
@@ -114,24 +115,6 @@ const ACTION_BUTTON: CSSProperties = {
   fontWeight: 600,
   cursor: 'pointer',
 };
-
-/** El margen sólo es "bueno" mientras dé positivo; en rojo cuando da pérdida. */
-function marginTone(value: number): string {
-  return value < 0 ? 'var(--danger)' : 'var(--ok)';
-}
-
-/**
- * Sin precio de compra no hay margen que calcular. Antes esto daba el precio de
- * venta entero y se leía como una ganancia del 100 %: los seis vehículos reales
- * vienen con `purchasePrice` en 0 porque son costos que la agencia no nos pasó.
- */
-function margenVisible(vehicle: Vehicle): { texto: string; tono: string } {
-  if (vehicle.purchasePrice === 0) {
-    return { texto: 'sin cargar', tono: 'var(--muted)' };
-  }
-  const margen = vehicle.price - vehicle.purchasePrice - vehicle.expenses;
-  return { texto: money(margen), tono: marginTone(margen) };
-}
 
 export function AdminVehiculosView() {
   const [search, setSearch] = useState('');
