@@ -74,9 +74,10 @@ tema claro/oscuro por `data-theme`.
 - El store es **en memoria** (`src/server/store.ts`): todo se reinicia con el
   proceso. Falta base de datos y storage de imágenes.
 - **Auth resuelta para el panel.** Ingreso con Google (OIDC), solo por
-  invitación, con sesión revocable y roles. Falta: `/api/admin/*` sigue
-  sirviéndose desde Next contra el store en memoria y todavía no está protegido;
-  se cubre cuando esos endpoints se muden al backend.
+  invitación, con sesión revocable y roles. `/api/admin/*` ya no está sin
+  proteger: cada ruta exige sesión válida (verificada contra el backend) antes
+  de responder. Sigue sirviéndose desde Next contra el store en memoria; eso se
+  cubre cuando esos endpoints se muden al backend.
 - Falta la integración real de la API de WhatsApp.
 - Terminología del dominio (fijada en `src/types/index.ts`): estados de vehículo
   `available` / `reserved` / `sold`; estados de lead `new` / `contacted` /
@@ -102,6 +103,8 @@ fuente y política de precios/publicación.
 
 - Nombre **5848 Motors**, dirección **Gaboto 5848, Mar del Plata, Buenos Aires,
   Argentina**, e Instagram **@5848motors**.
+- **Número de WhatsApp:** `+54 9 2233 12-2894` (`5492233122894`,
+  `NEXT_PUBLIC_WHATSAPP_NUMBER`).
 
 **No confirmado — no tratar como real ni inventar reemplazos:**
 
@@ -110,11 +113,11 @@ fuente y política de precios/publicación.
 - **Catálogo de servicios de detailing** (`seedServices` en
   `src/server/data/crm.ts`): los seis servicios son propuesta, no la oferta
   confirmada de la agencia.
-- **Fotos reales de los vehículos:** no existen. Hoy se muestran marcadores de
-  bandas diagonales. Cualquier trabajo visual tiene que funcionar bien con esos
-  placeholders y con fotos reales cuando lleguen.
-- **Teléfono, número de WhatsApp (`NEXT_PUBLIC_WHATSAPP_NUMBER`), email y
-  horarios de atención:** sin definir.
+- **Fotos reales de los vehículos:** ya existen 45 fotos reales de los seis
+  vehículos del stock actual (`frontend/public/vehiculos/`). Cualquier vehículo
+  nuevo cargado desde el panel sigue mostrando el marcador de bandas
+  diagonales, porque no hay forma de subir fotos desde ahí.
+- **Teléfono, email y horarios de atención:** sin definir.
 - **No hay testimonios, casos, reseñas, métricas de ventas ni premios.** No
   fabricar ninguno.
 
