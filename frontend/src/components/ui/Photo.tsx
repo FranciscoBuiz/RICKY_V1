@@ -78,6 +78,7 @@ export function Photo({
       {capas.image && src ? (
         <img
           ref={elemento}
+          className="photo-img"
           src={src}
           alt={decorative ? '' : alt}
           aria-hidden={decorative || undefined}
@@ -99,7 +100,7 @@ export function Photo({
 
       {capas.shimmer ? (
         <span
-          className="skeleton"
+          className="skeleton photo-shimmer"
           aria-hidden
           style={{ position: 'absolute', inset: 0, display: 'block' }}
         />

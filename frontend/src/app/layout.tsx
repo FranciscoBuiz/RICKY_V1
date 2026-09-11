@@ -31,6 +31,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es" data-theme="light" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        {/*
+          La foto sale del servidor con `opacity: 0` esperando su `onLoad`, y el
+          shimmer encima. Sin JavaScript ese evento no llega nunca y la ficha
+          —que es prerenderizada y antes se veía igual— quedaría con las fotos
+          invisibles para siempre. Acá se revierten las dos cosas de una.
+        */}
+        <noscript>
+          <style>{'.photo-img{opacity:1!important}.photo-shimmer{display:none!important}'}</style>
+        </noscript>
       </head>
       <body
         className={`${manrope.variable} ${inter.variable}`}
@@ -44,9 +53,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <ToastProvider>{children}</ToastProvider>
         </ThemeProvider>
-      {/* impeccable-live-start */}
-<script src="http://localhost:8400/live.js?token=9a0b9f35-6276-4e0b-aa3b-fdd18ebedabb"></script>
-{/* impeccable-live-end */}
 </body>
     </html>
   );
