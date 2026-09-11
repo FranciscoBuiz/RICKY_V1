@@ -26,12 +26,18 @@ ENV NODE_ENV=production
 # El output standalone NO incluye `public/` ni `.next/static`: hay que copiarlos
 # a mano. Si se olvida, el sitio levanta sin CSS, sin fotos y sin videos, y el
 # sintoma parece un problema de estilos.
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
+COPY --from=builder --chown=node:node /app/.next/standalone ./
+COPY --from=builder --chown=node:node /app/.next/static ./.next/static
+COPY --from=builder --chown=node:node /app/public ./public
 
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
+
+# Es el unico contenedor que da a internet: no tiene por que correr como root.
+# `node:22-slim` ya trae el usuario `node` (uid 1000), y las COPY de arriba le
+# dejan `/app` a su nombre porque Next escribe cache adentro de `.next` en
+# runtime y como root-owned no podria.
+USER node
 
 CMD ["node", "server.js"]
