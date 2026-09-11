@@ -5,6 +5,7 @@ import { useCallback, useState, type CSSProperties, type FormEvent } from 'react
 import { DarkToggle } from '@/components/site/DarkToggle';
 import { SiteFooter } from '@/components/site/SiteFooter';
 import { SiteHeader } from '@/components/site/SiteHeader';
+import { Photo } from '@/components/ui/Photo';
 import { TextAreaField, TextField } from '@/components/ui/TextField';
 import { useToast } from '@/components/ui/Toast';
 import { apiSend } from '@/lib/api';
@@ -202,28 +203,29 @@ export function VehiculoDetalleView({ vehicle }: { vehicle: PublicVehicle }) {
             onKeyDown={(event) => event.key === 'Enter' && setLightboxOpen(true)}
             style={{ position: 'relative', aspectRatio: '4 / 3', overflow: 'hidden', cursor: 'zoom-in' }}
           >
-            {fotos.length > 0 ? (
-              <img
-                src={fotos[activeIndex].src}
-                alt={fotos[activeIndex].alt}
-                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            ) : (
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: galleryStripe(activeIndex),
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <span style={PLACEHOLDER_LABEL}>
-                  [ foto {activeIndex + 1} de {photoCount} — {vehicle.model} {vehicle.version} ]
-                </span>
-              </div>
-            )}
+            <Photo
+              src={fotos[activeIndex]?.src}
+              alt={fotos[activeIndex]?.alt ?? `${vehicle.model} ${vehicle.version}`}
+              /* Es lo primero que se mira al abrir la ficha: no espera al scroll. */
+              loading="eager"
+              style={{ position: 'absolute', inset: 0 }}
+              fallback={
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: galleryStripe(activeIndex),
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <span style={PLACEHOLDER_LABEL}>
+                    [ foto {activeIndex + 1} de {photoCount} — {vehicle.model} {vehicle.version} ]
+                  </span>
+                </div>
+              }
+            />
             <div
               style={{
                 position: 'absolute',
@@ -282,32 +284,30 @@ export function VehiculoDetalleView({ vehicle }: { vehicle: PublicVehicle }) {
                   cursor: 'pointer',
                 }}
               >
-                {foto ? (
-                  <img
-                    src={foto.src}
-                    alt=""
-                    aria-hidden
-                    loading="lazy"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                ) : (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      background: galleryStripe(index),
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <span
-                      style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--placeholder-ink)' }}
+                <Photo
+                  src={foto?.src}
+                  alt=""
+                  decorative
+                  style={{ position: 'absolute', inset: 0 }}
+                  fallback={
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: galleryStripe(index),
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
                     >
-                      {index + 1}
-                    </span>
-                  </div>
-                )}
+                      <span
+                        style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--placeholder-ink)' }}
+                      >
+                        {index + 1}
+                      </span>
+                    </div>
+                  }
+                />
               </button>
             ))}
           </div>
@@ -647,29 +647,33 @@ export function VehiculoDetalleView({ vehicle }: { vehicle: PublicVehicle }) {
           >
             ×
           </button>
-          {fotos.length > 0 ? (
-            <img
-              src={fotos[activeIndex].src}
-              alt={fotos[activeIndex].alt}
-              /* `contain` y no `cover`: un zoom que recorta la foto no es un zoom. */
-              style={{ width: 'min(90vw, 1000px)', maxHeight: '80vh', objectFit: 'contain' }}
-            />
-          ) : (
-            <div
-              style={{
-                width: 'min(90vw, 1000px)',
-                aspectRatio: '4 / 3',
-                backgroundImage: 'repeating-linear-gradient(135deg, #2A2620 0 22px, #201D19 22px 44px)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#8f8a83' }}>
-                [ foto {activeIndex + 1} de {photoCount} ]
-              </span>
-            </div>
-          )}
+          <Photo
+            src={fotos[activeIndex]?.src}
+            alt={fotos[activeIndex]?.alt ?? `${vehicle.model} ${vehicle.version}`}
+            loading="eager"
+            /* El cuadro tiene tamaño propio para que abrir el lightbox no mueva
+               nada mientras la foto llega. Es la misma caja que ya usaba el
+               marcador cuando no hay fotos. */
+            style={{ width: 'min(90vw, 1000px)', aspectRatio: '4 / 3', maxHeight: '80vh' }}
+            /* `contain` y no `cover`: un zoom que recorta la foto no es un zoom. */
+            imgStyle={{ objectFit: 'contain' }}
+            fallback={
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  backgroundImage: 'repeating-linear-gradient(135deg, #2A2620 0 22px, #201D19 22px 44px)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#8f8a83' }}>
+                  [ foto {activeIndex + 1} de {photoCount} ]
+                </span>
+              </div>
+            }
+          />
           <div style={{ display: 'flex', gap: 24, marginTop: 24 }}>
             <button
               type="button"

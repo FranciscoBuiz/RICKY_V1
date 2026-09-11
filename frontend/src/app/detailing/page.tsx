@@ -31,6 +31,7 @@ export default function DetailingPage() {
       >
         <HeroVideo
           src="/uploads/Sports_sedan_detailing_sequence_202609040815.mp4"
+          poster="/uploads/Sports_sedan_detailing_sequence_202609040815-poster.jpg"
           overlay="linear-gradient(180deg, rgba(16,15,13,0.4) 0%, rgba(16,15,13,0.78) 100%)"
         />
         <div style={{ ...SHELL, position: 'relative', zIndex: 2, padding: '0 var(--gutter) 72px' }}>

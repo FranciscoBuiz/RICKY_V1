@@ -30,6 +30,7 @@ export default function HomePage() {
       >
         <HeroVideo
           src="/uploads/Cars_driving_in_studio_sequence_202609040808.mp4"
+          poster="/uploads/Cars_driving_in_studio_sequence_202609040808-poster.jpg"
           overlay="linear-gradient(180deg, rgba(16,15,13,0.45) 0%, rgba(16,15,13,0.78) 100%)"
         />
 

@@ -37,9 +37,16 @@ interface HeroVideoProps {
   src: string;
   /** Degradado que se superpone al video para que el texto se lea. */
   overlay: string;
+  /**
+   * Primer cuadro del video, para que el hero no se vea plano mientras bajan
+   * los nueve megas. Va como atributo del `<video>` a propósito: el elemento no
+   * existe cuando `shouldSkipVideo()` decide no cargarlo, así que el visitante
+   * que pidió ahorrar datos tampoco baja el poster.
+   */
+  poster?: string;
 }
 
-export function HeroVideo({ src, overlay }: HeroVideoProps) {
+export function HeroVideo({ src, overlay, poster }: HeroVideoProps) {
   const [source, setSource] = useState<string | null>(null);
   const frame = useRef<number | undefined>(undefined);
 
@@ -61,6 +68,7 @@ export function HeroVideo({ src, overlay }: HeroVideoProps) {
       {source && (
         <video
           src={source}
+          poster={poster}
           autoPlay
           muted
           loop

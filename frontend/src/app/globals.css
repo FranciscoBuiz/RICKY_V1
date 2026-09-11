@@ -336,7 +336,15 @@ textarea[aria-invalid='true']:focus {
   animation: shimmer 1.5s infinite;
 }
 
-/* Tarjeta de vehículo: la segunda foto aparece al pasar el mouse. */
+/* Tarjeta de vehículo: la segunda foto aparece al pasar el mouse.
+   La opacidad base vive acá y no en un `style` inline: un estilo inline le gana
+   a cualquier selector, así que con `opacity: 0` puesto en el elemento la regla
+   de abajo no tenía forma de aplicarse y el hover no hacía nada. */
+.vehicle-photo-alt {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
 .vehicle-card:hover .vehicle-photo-alt {
   opacity: 1;
 }

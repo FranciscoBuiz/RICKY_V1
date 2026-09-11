@@ -5,6 +5,7 @@ import { margenVisible, marginTone } from '@/app/admin/vehiculos/margen';
 import { AdminShell } from '@/components/admin/AdminShell';
 import { AutocompleteField } from '@/components/ui/AutocompleteField';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { Photo } from '@/components/ui/Photo';
 import { SkeletonTable } from '@/components/ui/Skeleton';
 import { TextField } from '@/components/ui/TextField';
 import { useToast } from '@/components/ui/Toast';
@@ -425,19 +426,15 @@ export function AdminVehiculosView() {
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  <div style={{ width: 56, height: 42, overflow: 'hidden', flexShrink: 0 }}>
-                    {vehicle.images.length > 0 ? (
-                      <img
-                        src={vehicle.images[0].src}
-                        alt=""
-                        aria-hidden
-                        loading="lazy"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    ) : (
-                      <div style={{ width: '100%', height: '100%', background: 'var(--placeholder-a)' }} />
-                    )}
-                  </div>
+                  <Photo
+                    src={vehicle.images[0]?.src}
+                    alt=""
+                    decorative
+                    style={{ width: 56, height: 42, flexShrink: 0 }}
+                    fallback={
+                      <div style={{ position: 'absolute', inset: 0, background: 'var(--placeholder-a)' }} />
+                    }
+                  />
                   <div style={{ fontWeight: 600 }}>
                     {vehicle.brand} {vehicle.model}
                   </div>
