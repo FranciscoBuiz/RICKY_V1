@@ -1,7 +1,7 @@
 # Estado del trabajo — despliegue de la demo en el home lab
 
 Última actualización: 2026-09-11
-Rama: `feat/despliegue-home-lab` (todavía no mergeada a `master`)
+Rama: `master` (`feat/despliegue-home-lab` se mergeó y se borró; el trabajo vive en `master`)
 Plan: `docs/superpowers/plans/2026-09-09-despliegue-home-lab.md`
 Spec: `docs/superpowers/specs/2026-09-09-despliegue-home-lab-design.md`
 
@@ -87,9 +87,7 @@ No queda nada por implementar en el repo. Para llevar esto a producción:
 1. Seguir `DEPLOY.md` de punta a punta, en el Debian del lab.
 2. Correr la "Verificación final en el servidor" que `DEPLOY.md` trae en su sección de
    Verificación — no está terminado hasta que esa lista pasa ahí, no en local.
-3. Considerar mergear `feat/despliegue-home-lab` a `master` (con
-   `superpowers:finishing-a-development-branch` si se quiere seguir ese proceso); hoy las
-   dos ramas no apuntan al mismo commit.
+3. La rama ya está mergeada a `master` y borrada, así que no hay nada que integrar.
 
 ```bash
 # Comprobar que nada se rompió antes de tocar nada
