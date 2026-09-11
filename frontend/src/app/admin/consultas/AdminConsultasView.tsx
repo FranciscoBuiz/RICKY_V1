@@ -6,7 +6,8 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { SkeletonTable } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
 import { apiSend, useResource } from '@/lib/api';
-import { FIELD, HAS_WHATSAPP, leadStatusMeta, pillStyle, whatsappHref } from '@/lib/design';
+import { canalDeRespuesta } from '@/app/admin/consultas/responder';
+import { FIELD, leadStatusMeta, pillStyle } from '@/lib/design';
 import { useIsNarrow } from '@/lib/hooks';
 import { useTheme } from '@/lib/theme';
 import type { Lead, LeadStatus } from '@/types';
@@ -77,6 +78,8 @@ export function AdminConsultasView() {
 
   const selected = filtered.find((lead) => lead.id === selectedId) ?? null;
   const draft = selectedId ? (drafts[selectedId] ?? '') : '';
+  /* A donde va la respuesta lo decide el origen de la consulta, no el empleado. */
+  const canal = selected ? canalDeRespuesta(selected, draft.trim()) : null;
   const filtersActive = Boolean(search.trim()) || statusFilter !== 'all' || Boolean(dateFilter);
 
   async function changeStatus(id: string, next: LeadStatus) {
@@ -92,22 +95,30 @@ export function AdminConsultasView() {
     }
   }
 
-  async function sendReply() {
-    if (!selectedId || !draft.trim()) return;
+  /*
+   * Deliberadamente sin `await`: esto corre en el `onClick` de un `<a>` que abre
+   * WhatsApp o el cliente de correo. Si esperara la respuesta del PATCH antes de
+   * navegar, el navegador ya habria perdido el gesto del usuario y el bloqueador
+   * de pop-ups se comeria la pestaña.
+   */
+  function registrarRespuesta() {
+    const id = selectedId;
+    const texto = draft.trim();
+    if (!id || !texto) return;
     setSending(true);
-    try {
-      await apiSend(`/api/leads/${selectedId}`, 'PATCH', { reply: draft.trim() });
-      setDrafts((prev) => ({ ...prev, [selectedId]: '' }));
-      toast.success('Respuesta enviada');
-      reload();
-    } catch (err) {
-      toast.error(
-        'No pudimos enviar la respuesta',
-        err instanceof Error ? err.message : 'Intentá de nuevo.',
-      );
-    } finally {
-      setSending(false);
-    }
+    apiSend(`/api/leads/${id}`, 'PATCH', { reply: texto })
+      .then(() => {
+        setDrafts((prev) => ({ ...prev, [id]: '' }));
+        toast.success('Respuesta registrada', 'Confirmá que el mensaje haya salido.');
+        reload();
+      })
+      .catch((err: unknown) => {
+        toast.error(
+          'No pudimos registrar la respuesta',
+          err instanceof Error ? err.message : 'Intentá de nuevo.',
+        );
+      })
+      .finally(() => setSending(false));
   }
 
   function clearFilters() {
@@ -330,7 +341,26 @@ export function AdminConsultasView() {
                     padding: '10px 12px',
                   }}
                 >
-                  Respuesta enviada. El lead pasó a &quot;Contactado&quot;.
+                  <div style={{ fontWeight: 600 }}>
+                    Respuesta registrada. El lead pasó a &quot;Contactado&quot;.
+                  </div>
+                  {/* El panel no envía nada: dice lo que de verdad pasó, para que
+                      nadie de por hecho que el cliente ya la recibió. */}
+                  <div style={{ marginTop: 4 }}>
+                    Se abrió el canal del cliente con este texto cargado. El mensaje lo manda una
+                    persona.
+                  </div>
+                  <div
+                    style={{
+                      marginTop: 10,
+                      paddingTop: 10,
+                      borderTop: '1px solid #CFE6D3',
+                      color: '#24503A',
+                      whiteSpace: 'pre-wrap',
+                    }}
+                  >
+                    {selected.reply}
+                  </div>
                 </div>
               ) : (
                 <>
@@ -344,41 +374,45 @@ export function AdminConsultasView() {
                     style={{ ...SELECT, resize: 'vertical' }}
                   />
                   <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-                    <button
-                      type="button"
-                      onClick={sendReply}
-                      disabled={!draft.trim() || sending}
-                      style={{
-                        border: 'none',
-                        background: draft.trim() ? 'var(--invert-bg)' : 'var(--border)',
-                        color: draft.trim() ? 'var(--invert-ink)' : 'var(--muted)',
-                        padding: '10px 16px',
-                        fontSize: 13,
-                        fontWeight: 600,
-                        cursor: draft.trim() && !sending ? 'pointer' : 'not-allowed',
-                      }}
-                    >
-                      {sending ? 'Enviando…' : 'Enviar respuesta'}
-                    </button>
-                    {HAS_WHATSAPP && (
+                    {canal?.href && draft.trim() ? (
                       <a
-                        href={
-                          whatsappHref(`Hola ${selected.name}, te escribimos de 5848 Motors.`) ??
-                          undefined
-                        }
+                        href={canal.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={registrarRespuesta}
                         className="ui-btn"
                         style={{
-                          border: '1px solid var(--border)',
-                          padding: '10px 14px',
+                          border: 'none',
+                          background: 'var(--invert-bg)',
+                          color: 'var(--invert-ink)',
+                          padding: '10px 16px',
                           fontSize: 13,
                           fontWeight: 600,
-                          color: 'var(--ink)',
+                          textDecoration: 'none',
                         }}
                       >
-                        WhatsApp
+                        {sending ? 'Registrando…' : canal.etiqueta}
                       </a>
+                    ) : (
+                      <span
+                        style={{
+                          border: 'none',
+                          background: 'var(--border)',
+                          color: 'var(--muted)',
+                          padding: '10px 16px',
+                          fontSize: 13,
+                          fontWeight: 600,
+                        }}
+                      >
+                        {canal?.etiqueta ?? 'Responder'}
+                      </span>
                     )}
                   </div>
+                  {canal?.motivo ? (
+                    <div style={{ marginTop: 8, fontSize: 12, color: 'var(--muted)' }}>
+                      {canal.motivo}
+                    </div>
+                  ) : null}
                 </>
               )}
             </div>
