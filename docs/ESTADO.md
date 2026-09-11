@@ -150,7 +150,11 @@ Lo que sobreviva se mata con `taskkill /PID <pid> /T /F` (el `/T` es el que se l
   repo; un vehículo nuevo va a mostrar el marcador de bandas.
 - **`PATCH /users/:id` revoca las sesiones del afectado siempre**, así que un admin que se
   edite a sí mismo el `status` se desloguea solo.
-- **`npm audit` en el frontend reporta 3 vulnerabilidades (2 altas, 1 crítica) en
-  `next@15.5.4`**, una de ellas de RCE. Son previas a este trabajo. Actualizar Next es una
-  decisión aparte porque puede romper cosas. Es la limitación más seria: la imagen que
-  Funnel expone a internet lleva esas vulnerabilidades adentro.
+- **`npm audit` en el frontend queda con 2 High y 1 Moderate, ningún Critical.** Next se
+  corrió a `15.5.25`, que cierra los tres advisories críticos de `15.5.4` (tres RCE: el
+  protocolo flight de React, la Image Optimization API vía AVIF, y uno de servers Windows
+  que no aplica en Debian) más los bypass de middleware en App Router, que es lo que
+  protege `/admin`. Lo que queda son transitivos de `next` que este bump no cierra:
+  `postcss` (High, lectura de archivos vía `sourceMappingURL`; corre en build, no en el
+  server expuesto), `sharp` (High, libvips/libheif) y el Moderate que `next` hereda del
+  mismo `postcss`. Cerrarlos pide `next@16`, que es un major y es una decisión aparte.

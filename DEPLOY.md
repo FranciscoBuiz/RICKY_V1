@@ -14,33 +14,18 @@ internet → Funnel → :3000  web      (Next standalone)
                            db       (postgres:17-alpine, volumen)
 ```
 
-`backend` y `db` no publican puertos al host: solo `web` es alcanzable, por Funnel.
+`backend` y `db` no publican puertos al host: solo `web` es alcanzable, y solo en
+`127.0.0.1:3000`. Funnel proxea desde loopback, así que la app sale a internet por
+HTTPS sin quedar servida en HTTP plano a la LAN. Ojo con esto si probás desde otra
+máquina de la red: `http://<ip-del-debian>:3000` no responde, y está bien que no lo haga.
 
 ## Una vez
 
 Estos seis pasos se hacen una sola vez, la primera vez que se instala el stack en una
 máquina. **El orden importa**: no es el orden en que uno lo pensaría, es el único orden
-que funciona.
+que funciona. Seguilos de arriba hacia abajo, sin adelantarte.
 
-### 1. Repo remoto
-
-Hoy el proyecto vive en un solo disco, sin remoto. Crear un repositorio **privado** en
-GitHub (el catálogo trae precios y el código trae la lógica de auth; no tiene que ser
-público) y empujar la rama que se va a desplegar:
-
-```bash
-git remote add origin git@github.com:<usuario>/RICKY_V1.git
-git push -u origin HEAD
-```
-
-En el Debian, clonarlo:
-
-```bash
-git clone git@github.com:<usuario>/RICKY_V1.git
-cd RICKY_V1
-```
-
-### 2. Tailscale primero
+### 1. Tailscale primero
 
 ```bash
 tailscale up
@@ -57,9 +42,33 @@ válidas. Si se intentara levantar el stack primero y completar el `.env` despu�
 URL de Funnel, el backend nunca llegaría a levantar — y sin backend sano no hay nada que
 Funnel pueda publicar. La URL tiene que conocerse antes de encender nada.
 
-### 3. Clonar y escribir el `.env`
+### 2. Repo remoto y clone
 
-Ya clonado (paso 1), copiar la plantilla y completarla con la URL del paso anterior:
+Hoy el proyecto vive en un solo disco, sin remoto. Crear un repositorio **privado** en
+GitHub (el catálogo trae precios y el código trae la lógica de auth; no tiene que ser
+público) y empujar la rama que se va a desplegar:
+
+```bash
+git remote add origin https://github.com/<usuario>/RICKY_V1.git
+git push -u origin HEAD
+```
+
+En el Debian, clonarlo:
+
+```bash
+git clone https://github.com/<usuario>/RICKY_V1.git
+cd RICKY_V1
+```
+
+Por HTTPS, GitHub pide usuario y un **personal access token** (no la contraseña de la
+cuenta) al clonar un repo privado. Si preferís SSH — `git@github.com:<usuario>/RICKY_V1.git` —
+el Debian necesita una clave propia dada de alta en GitHub: generala con
+`ssh-keygen -t ed25519` y pegá la pública en Settings → SSH and GPG keys.
+
+### 3. Escribir el `.env`
+
+En el repo ya clonado en el paso 2, copiar la plantilla y completarla con la URL de
+Tailscale del paso 1:
 
 ```bash
 cp .env.example .env
@@ -264,7 +273,12 @@ los tiene.
 3. **Los costos están en cero a propósito.** `purchasePrice` y `expenses` de los seis
    vehículos reales son `0` porque no tenemos los costos reales de la agencia; el panel
    muestra "sin cargar" en la columna de margen en vez de inventar un número.
-4. **`next@15.5.4` tiene 3 vulnerabilidades conocidas, una de ellas crítica (RCE),** y
-   están horneadas en la imagen de `web` que Funnel expone directamente a internet.
-   Vienen de antes de este trabajo (`npm audit` en `frontend`); actualizar Next es una
-   decisión aparte porque puede romper cosas, y no se resuelve acá.
+4. **Next está en `15.5.25`, que cierra los tres advisories críticos de `15.5.4`.**
+   Eran tres RCE (protocolo flight de React, Image Optimization vía AVIF, y uno de
+   servers Windows que no aplica en Debian) más varios bypass de middleware en App
+   Router, que es justo lo que protege `/admin`. Fue un bump de patch dentro de 15.5.x.
+   Lo que queda en `npm audit` después del bump son dos High transitivos de `next` que
+   no cierra esta versión — `postcss` (lectura de archivos vía `sourceMappingURL`, que
+   solo corre en build, no en el server expuesto) y `sharp` (libvips/libheif, que usa la
+   Image Optimization API) — y un Moderate en `next` por el mismo `postcss`. Cerrarlos
+   pide `next@16`, que es un major y es una decisión aparte.
