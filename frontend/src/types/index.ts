@@ -203,7 +203,19 @@ export interface BusinessMetric {
   value: string;
   delta: string;
   deltaTone?: 'positive' | 'negative';
+  /** Sale de los costos internos: no viaja al rol que sólo mira. */
+  interno?: boolean;
 }
+
+/**
+ * Un vehículo tal como lo recibe el panel. Los costos internos son opcionales
+ * porque el rol "Solo lectura" los recibe ausentes: el tipo obliga a la vista a
+ * decidir qué hace sin ellos, en vez de mostrar un cero que mentiría.
+ */
+export type PanelVehicle = Omit<Vehicle, 'purchasePrice' | 'expenses'> & {
+  purchasePrice?: number;
+  expenses?: number;
+};
 
 export interface StockSummary {
   total: number;

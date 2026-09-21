@@ -423,11 +423,11 @@ const valorPotencialDelStock = seedVehicles
 const SIN_CARGAR = 'sin cargar';
 
 export const seedBusinessMetrics: BusinessMetric[] = [
-  { label: 'Capital invertido', value: SIN_CARGAR, delta: '' },
+  { label: 'Capital invertido', value: SIN_CARGAR, delta: '', interno: true },
   { label: 'Valor potencial del stock', value: money(valorPotencialDelStock), delta: '' },
-  { label: 'Margen potencial', value: SIN_CARGAR, delta: '' },
+  { label: 'Margen potencial', value: SIN_CARGAR, delta: '', interno: true },
   { label: 'Ventas del mes', value: '12', delta: '+12% vs. mes anterior', deltaTone: 'positive' },
-  { label: 'Margen realizado', value: SIN_CARGAR, delta: '' },
+  { label: 'Margen realizado', value: SIN_CARGAR, delta: '', interno: true },
 ];
 
 export const processSteps = [

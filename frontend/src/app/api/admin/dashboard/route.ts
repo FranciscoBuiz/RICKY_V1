@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { seedDashboardLeads, seedTodayAppointments } from '@/server/data/crm';
+import { puede } from '@/lib/roles';
 import { getSession, sinSesion } from '@/lib/session';
 import { dashboardPayload } from '@/server/store';
 
@@ -8,10 +9,16 @@ import { dashboardPayload } from '@/server/store';
  * día, leads y métricas de negocio.
  */
 export async function GET(request: Request) {
-  if (!(await getSession(request))) return sinSesion();
+  const sesion = await getSession(request);
+  if (!sesion) return sinSesion();
+
+  const { businessMetrics, ...resto } = dashboardPayload();
 
   return NextResponse.json({
-    ...dashboardPayload(),
+    ...resto,
+    businessMetrics: puede(sesion.role, 'escribir')
+      ? businessMetrics
+      : businessMetrics.filter((metrica) => !metrica.interno),
     todayAppointments: seedTodayAppointments,
     leads: seedDashboardLeads,
   });

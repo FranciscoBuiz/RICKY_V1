@@ -1,15 +1,22 @@
 import { NextResponse } from 'next/server';
 import { puede } from '@/lib/roles';
 import { getSession, sinPermiso, sinSesion } from '@/lib/session';
-import { deleteVehicle, getVehicle, updateVehicle, type VehicleInput } from '@/server/store';
+import {
+  deleteVehicle,
+  getVehicle,
+  toPanelVehicle,
+  updateVehicle,
+  type VehicleInput,
+} from '@/server/store';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (!(await getSession(request))) return sinSesion();
+  const sesion = await getSession(request);
+  if (!sesion) return sinSesion();
 
   const { id } = await params;
   const vehicle = getVehicle(id);
   if (!vehicle) return NextResponse.json({ error: 'Vehículo no encontrado' }, { status: 404 });
-  return NextResponse.json({ vehicle });
+  return NextResponse.json({ vehicle: toPanelVehicle(vehicle, sesion.role) });
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {

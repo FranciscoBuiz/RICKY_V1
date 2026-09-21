@@ -11,6 +11,7 @@ import {
   seedSettings,
   seedVehicleAlerts,
 } from '@/server/data/crm';
+import { puede } from '@/lib/roles';
 import { seedVehicles } from '@/server/data/vehicles';
 import type {
   AgencySettings,
@@ -20,9 +21,11 @@ import type {
   DetailingService,
   Lead,
   NotificationPrefs,
+  PanelVehicle,
   PublicVehicle,
   SellRequest,
   StockSummary,
+  UserRole,
   Vehicle,
   VehicleQuery,
   VehicleSort,
@@ -73,6 +76,17 @@ function nextId(prefix: string): string {
 /* ------------------------------------------------------------------ vehicles */
 
 export function toPublicVehicle(v: Vehicle): PublicVehicle {
+  const { purchasePrice: _purchasePrice, expenses: _expenses, ...rest } = v;
+  return rest;
+}
+
+/**
+ * Lo mismo que `toPublicVehicle`, pero para adentro: el rol que sólo mira no
+ * recibe los costos. Se recorta en el borde y no en la vista porque lo que no
+ * sale en el JSON no se puede leer con el inspector abierto.
+ */
+export function toPanelVehicle(v: Vehicle, rol: UserRole): PanelVehicle {
+  if (puede(rol, 'escribir')) return v;
   const { purchasePrice: _purchasePrice, expenses: _expenses, ...rest } = v;
   return rest;
 }

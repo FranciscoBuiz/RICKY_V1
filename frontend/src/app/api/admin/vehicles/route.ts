@@ -1,17 +1,24 @@
 import { NextResponse } from 'next/server';
 import { puede } from '@/lib/roles';
 import { getSession, sinPermiso, sinSesion } from '@/lib/session';
-import { createVehicle, listVehicles, stockSummary, type VehicleInput } from '@/server/store';
+import {
+  createVehicle,
+  listVehicles,
+  stockSummary,
+  toPanelVehicle,
+  type VehicleInput,
+} from '@/server/store';
 
 /** Stock completo del panel, con precio de compra, gastos y margen. */
 export async function GET(request: Request) {
-  if (!(await getSession(request))) return sinSesion();
+  const sesion = await getSession(request);
+  if (!sesion) return sinSesion();
 
   const params = new URL(request.url).searchParams;
   const vehicles = listVehicles({
     status: params.get('status') ?? undefined,
     search: params.get('search') ?? undefined,
-  });
+  }).map((vehiculo) => toPanelVehicle(vehiculo, sesion.role));
   return NextResponse.json({ vehicles, total: vehicles.length, stock: stockSummary() });
 }
 
