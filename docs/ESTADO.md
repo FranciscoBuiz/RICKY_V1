@@ -1,19 +1,24 @@
 # Estado del trabajo — despliegue de la demo en el home lab
 
-Última actualización: 2026-09-11
-Rama: `master` (`feat/despliegue-home-lab` se mergeó y se borró; el trabajo vive en `master`)
-Plan: `docs/superpowers/plans/2026-09-09-despliegue-home-lab.md`
-Spec: `docs/superpowers/specs/2026-09-09-despliegue-home-lab-design.md`
+Última actualización: 2026-09-21
+Rama: `feat/roles-en-el-panel`, sin mergear (`feat/despliegue-home-lab` ya se mergeó y se
+borró; ese trabajo vive en `master`)
+Plan y spec (ronda del home lab): `docs/superpowers/plans/2026-09-09-despliegue-home-lab.md`
+y `docs/superpowers/specs/2026-09-09-despliegue-home-lab-design.md`. La ronda de roles no
+tiene plan ni spec: fue un cambio acotado, diseñado en el chat y aprobado ahí.
 
 ## Dónde estamos
 
-**Las dos rondas de trabajo están terminadas.**
+**Las tres rondas de trabajo están terminadas.**
 
 - El backend de autenticación con Google (12 tasks, plan anterior) está terminado; su
   estado quedó registrado en el commit `2caf19f`.
 - Este trabajo — cerrar `/api/*`, cargar los vehículos y fotos reales, y empaquetar el
   stack para el home lab (15 tasks, este plan) — está **terminado en el repo**. Las 15
   tasks del plan están marcadas hechas.
+- Los **roles del panel** (esta ronda, rama `feat/roles-en-el-panel`, tres commits) están
+  aplicados: las rutas los exigen, los costos internos dejan de viajar al rol que sólo
+  mira, y el panel no ofrece controles que terminarían en 403. Detalle abajo.
 
 Lo único que queda **no** ocurre en el repo: es la puesta en marcha real en el Debian del
 lab, descrita en `DEPLOY.md`, más cuatro cosas que tiene que proveer el dueño del lab
@@ -37,7 +42,7 @@ lab, descrita en `DEPLOY.md`, más cuatro cosas que tiene que proveer el dueño 
 | 14 | El stack completo | ✅ |
 | 15 | DEPLOY.md y documentación al día | ✅ |
 
-**Verificación al momento de escribir esto**, corrida sobre la punta de la rama:
+**Verificación de la ronda del home lab**, corrida sobre la punta de esa rama:
 
 - `backend`: `npm test` → **64 tests, 9 archivos, todos pasan**; `npm run typecheck`
   limpio.
@@ -80,6 +85,66 @@ incluye. `compose.yaml` en la raíz con los tres servicios, healthcheck en los t
 solo `web` publicando el puerto 3000. `.env.example` como plantilla del `.env` de
 producción. `DEPLOY.md` con el procedimiento completo.
 
+## Los roles del panel (2026-09-21)
+
+**El problema.** El panel invitaba gente con tres roles —Administrador, Editor y Solo
+lectura— desde que existe el alta de usuarios, y ninguna ruta los miraba. Los trece
+handlers privados de `frontend/src/app/api/` preguntaban lo mismo, "¿hay sesión?", y
+seguían de largo. En la práctica los tres roles eran uno solo: un invitado como Solo
+lectura podía cargar y borrar vehículos, mover consultas y turnos, ver los costos
+internos y editar la configuración de la agencia. El backend ya distinguía roles en
+`/users` con `requireRole`; el borde de Next no tenía nada equivalente.
+
+**La matriz, tal como quedó:**
+
+| | Solo lectura | Editor | Administrador |
+|---|---|---|---|
+| Ver dashboard, stock, consultas, turnos, configuración | sí | sí | sí |
+| Cargar, editar y borrar vehículos | no | sí | sí |
+| Cambiar estado de consultas y turnos | no | sí | sí |
+| Ver costos internos y margen | **no** | sí | sí |
+| Configuración de la agencia y notificaciones | no | no | sí |
+| Usuarios del panel | no | no | sí (ya lo hacía el backend) |
+
+**Cómo está hecho.** `frontend/src/lib/roles.ts` tiene la regla como función pura,
+`puede(rol, accion)` sobre tres acciones: leer, escribir, administrar. Pura y sin
+`next/server` adentro por dos razones: se testea sin mocks, y deja intacta la costura
+que los tests del borde ya mockeaban —meter la verificación dentro de `getSession`
+habría roto `reparto-publico.test.ts`—. El rechazo es **403 y no 401**: un 401 manda a
+`/login`, y mandar ahí a alguien que ya inició sesión lo deja dando vueltas.
+
+Los costos se recortan en el borde con `toPanelVehicle(v, rol)`, al lado de
+`toPublicVehicle`. Los campos quedan **ausentes, no en cero**: el cero ya significa "sin
+cargar" en este modelo —los seis vehículos reales lo tienen así— y usarlo para tapar un
+costo haría que el panel diga algo falso. En el dashboard se marcan en el dato
+(`interno: true`) las tres métricas que salen de costos; las otras dos, que salen de
+precios públicos, se siguen mostrando.
+
+Para que la UI sepa el rol, `getSessionFromCookies()` agrega una segunda puerta a la
+misma pregunta al backend, y cada `page.tsx` del panel pasa el rol a su vista. **Eso
+decide qué se dibuja, no qué se permite:** la autorización sigue entera en las rutas.
+
+**Dos consecuencias que conviene tener presentes:**
+
+- Las cuatro páginas del panel pasaron a **dinámicas** porque leen la cookie. El
+  dashboard sigue estático: no necesita el rol.
+- Si el backend no responde, esas páginas **redirigen a `/login`** en vez de dibujarse y
+  fallar al pedir datos. Es la misma decisión de fallar cerrado que ya tomaba
+  `getSession`, pero es distinto a lo de antes.
+
+**Verificación de esta ronda**, corrida sobre cada uno de los tres commits:
+
+- Tanda 1 (guardas): **139 tests, 13 archivos**; typecheck limpio.
+- Tanda 2 (costos): **149 tests, 15 archivos**; typecheck limpio.
+- Tanda 3 (panel): **155 tests, 16 archivos**; typecheck limpio; `npm run build` compila,
+  33 rutas.
+
+El backend no se tocó, así que sus 64 tests no se volvieron a correr.
+
+**Lo que no se verificó.** No se probó el panel en un navegador con un usuario real de
+rol Solo lectura —pide el backend levantado y un invitado con ese rol—. Los tests
+cubren el borde HTTP y la lógica; el recorte visual lo verificó el compilador.
+
 ## Cómo retomar
 
 No queda nada por implementar en el repo. Para llevar esto a producción:
@@ -87,7 +152,8 @@ No queda nada por implementar en el repo. Para llevar esto a producción:
 1. Seguir `DEPLOY.md` de punta a punta, en el Debian del lab.
 2. Correr la "Verificación final en el servidor" que `DEPLOY.md` trae en su sección de
    Verificación — no está terminado hasta que esa lista pasa ahí, no en local.
-3. La rama ya está mergeada a `master` y borrada, así que no hay nada que integrar.
+3. Integrar `feat/roles-en-el-panel` a `master`. Es lo único pendiente en el repo: la
+   rama del home lab sí está mergeada y borrada.
 
 ```bash
 # Comprobar que nada se rompió antes de tocar nada
@@ -146,6 +212,9 @@ Lo que sobreviva se mata con `taskkill /PID <pid> /T /F` (el `/T` es el que se l
   propio ciclo.
 - **No se pueden subir fotos desde el panel.** Las 45 de la semilla se versionan en el
   repo; un vehículo nuevo va a mostrar el marcador de bandas.
+- **El panel no muestra quién está conectado ni con qué rol.** El rol ya llega a las
+  vistas y decide qué se dibuja, pero `AdminShell` no lo dice en ningún lado: alguien
+  con Solo lectura ve un panel con menos cosas sin que nada le explique por qué.
 - **`PATCH /users/:id` revoca las sesiones del afectado siempre**, así que un admin que se
   edite a sí mismo el `status` se desloguea solo.
 - **`npm audit` en el frontend queda con 2 High y 1 Moderate, ningún Critical.** Next se
