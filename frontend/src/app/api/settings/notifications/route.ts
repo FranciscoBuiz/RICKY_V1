@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getSession, sinSesion } from '@/lib/session';
+import { puede } from '@/lib/roles';
+import { getSession, sinPermiso, sinSesion } from '@/lib/session';
 import { notificationDefs } from '@/server/data/crm';
 import { getNotificationPrefs, updateNotificationPrefs } from '@/server/store';
 import type { NotificationPrefs } from '@/types';
@@ -11,7 +12,9 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  if (!(await getSession(request))) return sinSesion();
+  const sesion = await getSession(request);
+  if (!sesion) return sinSesion();
+  if (!puede(sesion.role, 'administrar')) return sinPermiso();
   const body = (await request.json().catch(() => null)) as Partial<NotificationPrefs> | null;
   if (!body) return NextResponse.json({ error: 'Cuerpo inválido' }, { status: 400 });
   return NextResponse.json({ prefs: updateNotificationPrefs(body) });

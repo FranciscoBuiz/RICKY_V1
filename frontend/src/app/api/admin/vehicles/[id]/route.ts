@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getSession, sinSesion } from '@/lib/session';
+import { puede } from '@/lib/roles';
+import { getSession, sinPermiso, sinSesion } from '@/lib/session';
 import { deleteVehicle, getVehicle, updateVehicle, type VehicleInput } from '@/server/store';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -12,7 +13,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (!(await getSession(request))) return sinSesion();
+  const sesion = await getSession(request);
+  if (!sesion) return sinSesion();
+  if (!puede(sesion.role, 'escribir')) return sinPermiso();
 
   const { id } = await params;
   const body = (await request.json().catch(() => null)) as VehicleInput | null;
@@ -24,7 +27,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (!(await getSession(request))) return sinSesion();
+  const sesion = await getSession(request);
+  if (!sesion) return sinSesion();
+  if (!puede(sesion.role, 'escribir')) return sinPermiso();
 
   const { id } = await params;
   if (!deleteVehicle(id)) {

@@ -35,3 +35,12 @@ export async function getSession(request: Request): Promise<PanelUser | null> {
 export function sinSesion(): NextResponse {
   return NextResponse.json({ error: 'Necesitás iniciar sesión.' }, { status: 401 });
 }
+
+/**
+ * 403, no 401: la sesión es válida: lo que falta es el permiso. Distinguirlos
+ * importa porque el cliente reacciona distinto — un 401 manda a `/login`, y
+ * mandar ahí a alguien que ya inició sesión lo deja en un rulo.
+ */
+export function sinPermiso(): NextResponse {
+  return NextResponse.json({ error: 'No tenés permisos para hacer esto.' }, { status: 403 });
+}
