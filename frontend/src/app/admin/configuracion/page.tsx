@@ -14,5 +14,5 @@ export default async function AdminConfiguracionPage() {
   const sesion = await getSessionFromCookies();
   if (!sesion) redirect('/login');
 
-  return <AdminConfiguracionView rol={sesion.role} />;
+  return <AdminConfiguracionView usuario={sesion} />;
 }

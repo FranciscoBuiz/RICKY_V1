@@ -3,7 +3,10 @@
 import Link from 'next/link';
 import { useEffect, useState, type CSSProperties } from 'react';
 import { DarkToggle } from '@/components/site/DarkToggle';
+import { pillStyle, rolPill } from '@/lib/design';
 import { useIsNarrow } from '@/lib/hooks';
+import { useTheme } from '@/lib/theme';
+import type { PanelUser } from '@/types';
 
 export const ADMIN_NAV = [
   { label: 'Dashboard', href: '/admin' },
@@ -22,12 +25,18 @@ interface AdminShellProps {
   title: React.ReactNode;
   /** Acciones a la derecha del topbar. */
   actions?: React.ReactNode;
+  /**
+   * Quien esta conectado. Opcional porque `/admin/dashboard-v1` monta el shell
+   * sin sesion: es una maqueta de comparacion, no una pantalla del panel.
+   */
+  usuario?: PanelUser;
   children: React.ReactNode;
 }
 
-export function AdminShell({ active, title, actions, children }: AdminShellProps) {
+export function AdminShell({ active, title, actions, usuario, children }: AdminShellProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isMobile = useIsNarrow(900);
+  const { dark } = useTheme();
 
   // Al pasar a escritorio el cajón deja de tener sentido: la barra vuelve a
   // estar siempre a la vista.
@@ -176,7 +185,30 @@ export function AdminShell({ active, title, actions, children }: AdminShellProps
             )}
             {title}
           </div>
-          {actions}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+            {usuario && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                {/* En mobile queda solo el pill: el nombre y el boton de alta no
+                    entran juntos, y de los dos el pill es el que dice algo que no
+                    esta en ninguna otra parte de la pantalla. */}
+                {!isMobile && (
+                  <span
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 600,
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {usuario.name}
+                  </span>
+                )}
+                <span style={pillStyle(rolPill[usuario.role], dark)}>{rolPill[usuario.role].label}</span>
+              </div>
+            )}
+            {actions}
+          </div>
         </div>
 
         {children}

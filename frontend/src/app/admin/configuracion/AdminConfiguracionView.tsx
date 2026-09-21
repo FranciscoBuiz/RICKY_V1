@@ -9,13 +9,7 @@ import { apiSend, useResource } from '@/lib/api';
 import { FIELD } from '@/lib/design';
 import { puede } from '@/lib/roles';
 import { isEmail } from '@/lib/validation';
-import type {
-  AgencySettings,
-  NotificationKey,
-  NotificationPrefs,
-  PanelUser,
-  UserRole,
-} from '@/types';
+import type { AgencySettings, NotificationKey, NotificationPrefs, PanelUser } from '@/types';
 
 type Tab = 'general' | 'usuarios' | 'notificaciones';
 
@@ -58,8 +52,8 @@ const USER_STATUS: Record<PanelUser['status'], { label: string; color: string }>
 const CAPACITY_MIN = 1;
 const CAPACITY_MAX = 50;
 
-export function AdminConfiguracionView({ rol }: { rol: UserRole }) {
-  const administra = puede(rol, 'administrar');
+export function AdminConfiguracionView({ usuario }: { usuario: PanelUser }) {
+  const administra = puede(usuario.role, 'administrar');
   const [tab, setTab] = useState<Tab>('general');
   const toast = useToast();
 
@@ -175,6 +169,7 @@ export function AdminConfiguracionView({ rol }: { rol: UserRole }) {
 
   return (
     <AdminShell
+      usuario={usuario}
       active="Configuración"
       title={<div style={{ fontSize: 14, fontWeight: 600 }}>Configuración</div>}
       actions={<div />}

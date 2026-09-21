@@ -14,5 +14,5 @@ export default async function AdminDetailingPage() {
   const sesion = await getSessionFromCookies();
   if (!sesion) redirect('/login');
 
-  return <AdminDetailingView rol={sesion.role} />;
+  return <AdminDetailingView usuario={sesion} />;
 }

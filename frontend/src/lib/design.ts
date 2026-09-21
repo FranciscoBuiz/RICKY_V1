@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { AppointmentStatus, LeadStatus, VehicleStatus } from '@/types';
+import type { AppointmentStatus, LeadStatus, UserRole, VehicleStatus } from '@/types';
 
 export const SHELL: CSSProperties = {
   maxWidth: 'var(--shell)',
@@ -170,6 +170,17 @@ interface Pill {
   bgLight: string;
   bgDark: string;
 }
+
+/*
+ * Los tres roles comparten el tono neutro. Darle un color a cada uno insinuaria
+ * un ranking entre las personas del equipo; lo que hay que saber ya lo dice la
+ * etiqueta, que es el nombre del rol tal cual lo elige quien invita.
+ */
+export const rolPill: Record<UserRole, Pill> = {
+  Administrador: { label: 'Administrador', color: '#6B6560', bgLight: '#F0EEEA', bgDark: 'rgba(156,150,140,0.25)' },
+  Editor: { label: 'Editor', color: '#6B6560', bgLight: '#F0EEEA', bgDark: 'rgba(156,150,140,0.25)' },
+  'Solo lectura': { label: 'Solo lectura', color: '#6B6560', bgLight: '#F0EEEA', bgDark: 'rgba(156,150,140,0.25)' },
+};
 
 export const adminVehicleStatus: Record<VehicleStatus, Pill> = {
   available: { label: 'Disponible', color: '#2F7A4D', bgLight: '#EFF6F0', bgDark: 'rgba(47,122,77,0.25)' },

@@ -14,5 +14,5 @@ export default async function AdminVehiculosPage() {
   const sesion = await getSessionFromCookies();
   if (!sesion) redirect('/login');
 
-  return <AdminVehiculosView rol={sesion.role} />;
+  return <AdminVehiculosView usuario={sesion} />;
 }

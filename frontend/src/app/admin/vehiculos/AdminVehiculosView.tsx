@@ -17,7 +17,7 @@ import { kilometersShort, money, toNumber } from '@/lib/format';
 import { useIsNarrow } from '@/lib/hooks';
 import { puede } from '@/lib/roles';
 import { useTheme } from '@/lib/theme';
-import type { PanelVehicle, StockSummary, UserRole, Vehicle, VehicleStatus } from '@/types';
+import type { PanelUser, PanelVehicle, StockSummary, Vehicle, VehicleStatus } from '@/types';
 
 interface StockResponse {
   vehicles: PanelVehicle[];
@@ -121,8 +121,8 @@ const ACTION_BUTTON: CSSProperties = {
   cursor: 'pointer',
 };
 
-export function AdminVehiculosView({ rol }: { rol: UserRole }) {
-  const escribe = puede(rol, 'escribir');
+export function AdminVehiculosView({ usuario }: { usuario: PanelUser }) {
+  const escribe = puede(usuario.role, 'escribir');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | VehicleStatus>('all');
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -307,6 +307,7 @@ export function AdminVehiculosView({ rol }: { rol: UserRole }) {
 
   return (
     <AdminShell
+      usuario={usuario}
       active="Vehículos"
       title={!isMobile ? <div style={{ fontSize: 14, fontWeight: 600 }}>Vehículos</div> : null}
       actions={

@@ -11,7 +11,7 @@ import { FIELD, leadStatusMeta, pillStyle } from '@/lib/design';
 import { useIsNarrow } from '@/lib/hooks';
 import { puede } from '@/lib/roles';
 import { useTheme } from '@/lib/theme';
-import type { Lead, LeadStatus, UserRole } from '@/types';
+import type { Lead, LeadStatus, PanelUser } from '@/types';
 
 interface LeadsResponse {
   leads: Lead[];
@@ -47,8 +47,8 @@ function leadDay(lead: Lead): string {
   return lead.createdAt.slice(0, 10);
 }
 
-export function AdminConsultasView({ rol }: { rol: UserRole }) {
-  const escribe = puede(rol, 'escribir');
+export function AdminConsultasView({ usuario }: { usuario: PanelUser }) {
+  const escribe = puede(usuario.role, 'escribir');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [sending, setSending] = useState(false);
@@ -152,7 +152,11 @@ export function AdminConsultasView({ rol }: { rol: UserRole }) {
       };
 
   return (
-    <AdminShell active="Consultas" title={<div style={{ fontSize: 14, fontWeight: 600 }}>Consultas</div>}>
+    <AdminShell
+      usuario={usuario}
+      active="Consultas"
+      title={<div style={{ fontSize: 14, fontWeight: 600 }}>Consultas</div>}
+    >
       <div style={{ display: 'flex', minHeight: 'calc(100vh - 60px)', alignItems: 'flex-start' }}>
         <div style={{ flex: 1, minWidth: 0, padding: 'clamp(16px, 3vw, 24px)' }}>
           {/* FILTROS */}

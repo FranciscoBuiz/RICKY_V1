@@ -11,7 +11,7 @@ import { longDate, weekdays } from '@/lib/format';
 import { useIsNarrow } from '@/lib/hooks';
 import { puede } from '@/lib/roles';
 import { useTheme } from '@/lib/theme';
-import type { Appointment, AppointmentStatus, UserRole } from '@/types';
+import type { Appointment, AppointmentStatus, PanelUser } from '@/types';
 
 interface AppointmentsResponse {
   appointments: Appointment[];
@@ -57,8 +57,8 @@ function calendarLabel(iso: string): string {
   return `${weekdays[date.getDay()]} ${String(date.getDate()).padStart(2, '0')}`;
 }
 
-export function AdminDetailingView({ rol }: { rol: UserRole }) {
-  const escribe = puede(rol, 'escribir');
+export function AdminDetailingView({ usuario }: { usuario: PanelUser }) {
+  const escribe = puede(usuario.role, 'escribir');
   const [view, setView] = useState<'list' | 'calendar'>('list');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | AppointmentStatus>('all');
@@ -143,6 +143,7 @@ export function AdminDetailingView({ rol }: { rol: UserRole }) {
 
   return (
     <AdminShell
+      usuario={usuario}
       active="Detailing"
       title={<div style={{ fontSize: 14, fontWeight: 600 }}>Detailing — Turnos</div>}
       actions={

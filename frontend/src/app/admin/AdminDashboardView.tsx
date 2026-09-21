@@ -16,6 +16,7 @@ import type {
   AdminNotification,
   AppointmentStatus,
   BusinessMetric,
+  PanelUser,
   StockSummary,
   VehicleAlert,
 } from '@/types';
@@ -102,7 +103,7 @@ const QUICK_ACTIONS = [
 
 const LEADS_GRID = '160px 100px 160px 90px 130px';
 
-export function AdminDashboardView() {
+export function AdminDashboardView({ usuario }: { usuario: PanelUser }) {
   const { data, status, error, reload } = useResource<DashboardResponse>('/api/admin/dashboard');
   const isMobile = useIsNarrow(900);
 
@@ -155,6 +156,7 @@ export function AdminDashboardView() {
 
   return (
     <AdminShell
+      usuario={usuario}
       active="Dashboard"
       title={<AdminBreadcrumb section="Dashboard" />}
       actions={
