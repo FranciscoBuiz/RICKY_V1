@@ -1,8 +1,8 @@
 # Estado del trabajo — despliegue de la demo en el home lab
 
 Última actualización: 2026-09-21
-Rama: `feat/roles-en-el-panel`, sin mergear (`feat/despliegue-home-lab` ya se mergeó y se
-borró; ese trabajo vive en `master`)
+Rama: `master` (`feat/roles-en-el-panel` y `feat/despliegue-home-lab` se mergearon; todo
+el trabajo vive en `master`)
 Plan y spec (ronda del home lab): `docs/superpowers/plans/2026-09-09-despliegue-home-lab.md`
 y `docs/superpowers/specs/2026-09-09-despliegue-home-lab-design.md`. La ronda de roles no
 tiene plan ni spec: fue un cambio acotado, diseñado en el chat y aprobado ahí.
@@ -16,7 +16,7 @@ tiene plan ni spec: fue un cambio acotado, diseñado en el chat y aprobado ahí.
 - Este trabajo — cerrar `/api/*`, cargar los vehículos y fotos reales, y empaquetar el
   stack para el home lab (15 tasks, este plan) — está **terminado en el repo**. Las 15
   tasks del plan están marcadas hechas.
-- Los **roles del panel** (esta ronda, rama `feat/roles-en-el-panel`, tres commits) están
+- Los **roles del panel** (esta ronda, tres commits, ya en `master`) están
   aplicados: las rutas los exigen, los costos internos dejan de viajar al rol que sólo
   mira, y el panel no ofrece controles que terminarían en 403. Detalle abajo.
 
@@ -152,8 +152,8 @@ No queda nada por implementar en el repo. Para llevar esto a producción:
 1. Seguir `DEPLOY.md` de punta a punta, en el Debian del lab.
 2. Correr la "Verificación final en el servidor" que `DEPLOY.md` trae en su sección de
    Verificación — no está terminado hasta que esa lista pasa ahí, no en local.
-3. Integrar `feat/roles-en-el-panel` a `master`. Es lo único pendiente en el repo: la
-   rama del home lab sí está mergeada y borrada.
+3. No hay nada que integrar: las dos ramas ya están mergeadas a `master`. Lo que sí
+   queda es **pushear**: `master` está cinco commits adelante de `origin/master`.
 
 ```bash
 # Comprobar que nada se rompió antes de tocar nada
