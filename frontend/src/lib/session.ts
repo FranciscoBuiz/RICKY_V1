@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import type { PanelUser } from '@/types';
 
@@ -11,7 +12,20 @@ const BACKEND = process.env.BACKEND_URL ?? 'http://localhost:4000';
  * dos fuentes de verdad que se desincronizan en la primera revocación.
  */
 export async function getSession(request: Request): Promise<PanelUser | null> {
-  const cookie = request.headers.get('cookie');
+  return sesionDesdeCookie(request.headers.get('cookie'));
+}
+
+/**
+ * La misma pregunta, para los server components del panel, que no tienen el
+ * `Request` a mano. Existe para que una página pueda decidir qué controles
+ * dibujar según el rol; la autorización de verdad la siguen haciendo las rutas.
+ */
+export async function getSessionFromCookies(): Promise<PanelUser | null> {
+  const store = await cookies();
+  return sesionDesdeCookie(store.toString());
+}
+
+async function sesionDesdeCookie(cookie: string | null): Promise<PanelUser | null> {
   if (!cookie) return null;
 
   try {

@@ -7,8 +7,15 @@ import { SkeletonCard, SkeletonTable } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
 import { apiSend, useResource } from '@/lib/api';
 import { FIELD } from '@/lib/design';
+import { puede } from '@/lib/roles';
 import { isEmail } from '@/lib/validation';
-import type { AgencySettings, NotificationKey, NotificationPrefs, PanelUser } from '@/types';
+import type {
+  AgencySettings,
+  NotificationKey,
+  NotificationPrefs,
+  PanelUser,
+  UserRole,
+} from '@/types';
 
 type Tab = 'general' | 'usuarios' | 'notificaciones';
 
@@ -51,12 +58,13 @@ const USER_STATUS: Record<PanelUser['status'], { label: string; color: string }>
 const CAPACITY_MIN = 1;
 const CAPACITY_MAX = 50;
 
-export function AdminConfiguracionView() {
+export function AdminConfiguracionView({ rol }: { rol: UserRole }) {
+  const administra = puede(rol, 'administrar');
   const [tab, setTab] = useState<Tab>('general');
   const toast = useToast();
 
   const settingsResource = useResource<SettingsResponse>('/api/settings');
-  const usersResource = useResource<UsersResponse>('/api/settings/users');
+  const usersResource = useResource<UsersResponse>(administra ? '/api/settings/users' : null);
   const notificationsResource = useResource<NotificationsResponse>('/api/settings/notifications');
 
   const [general, setGeneral] = useState<AgencySettings | null>(null);
@@ -184,9 +192,13 @@ export function AdminConfiguracionView() {
           <button type="button" onClick={() => setTab('general')} style={tabStyle('general')}>
             General
           </button>
-          <button type="button" onClick={() => setTab('usuarios')} style={tabStyle('usuarios')}>
-            Usuarios
-          </button>
+          {/* La lista de usuarios es de administradores: el backend la cierra
+              con 403, asi que ofrecer la pestana seria prometer un error. */}
+          {administra && (
+            <button type="button" onClick={() => setTab('usuarios')} style={tabStyle('usuarios')}>
+              Usuarios
+            </button>
+          )}
           <button type="button" onClick={() => setTab('notificaciones')} style={tabStyle('notificaciones')}>
             Notificaciones
           </button>
@@ -362,22 +374,24 @@ export function AdminConfiguracionView() {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                onClick={saveGeneral}
-                disabled={saving || Boolean(capacityError)}
-                style={{
-                  background: saving || capacityError ? 'var(--border)' : 'var(--invert-bg)',
-                  color: saving || capacityError ? 'var(--muted)' : 'var(--invert-ink)',
-                  border: 'none',
-                  padding: '11px 22px',
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: saving || capacityError ? 'not-allowed' : 'pointer',
-                }}
-              >
-                {saving ? 'Guardando…' : 'Guardar cambios'}
-              </button>
+              {administra && (
+                <button
+                  type="button"
+                  onClick={saveGeneral}
+                  disabled={saving || Boolean(capacityError)}
+                  style={{
+                    background: saving || capacityError ? 'var(--border)' : 'var(--invert-bg)',
+                    color: saving || capacityError ? 'var(--muted)' : 'var(--invert-ink)',
+                    border: 'none',
+                    padding: '11px 22px',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: saving || capacityError ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  {saving ? 'Guardando…' : 'Guardar cambios'}
+                </button>
+              )}
               {saved && <span style={{ fontSize: 12, color: 'var(--ok)' }}>Guardado.</span>}
             </div>
           </div>
@@ -395,22 +409,24 @@ export function AdminConfiguracionView() {
               }}
             >
               <div style={{ fontSize: 13, fontWeight: 700 }}>Usuarios con acceso al panel</div>
-              <button
-                type="button"
-                onClick={() => setInviteOpen(true)}
-                style={{
-                  background: 'var(--invert-bg)',
-                  color: 'var(--invert-ink)',
-                  border: 'none',
-                  padding: '8px 14px',
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                + Invitar usuario
-              </button>
+              {administra && (
+                <button
+                  type="button"
+                  onClick={() => setInviteOpen(true)}
+                  style={{
+                    background: 'var(--invert-bg)',
+                    color: 'var(--invert-ink)',
+                    border: 'none',
+                    padding: '8px 14px',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  + Invitar usuario
+                </button>
+              )}
             </div>
 
             {usersResource.status === 'loading' && <SkeletonTable rows={3} rowHeight={38} header={false} />}
@@ -592,6 +608,7 @@ export function AdminConfiguracionView() {
                     aria-checked={on}
                     aria-label={def.label}
                     onClick={() => toggleNotification(def.key, on)}
+                    disabled={!administra}
                     style={{
                       width: 38,
                       height: 22,

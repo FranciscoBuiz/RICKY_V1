@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { margenVisible } from '@/app/admin/vehiculos/margen';
-import type { Vehicle } from '@/types';
+import type { PanelVehicle, Vehicle } from '@/types';
 
 /* `purchasePrice === 0` significa *sin cargar*, no *gratis*. Es la única regla
    de negocio nueva de la rama y es la que evita que el panel muestre el precio
@@ -31,16 +31,31 @@ function vehiculo(patch: Partial<Vehicle>): Vehicle {
 
 describe('margenVisible', () => {
   it('dice "sin cargar" cuando no hay precio de compra', () => {
-    expect(margenVisible(vehiculo({ price: 12000, purchasePrice: 0 })).texto).toBe('sin cargar');
+    expect(margenVisible(vehiculo({ price: 12000, purchasePrice: 0 }))!.texto).toBe('sin cargar');
   });
 
   it('resta compra y gastos cuando el costo está cargado', () => {
-    const margen = margenVisible(vehiculo({ price: 12000, purchasePrice: 9000, expenses: 500 }));
+    const margen = margenVisible(vehiculo({ price: 12000, purchasePrice: 9000, expenses: 500 }))!;
     expect(margen.texto).toBe('US$ 2.500');
   });
 
   it('marca en rojo el margen negativo', () => {
-    const margen = margenVisible(vehiculo({ price: 9000, purchasePrice: 9000, expenses: 500 }));
+    const margen = margenVisible(vehiculo({ price: 9000, purchasePrice: 9000, expenses: 500 }))!;
     expect(margen.tono).toBe('var(--danger)');
+  });
+});
+
+/* El rol "Solo lectura" recibe el vehículo sin `purchasePrice` ni `expenses`:
+   ausentes, no en cero. `null` es la única respuesta honesta — cualquier texto
+   ocuparía la columna como si hubiera un dato detrás. */
+describe('margenVisible sin acceso a los costos', () => {
+  it('devuelve null cuando el vehículo viene sin costos', () => {
+    const { purchasePrice: _p, expenses: _e, ...sinCostos } = vehiculo({ price: 12000 });
+
+    expect(margenVisible(sinCostos as PanelVehicle)).toBeNull();
+  });
+
+  it('sigue devolviendo el margen cuando los costos están', () => {
+    expect(margenVisible(vehiculo({ price: 12000, purchasePrice: 9000, expenses: 500 }))).not.toBeNull();
   });
 });

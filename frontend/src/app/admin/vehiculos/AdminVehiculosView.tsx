@@ -15,16 +15,20 @@ import { FIELD, adminVehicleStatus, pillStyle } from '@/lib/design';
 import { fieldsValid } from '@/lib/fields';
 import { kilometersShort, money, toNumber } from '@/lib/format';
 import { useIsNarrow } from '@/lib/hooks';
+import { puede } from '@/lib/roles';
 import { useTheme } from '@/lib/theme';
-import type { StockSummary, Vehicle, VehicleStatus } from '@/types';
+import type { PanelVehicle, StockSummary, UserRole, Vehicle, VehicleStatus } from '@/types';
 
 interface StockResponse {
-  vehicles: Vehicle[];
+  vehicles: PanelVehicle[];
   total: number;
   stock: StockSummary;
 }
 
 const TABLE_GRID = '56px 220px 64px 90px 130px 120px 130px 130px 100px 140px';
+/* Sin costos ni acciones: las columnas no se vacian, desaparecen. Una celda
+   con guion invita a preguntar que dato falta; aca no falta ninguno. */
+const TABLE_GRID_LECTURA = '56px 220px 64px 90px 130px 100px';
 
 const EXPENSE_LABELS = [
   'Transferencia',
@@ -117,7 +121,8 @@ const ACTION_BUTTON: CSSProperties = {
   cursor: 'pointer',
 };
 
-export function AdminVehiculosView() {
+export function AdminVehiculosView({ rol }: { rol: UserRole }) {
+  const escribe = puede(rol, 'escribir');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | VehicleStatus>('all');
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -126,7 +131,7 @@ export function AdminVehiculosView() {
   const [expenses, setExpenses] = useState<Expenses>(EMPTY_EXPENSES);
   const [showErrors, setShowErrors] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [pendingDelete, setPendingDelete] = useState<Vehicle | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<PanelVehicle | null>(null);
 
   const isMobile = useIsNarrow(900);
   const { dark } = useTheme();
@@ -179,7 +184,7 @@ export function AdminVehiculosView() {
     setDrawerOpen(true);
   }
 
-  function openEdit(vehicle: Vehicle) {
+  function openEdit(vehicle: PanelVehicle) {
     setForm({
       id: vehicle.id,
       brand: vehicle.brand,
@@ -305,22 +310,24 @@ export function AdminVehiculosView() {
       active="Vehículos"
       title={!isMobile ? <div style={{ fontSize: 14, fontWeight: 600 }}>Vehículos</div> : null}
       actions={
-        <button
-          type="button"
-          onClick={openCreate}
-          style={{
-            background: 'var(--invert-bg)',
-            color: 'var(--invert-ink)',
-            border: 'none',
-            padding: '9px 16px',
-            fontSize: 13,
-            fontWeight: 600,
-            cursor: 'pointer',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          + Agregar vehículo
-        </button>
+        escribe ? (
+          <button
+            type="button"
+            onClick={openCreate}
+            style={{
+              background: 'var(--invert-bg)',
+              color: 'var(--invert-ink)',
+              border: 'none',
+              padding: '9px 16px',
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            + Agregar vehículo
+          </button>
+        ) : null
       }
     >
       <div style={{ padding: 'clamp(16px, 3vw, 24px) clamp(16px, 3vw, 24px) 64px' }}>
@@ -383,9 +390,9 @@ export function AdminVehiculosView() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: TABLE_GRID,
+                gridTemplateColumns: escribe ? TABLE_GRID : TABLE_GRID_LECTURA,
                 gap: 12,
-                minWidth: 1160,
+                minWidth: escribe ? 1160 : 660,
                 padding: '10px 16px',
                 borderBottom: '1px solid var(--border)',
                 fontSize: 11,
@@ -400,12 +407,16 @@ export function AdminVehiculosView() {
               <div>Vehículo</div>
               <div>Año</div>
               <div>Km</div>
-              <div>P. compra</div>
-              <div>Gastos</div>
+              {escribe && (
+                <>
+                  <div>P. compra</div>
+                  <div>Gastos</div>
+                </>
+              )}
               <div>P. público</div>
-              <div>Margen pot.</div>
+              {escribe && <div>Margen pot.</div>}
               <div>Estado</div>
-              <div>Acciones</div>
+              {escribe && <div>Acciones</div>}
             </div>
 
             {vehicles.map((vehicle) => {
@@ -416,9 +427,9 @@ export function AdminVehiculosView() {
                   className="ui-row"
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: TABLE_GRID,
+                    gridTemplateColumns: escribe ? TABLE_GRID : TABLE_GRID_LECTURA,
                     gap: 12,
-                    minWidth: 1160,
+                    minWidth: escribe ? 1160 : 660,
                     padding: '10px 16px',
                     borderBottom: '1px solid var(--border2)',
                     alignItems: 'center',
@@ -442,43 +453,51 @@ export function AdminVehiculosView() {
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>
                     {kilometersShort(vehicle.mileage)}
                   </div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>
-                    {vehicle.purchasePrice === 0 ? (
-                      <span style={{ color: 'var(--muted)' }}>—</span>
-                    ) : (
-                      money(vehicle.purchasePrice)
-                    )}
-                  </div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>
-                    {vehicle.expenses === 0 ? (
-                      <span style={{ color: 'var(--muted)' }}>—</span>
-                    ) : (
-                      money(vehicle.expenses)
-                    )}
-                  </div>
+                  {escribe && (
+                    <>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>
+                        {vehicle.purchasePrice ? (
+                          money(vehicle.purchasePrice)
+                        ) : (
+                          <span style={{ color: 'var(--muted)' }}>—</span>
+                        )}
+                      </div>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>
+                        {vehicle.expenses ? (
+                          money(vehicle.expenses)
+                        ) : (
+                          <span style={{ color: 'var(--muted)' }}>—</span>
+                        )}
+                      </div>
+                    </>
+                  )}
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>{money(vehicle.price)}</div>
-                  <div
-                    style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: margen.tono, fontWeight: 600 }}
-                  >
-                    {margen.texto}
-                  </div>
+                  {margen && (
+                    <div
+                      style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: margen.tono, fontWeight: 600 }}
+                    >
+                      {margen.texto}
+                    </div>
+                  )}
                   <div>
                     <span style={pillStyle(adminVehicleStatus[vehicle.status], dark)}>
                       {adminVehicleStatus[vehicle.status].label}
                     </span>
                   </div>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button type="button" onClick={() => openEdit(vehicle)} style={ACTION_BUTTON}>
-                      Editar
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPendingDelete(vehicle)}
-                      style={{ ...ACTION_BUTTON, color: 'var(--danger)' }}
-                    >
-                      Eliminar
-                    </button>
-                  </div>
+                  {escribe && (
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button type="button" onClick={() => openEdit(vehicle)} style={ACTION_BUTTON}>
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPendingDelete(vehicle)}
+                        style={{ ...ACTION_BUTTON, color: 'var(--danger)' }}
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -503,21 +522,28 @@ export function AdminVehiculosView() {
                     </span>
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 10 }}>
-                    {vehicle.year} · {kilometersShort(vehicle.mileage)} · Margen pot.{' '}
-                    <span style={{ color: margen.tono, fontWeight: 600 }}>{margen.texto}</span>
+                    {vehicle.year} · {kilometersShort(vehicle.mileage)}
+                    {margen && (
+                      <>
+                        {' · Margen pot. '}
+                        <span style={{ color: margen.tono, fontWeight: 600 }}>{margen.texto}</span>
+                      </>
+                    )}
                   </div>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button type="button" onClick={() => openEdit(vehicle)} style={ACTION_BUTTON}>
-                      Editar
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPendingDelete(vehicle)}
-                      style={{ ...ACTION_BUTTON, color: 'var(--danger)' }}
-                    >
-                      Eliminar
-                    </button>
-                  </div>
+                  {escribe && (
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button type="button" onClick={() => openEdit(vehicle)} style={ACTION_BUTTON}>
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPendingDelete(vehicle)}
+                        style={{ ...ACTION_BUTTON, color: 'var(--danger)' }}
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  )}
                 </div>
               );
             })}

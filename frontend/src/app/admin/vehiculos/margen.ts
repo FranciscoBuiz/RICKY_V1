@@ -1,5 +1,5 @@
 import { money } from '@/lib/format';
-import type { Vehicle } from '@/types';
+import type { PanelVehicle } from '@/types';
 
 /*
  * El cálculo del margen vive acá y no adentro de la vista porque es la única
@@ -17,8 +17,14 @@ export function marginTone(value: number): string {
  * Sin precio de compra no hay margen que calcular. Antes esto daba el precio de
  * venta entero y se leía como una ganancia del 100 %: los seis vehículos reales
  * vienen con `purchasePrice` en 0 porque son costos que la agencia no nos pasó.
+ *
+ * `null` es otra cosa que el cero: significa que este rol no recibe los costos,
+ * así que la columna no se dibuja. El cero sigue significando "sin cargar".
  */
-export function margenVisible(vehicle: Vehicle): { texto: string; tono: string } {
+export function margenVisible(vehicle: PanelVehicle): { texto: string; tono: string } | null {
+  if (vehicle.purchasePrice === undefined || vehicle.expenses === undefined) {
+    return null;
+  }
   if (vehicle.purchasePrice === 0) {
     return { texto: 'sin cargar', tono: 'var(--muted)' };
   }

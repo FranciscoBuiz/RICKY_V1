@@ -9,8 +9,9 @@ import { apiSend, useResource } from '@/lib/api';
 import { FIELD, HAS_WHATSAPP, appointmentStatusMeta, pillStyle, whatsappHref } from '@/lib/design';
 import { longDate, weekdays } from '@/lib/format';
 import { useIsNarrow } from '@/lib/hooks';
+import { puede } from '@/lib/roles';
 import { useTheme } from '@/lib/theme';
-import type { Appointment, AppointmentStatus } from '@/types';
+import type { Appointment, AppointmentStatus, UserRole } from '@/types';
 
 interface AppointmentsResponse {
   appointments: Appointment[];
@@ -56,7 +57,8 @@ function calendarLabel(iso: string): string {
   return `${weekdays[date.getDay()]} ${String(date.getDate()).padStart(2, '0')}`;
 }
 
-export function AdminDetailingView() {
+export function AdminDetailingView({ rol }: { rol: UserRole }) {
+  const escribe = puede(rol, 'escribir');
   const [view, setView] = useState<'list' | 'calendar'>('list');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | AppointmentStatus>('all');
@@ -291,27 +293,31 @@ export function AdminDetailingView() {
                     <span style={pillStyle(meta, dark)}>{meta.label}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 6 }} onClick={(event) => event.stopPropagation()}>
-                    <button
-                      type="button"
-                      onClick={() => setStatus(appointment.id, 'confirmed')}
-                      style={ACTION_BUTTON}
-                    >
-                      Confirmar
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setStatus(appointment.id, 'completed')}
-                      style={ACTION_BUTTON}
-                    >
-                      Completar
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setStatus(appointment.id, 'cancelled')}
-                      style={{ ...ACTION_BUTTON, color: 'var(--danger)' }}
-                    >
-                      Cancelar
-                    </button>
+                    {escribe && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setStatus(appointment.id, 'confirmed')}
+                          style={ACTION_BUTTON}
+                        >
+                          Confirmar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setStatus(appointment.id, 'completed')}
+                          style={ACTION_BUTTON}
+                        >
+                          Completar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setStatus(appointment.id, 'cancelled')}
+                          style={{ ...ACTION_BUTTON, color: 'var(--danger)' }}
+                        >
+                          Cancelar
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               );
@@ -484,29 +490,31 @@ export function AdminDetailingView() {
                 <div style={{ fontSize: 13, color: 'var(--muted)' }}>{selected.email || '—'}</div>
               </div>
 
-              <div style={{ borderTop: '1px solid var(--border)', paddingTop: 18 }}>
-                <div style={{ ...DETAIL_LABEL, marginBottom: 10 }}>Cambiar estado</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {STATUS_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      disabled={option.value === selected.status}
-                      onClick={() => setStatus(selected.id, option.value)}
-                      style={{
-                        ...ACTION_BUTTON,
-                        padding: '8px 12px',
-                        fontSize: 12,
-                        opacity: option.value === selected.status ? 0.45 : 1,
-                        borderColor:
-                          option.value === selected.status ? 'var(--accent)' : 'var(--border)',
-                      }}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
+              {escribe && (
+                <div style={{ borderTop: '1px solid var(--border)', paddingTop: 18 }}>
+                  <div style={{ ...DETAIL_LABEL, marginBottom: 10 }}>Cambiar estado</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {STATUS_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        disabled={option.value === selected.status}
+                        onClick={() => setStatus(selected.id, option.value)}
+                        style={{
+                          ...ACTION_BUTTON,
+                          padding: '8px 12px',
+                          fontSize: 12,
+                          opacity: option.value === selected.status ? 0.45 : 1,
+                          borderColor:
+                            option.value === selected.status ? 'var(--accent)' : 'var(--border)',
+                        }}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {HAS_WHATSAPP && (
                 <a

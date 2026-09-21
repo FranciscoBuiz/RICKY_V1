@@ -37,14 +37,25 @@ export interface Resource<T> {
   reload: () => void;
 }
 
-/** GET con estados de carga/error y reintento — los que dibuja el diseño. */
-export function useResource<T>(path: string): Resource<T> {
+/**
+ * GET con estados de carga/error y reintento — los que dibuja el diseño.
+ *
+ * `path` en `null` significa que a este usuario no le corresponde pedir el
+ * recurso. No se puede resolver con un `if` alrededor del hook — las reglas
+ * de hooks lo prohíben — y pedirlo igual sería estrenar la sesión con un 403.
+ */
+export function useResource<T>(path: string | null): Resource<T> {
   const [data, setData] = useState<T | null>(null);
   const [status, setStatus] = useState<RequestStatus>('loading');
   const [error, setError] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
 
   useEffect(() => {
+    if (path === null) {
+      setStatus('ready');
+      return;
+    }
+
     const controller = new AbortController();
     setStatus('loading');
     setError(null);

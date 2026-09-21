@@ -9,8 +9,9 @@ import { apiSend, useResource } from '@/lib/api';
 import { canalDeRespuesta } from '@/app/admin/consultas/responder';
 import { FIELD, leadStatusMeta, pillStyle } from '@/lib/design';
 import { useIsNarrow } from '@/lib/hooks';
+import { puede } from '@/lib/roles';
 import { useTheme } from '@/lib/theme';
-import type { Lead, LeadStatus } from '@/types';
+import type { Lead, LeadStatus, UserRole } from '@/types';
 
 interface LeadsResponse {
   leads: Lead[];
@@ -46,7 +47,8 @@ function leadDay(lead: Lead): string {
   return lead.createdAt.slice(0, 10);
 }
 
-export function AdminConsultasView() {
+export function AdminConsultasView({ rol }: { rol: UserRole }) {
+  const escribe = puede(rol, 'escribir');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [sending, setSending] = useState(false);
@@ -314,12 +316,13 @@ export function AdminConsultasView() {
             </div>
 
             <div style={{ marginTop: 24 }}>
-              <div style={FIELD_LABEL}>Categorizar lead</div>
+              <div style={FIELD_LABEL}>{escribe ? 'Categorizar lead' : 'Estado'}</div>
               <select
                 value={selected.status}
                 onChange={(event) => changeStatus(selected.id, event.target.value as LeadStatus)}
                 style={SELECT}
                 aria-label="Estado del lead"
+                disabled={!escribe}
               >
                 {LEAD_STATUSES.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -329,93 +332,96 @@ export function AdminConsultasView() {
               </select>
             </div>
 
-            <div style={{ marginTop: 20 }}>
-              <div style={FIELD_LABEL}>Responder</div>
-              {selected.reply ? (
-                <div
-                  style={{
-                    background: '#EFF6F0',
-                    border: '1px solid #CFE6D3',
-                    color: '#2F7A4D',
-                    fontSize: 12,
-                    padding: '10px 12px',
-                  }}
-                >
-                  <div style={{ fontWeight: 600 }}>
-                    Respuesta registrada. El lead pasó a &quot;Contactado&quot;.
-                  </div>
-                  {/* El panel no envía nada: dice lo que de verdad pasó, para que
-                      nadie de por hecho que el cliente ya la recibió. */}
-                  <div style={{ marginTop: 4 }}>
-                    Se abrió el canal del cliente con este texto cargado. El mensaje lo manda una
-                    persona.
-                  </div>
+            {/* Responder hace PATCH del lead: no se le ofrece a quien solo mira. */}
+            {escribe && (
+              <div style={{ marginTop: 20 }}>
+                <div style={FIELD_LABEL}>Responder</div>
+                {selected.reply ? (
                   <div
                     style={{
-                      marginTop: 10,
-                      paddingTop: 10,
-                      borderTop: '1px solid #CFE6D3',
-                      color: '#24503A',
-                      whiteSpace: 'pre-wrap',
+                      background: '#EFF6F0',
+                      border: '1px solid #CFE6D3',
+                      color: '#2F7A4D',
+                      fontSize: 12,
+                      padding: '10px 12px',
                     }}
                   >
-                    {selected.reply}
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <textarea
-                    rows={4}
-                    placeholder="Escribí tu respuesta…"
-                    value={draft}
-                    onChange={(event) =>
-                      setDrafts((prev) => ({ ...prev, [selected.id]: event.target.value }))
-                    }
-                    style={{ ...SELECT, resize: 'vertical' }}
-                  />
-                  <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-                    {canal?.href && draft.trim() ? (
-                      <a
-                        href={canal.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={registrarRespuesta}
-                        className="ui-btn"
-                        style={{
-                          border: 'none',
-                          background: 'var(--invert-bg)',
-                          color: 'var(--invert-ink)',
-                          padding: '10px 16px',
-                          fontSize: 13,
-                          fontWeight: 600,
-                          textDecoration: 'none',
-                        }}
-                      >
-                        {sending ? 'Registrando…' : canal.etiqueta}
-                      </a>
-                    ) : (
-                      <span
-                        style={{
-                          border: 'none',
-                          background: 'var(--border)',
-                          color: 'var(--muted)',
-                          padding: '10px 16px',
-                          fontSize: 13,
-                          fontWeight: 600,
-                        }}
-                      >
-                        {canal?.etiqueta ?? 'Responder'}
-                      </span>
-                    )}
-                  </div>
-                  {canal?.motivo ? (
-                    <div style={{ marginTop: 8, fontSize: 12, color: 'var(--muted)' }}>
-                      {canal.motivo}
+                    <div style={{ fontWeight: 600 }}>
+                      Respuesta registrada. El lead pasó a &quot;Contactado&quot;.
                     </div>
-                  ) : null}
-                </>
-              )}
-            </div>
+                    {/* El panel no envía nada: dice lo que de verdad pasó, para que
+                        nadie de por hecho que el cliente ya la recibió. */}
+                    <div style={{ marginTop: 4 }}>
+                      Se abrió el canal del cliente con este texto cargado. El mensaje lo manda una
+                      persona.
+                    </div>
+                    <div
+                      style={{
+                        marginTop: 10,
+                        paddingTop: 10,
+                        borderTop: '1px solid #CFE6D3',
+                        color: '#24503A',
+                        whiteSpace: 'pre-wrap',
+                      }}
+                    >
+                      {selected.reply}
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <textarea
+                      rows={4}
+                      placeholder="Escribí tu respuesta…"
+                      value={draft}
+                      onChange={(event) =>
+                        setDrafts((prev) => ({ ...prev, [selected.id]: event.target.value }))
+                      }
+                      style={{ ...SELECT, resize: 'vertical' }}
+                    />
+                    <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                      {canal?.href && draft.trim() ? (
+                        <a
+                          href={canal.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={registrarRespuesta}
+                          className="ui-btn"
+                          style={{
+                            border: 'none',
+                            background: 'var(--invert-bg)',
+                            color: 'var(--invert-ink)',
+                            padding: '10px 16px',
+                            fontSize: 13,
+                            fontWeight: 600,
+                            textDecoration: 'none',
+                          }}
+                        >
+                          {sending ? 'Registrando…' : canal.etiqueta}
+                        </a>
+                      ) : (
+                        <span
+                          style={{
+                            border: 'none',
+                            background: 'var(--border)',
+                            color: 'var(--muted)',
+                            padding: '10px 16px',
+                            fontSize: 13,
+                            fontWeight: 600,
+                          }}
+                        >
+                          {canal?.etiqueta ?? 'Responder'}
+                        </span>
+                      )}
+                    </div>
+                    {canal?.motivo ? (
+                      <div style={{ marginTop: 8, fontSize: 12, color: 'var(--muted)' }}>
+                        {canal.motivo}
+                      </div>
+                    ) : null}
+                  </>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
