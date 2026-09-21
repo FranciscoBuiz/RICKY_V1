@@ -132,12 +132,23 @@ decide qué se dibuja, no qué se permite:** la autorización sigue entera en la
   fallar al pedir datos. Es la misma decisión de fallar cerrado que ya tomaba
   `getSession`, pero es distinto a lo de antes.
 
+**El topbar dice quién sos.** Con los controles condicionados por rol, un Solo lectura
+veía un panel con menos cosas y nada le explicaba por qué: la diferencia se leía como
+una falla y no como un permiso. El topbar muestra ahora el nombre y un pill con el rol
+—los tres en tono neutro, porque colorearlos distinto insinuaría un ranking entre las
+personas del equipo—. En mobile queda sólo el pill. El costo: `/admin` era la última
+página del panel que se servía estática y pasó a dinámica, porque ahora también lee la
+cookie.
+
 **Verificación de esta ronda**, corrida sobre cada uno de los tres commits:
 
 - Tanda 1 (guardas): **139 tests, 13 archivos**; typecheck limpio.
 - Tanda 2 (costos): **149 tests, 15 archivos**; typecheck limpio.
 - Tanda 3 (panel): **155 tests, 16 archivos**; typecheck limpio; `npm run build` compila,
   33 rutas.
+- El topbar con el usuario no suma tests: `UserRole` ya es la etiqueta que se muestra,
+  así que no hay lógica nueva. Lo verifican el typecheck sobre las cinco páginas y las
+  cinco vistas, y el build.
 
 El backend no se tocó, así que sus 64 tests no se volvieron a correr.
 
@@ -212,9 +223,10 @@ Lo que sobreviva se mata con `taskkill /PID <pid> /T /F` (el `/T` es el que se l
   propio ciclo.
 - **No se pueden subir fotos desde el panel.** Las 45 de la semilla se versionan en el
   repo; un vehículo nuevo va a mostrar el marcador de bandas.
-- **El panel no muestra quién está conectado ni con qué rol.** El rol ya llega a las
-  vistas y decide qué se dibuja, pero `AdminShell` no lo dice en ningún lado: alguien
-  con Solo lectura ve un panel con menos cosas sin que nada le explique por qué.
+- **No se puede cerrar sesión desde el panel.** El backend expone `POST /auth/logout`
+  desde la ronda de autenticación y nada del frontend lo llama. La única forma de
+  salir es borrar la cookie a mano. Se nota más ahora que el topbar dice quién está
+  conectado: el nombre está a la vista y no hay forma de cambiarlo.
 - **`PATCH /users/:id` revoca las sesiones del afectado siempre**, así que un admin que se
   edite a sí mismo el `status` se desloguea solo.
 - **`npm audit` en el frontend queda con 2 High y 1 Moderate, ningún Critical.** Next se
