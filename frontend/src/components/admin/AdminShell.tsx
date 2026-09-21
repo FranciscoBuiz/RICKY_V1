@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useEffect, useState, type CSSProperties } from 'react';
 import { DarkToggle } from '@/components/site/DarkToggle';
+import { useToast } from '@/components/ui/Toast';
+import { apiSend } from '@/lib/api';
 import { pillStyle, rolPill } from '@/lib/design';
 import { useIsNarrow } from '@/lib/hooks';
 import { useTheme } from '@/lib/theme';
@@ -37,6 +39,8 @@ export function AdminShell({ active, title, actions, usuario, children }: AdminS
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isMobile = useIsNarrow(900);
   const { dark } = useTheme();
+  const toast = useToast();
+  const [saliendo, setSaliendo] = useState(false);
 
   // Al pasar a escritorio el cajón deja de tener sentido: la barra vuelve a
   // estar siempre a la vista.
@@ -75,6 +79,27 @@ export function AdminShell({ active, title, actions, usuario, children }: AdminS
         flexShrink: 0,
         overflowY: 'auto',
       };
+
+  async function cerrarSesion() {
+    setSaliendo(true);
+    try {
+      await apiSend('/api/auth/logout', 'POST');
+    } catch (error) {
+      /* La sesión sigue viva: mandarlo a /login le haría creer que salió. Se
+         queda donde está y se le dice qué pasó. */
+      setSaliendo(false);
+      toast.error(
+        'No pudimos cerrar tu sesión',
+        error instanceof Error ? error.message : 'Probá de nuevo en un momento.',
+      );
+      return;
+    }
+
+    /* Navegación dura y no `router.replace`: hay que tirar el caché del router y
+       todo el estado cliente del panel. Una navegación blanda puede repintar una
+       pantalla con datos de la sesión que acaba de morir. */
+    window.location.assign('/login');
+  }
 
   const sidebar = (
     <aside
@@ -127,6 +152,31 @@ export function AdminShell({ active, title, actions, usuario, children }: AdminS
           </Link>
         );
       })}
+
+      {usuario && (
+        <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+          <button
+            type="button"
+            onClick={cerrarSesion}
+            disabled={saliendo}
+            className="ui-btn"
+            style={{
+              width: '100%',
+              textAlign: 'left',
+              border: 'none',
+              background: 'none',
+              padding: '10px 12px',
+              fontSize: 14,
+              fontWeight: 500,
+              color: 'var(--muted)',
+              cursor: saliendo ? 'progress' : 'pointer',
+              borderRadius: 3,
+            }}
+          >
+            {saliendo ? 'Saliendo…' : 'Cerrar sesión'}
+          </button>
+        </div>
+      )}
     </aside>
   );
 

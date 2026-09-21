@@ -7,6 +7,10 @@ async function parse<T>(response: Response): Promise<T> {
     const body = (await response.json().catch(() => null)) as { error?: string } | null;
     throw new Error(body?.error ?? `Error ${response.status}`);
   }
+  // 204 es "listo, no hay nada que contarte": no tiene cuerpo que parsear, y
+  // pedirle JSON al vacio tira SyntaxError sobre una respuesta que salio bien.
+  if (response.status === 204) return null as T;
+
   return (await response.json()) as T;
 }
 
