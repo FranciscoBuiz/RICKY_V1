@@ -132,6 +132,14 @@ decide qué se dibuja, no qué se permite:** la autorización sigue entera en la
   fallar al pedir datos. Es la misma decisión de fallar cerrado que ya tomaba
   `getSession`, pero es distinto a lo de antes.
 
+**Se puede salir.** El pie de la barra lateral tiene "Cerrar sesión": `POST
+/auth/logout` ya existía en el backend y nada lo llamaba. La navegación posterior es
+dura (`window.location.assign`) para tirar el caché del router y el estado cliente; si
+el POST falla no se redirige, porque la sesión sigue viva y mandar a `/login` a alguien
+que sigue adentro le haría creer que salió. Esto destapó un bug del helper compartido:
+`parse()` hacía `response.json()` sobre un 204 y tiraba `SyntaxError`, así que una
+respuesta sin cuerpo se veía como un error. Arreglado, con tres tests.
+
 **El topbar dice quién sos.** Con los controles condicionados por rol, un Solo lectura
 veía un panel con menos cosas y nada le explicaba por qué: la diferencia se leía como
 una falla y no como un permiso. El topbar muestra ahora el nombre y un pill con el rol
@@ -149,6 +157,8 @@ cookie.
 - El topbar con el usuario no suma tests: `UserRole` ya es la etiqueta que se muestra,
   así que no hay lógica nueva. Lo verifican el typecheck sobre las cinco páginas y las
   cinco vistas, y el build.
+- Con el logout y el 204 de `parse()`: **158 tests, 17 archivos**; typecheck limpio;
+  build compila.
 
 El backend no se tocó, así que sus 64 tests no se volvieron a correr.
 
@@ -223,10 +233,6 @@ Lo que sobreviva se mata con `taskkill /PID <pid> /T /F` (el `/T` es el que se l
   propio ciclo.
 - **No se pueden subir fotos desde el panel.** Las 45 de la semilla se versionan en el
   repo; un vehículo nuevo va a mostrar el marcador de bandas.
-- **No se puede cerrar sesión desde el panel.** El backend expone `POST /auth/logout`
-  desde la ronda de autenticación y nada del frontend lo llama. La única forma de
-  salir es borrar la cookie a mano. Se nota más ahora que el topbar dice quién está
-  conectado: el nombre está a la vista y no hay forma de cambiarlo.
 - **`PATCH /users/:id` revoca las sesiones del afectado siempre**, así que un admin que se
   edite a sí mismo el `status` se desloguea solo.
 - **`npm audit` en el frontend queda con 2 High y 1 Moderate, ningún Critical.** Next se
